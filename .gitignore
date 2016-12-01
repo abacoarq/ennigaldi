@@ -32,3 +32,4 @@ Session.vim
 # Python and venv
 *.pyc
 venv
+*.log
