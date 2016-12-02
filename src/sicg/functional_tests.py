@@ -17,7 +17,7 @@ class entryTest(unittest.TestCase):
 
     def test_fillEntry(self):
         # User loads home page and finds login prompt
-        self.driver.get('http://127.0.0.1:8000')
+        self.driver.get('http://127.0.0.1:8000/m305')
         assert self.driver.find_element_by_tag_name('form')
 
         # Prominent button/link to add a new object (A)
