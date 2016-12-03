@@ -38,11 +38,6 @@ class ObjectId(models.Model):
     # DCMI         extent > count
     # SICG         3.4.2.1 Número de partes
     number_of_objects = models.PositiveIntegerField()
-    # Spectrum 4.0 Object name
-    # VRA Cores 4  title
-    # DCMI         title
-    # SICG         1.3 Identificação do bem
-    object_name = models.ForeignKey(ObjectName, on_delete=models.CASCADE)
     # SICG         1.1 Recorte territorial
     territorial_context = models.CharField(max_length=200)
     # VRA Core 4   cultural_context
@@ -60,8 +55,9 @@ class OtherObjectNumber(models.Model):
 # Spectrum 4.0 Object name
 # VRA Core 4   title
 # DCMI         title
-# SICG         7.4 Demais códigos?
+# SICG         1.3 Identificação do bem
 class ObjectName(models.Model):
+    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
     object_name = models.CharField(max_length=200)
     # Spectrum 4.0 Object name currency
     # VRA Core 4   title
@@ -86,6 +82,7 @@ class ObjectNameType(models.Model):
 # VRA Core 4   title
 # DCMI         title
 class ObjectTitle(models.Model):
+    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
     object_title = models.CharField(max_length=200)
     object_title_translation = models.CharField(max_length=200)
     object_title_language = models.ForeignKey(IsoLanguage, on_delete=models.CASCADE)
@@ -93,6 +90,57 @@ class ObjectTitle(models.Model):
     # VRA Core 4   title > pref
     # DCMI         title.alternative
     object_title_preferred = models.BooleanField()
+
+# Spectrum 4.0 Object production information
+# VRA Core 4   date, agent
+# DCMI         created
+class ObjectProduction(models.Model):
+    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
+    agent = models.ForeignKey(Agent, on_delet=models.SET_NULL)
+    production_note = models.TextField()
+    # Move this to a Foreign key later on
+    production_location = models.CharField(max_length=200)
+    # Spectrum 4.0 Technique
+    # VRA Core 4   tech_name
+    production_technique = models.CharField(max_length=200)
+    production_technique_type = models.ForeignKey(TechniqueType, on_delete=PROTECT)
+
+# Spectrum 4.0 Object description information, production date
+# VRA Core 4   date
+# DCMI         created
+# SICG         2.1 Datação
+class ObjectDate(models.Model):
+    date_type = models.ForeignKey(DateType, on_delete=models.PROTECT)
+    date_earliest = models.CharField(max_length=200)
+    date_earliest_accuracy = models.ForeignKey(DateAccuracy, on_delete=models.PROTECT)
+    date_earliest_unit = models.ForeignKey(AgeUnit, on_delete=models.PROTECT)
+    date_latest = models.CharField(max_length=200)
+    date_latest_accuracy = models.ForeignKey(DateAccuracy, on_delete=models.PROTECT)
+    date_latest_unit = models.ForeignKey(AgeUnit, on_delete=models.PROTECT)
+    date_source = models.CharField(max_length=200)
+
+# Spectrum 4.0 Age qualification
+# VRA Core 4   date_type
+class DateType(models.Model):
+    date_type = models.CharField(max_length=72)
+
+# VRA Core 4   date_earliest_accuracy, date_latest_accuracy
+class DateAccuracy(models.Model):
+    date_accuracy = models.CharField(max_length=200)
+
+# Spectrum 4.0 Age unit
+class AgeUnit(models.Model):
+    age_unit = models.CharField(max_length=72)
+
+# Spectrum 4.0 Production > Technique type
+class TechniqueType(models.Model):
+    production_technique_type = models.CharField(max_length = 200)
+
+# Move to a specific application for metadata when project grows:
+# Spectrum 4.0 organization, people, person
+# VRA Core 4   agent
+class Agent(models.Model):
+    None
 
 # Move to a specific application for metadata when project grows:
 # Spectrum 4.0 Language
