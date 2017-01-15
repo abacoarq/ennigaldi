@@ -171,6 +171,56 @@ class Agent(models.Model):
 class IsoLanguage(models.Model):
     language_iso = models.CharField(max_length=16)
     language = models.CharField(max_length=64)
+# /Spectrum 4.0 Object description information, production date
+###########################################################
+
+###########################################################
+# Spectrum 4.0 Object description information
+class ObjectDescription(models.Model):
+    # colour to be replaced by fkey to controlled vocab
+    colour = CharField(max_length=64)
+    # status to be replaced by fkey to list of possible statuses
+    status = CharField(max_length=200)
+
+# object type selector should activate only
+# the appropriate class, if any, below.
+class ObjectBibliographic(models.Model):
+    copy_number = CharField(max_length=16)
+    edition_number = CharField(max_length=64)
+    form = CharField(max_length=200)
+
+class ObjectBiological(models.Model):
+    # phase to be replaced by fkey to controlled vocab
+    phase = models.CharField(max_length=200)
+    physical_description = models.TextField()
+    sex = models.BooleanField()
+
+class ObjectArtwork(models.Model):
+    # style to be replaced by fkey to controlled vocab
+    style = models.CharField(max_length=200)
+
+# Helper classes to Object Description start here.
+
+class ObjectDescriptionContent(models.Model):
+    None
+
+class ObjectDimension(models.Model):
+    None
+
+class ObjectInscription(models.Model):
+    None
+
+class ObjectMaterial(models.Model):
+    None
+
+class TechnicalAttribute(models.Model):
+    None # still have to figure out what it's supposed to do
+
+class ObjectComponent(models.Model):
+    None
+# /Spectrum 4.0 Object description information
+###########################################################
+
 
 ###########################################################
 # Spectrum 4.0 Location information
