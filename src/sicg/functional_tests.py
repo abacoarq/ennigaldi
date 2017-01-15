@@ -66,5 +66,10 @@ class entryTest(unittest.TestCase):
     # The list can be reordered according to several criteria, at least:
     # title, agent, accession number.
 
+class xrefTests(unittest.TestCase):
+    # Test every entry that has a foreign key to check
+    # if it is referencing properly.
+    self.fail('Finish the fkey tests.')
+
 if __name__ == '__main__':
     unittest.main()
