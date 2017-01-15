@@ -1,5 +1,6 @@
 from django.db import models
 
+###########################################################
 # Spectrum 4.0 Object Identification Information
 # VRA Core 4   Namespace root level
 # DCMI         Namespace root level
@@ -91,6 +92,10 @@ class ObjectTitle(models.Model):
     # DCMI         title.alternative
     object_title_preferred = models.BooleanField()
 
+# /Spectrum 4.0 Object identification information
+###########################################################
+
+###########################################################
 # Spectrum 4.0 Object production information
 # VRA Core 4   date, agent
 # DCMI         created
@@ -103,9 +108,26 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Technique
     # VRA Core 4   tech_name
     production_technique = models.CharField(max_length=200)
-    production_technique_type = models.ForeignKey(TechniqueType, on_delete=PROTECT)
+    production_technique_type = models.ForeignKey(TechniqueType, on_delete=models.PROTECT)
+# /Spectrum 4.0 Object production information
+###########################################################
 
+###########################################################
+# Spectrum 4.0 Object location information
+class ObjectLocation(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.PROTECT)
+    location_fitness = models.textField()
+    location_note = models.textField()
+    location_date = models.DateField()
+    normal_location = models.ForeignKey(Location, on_delete=models.PROTECT)
+# /Spectrum 4.0 Object location information
+###########################################################
+
+###########################################################
 # Spectrum 4.0 Object description information, production date
+# To be replaced with more robust date application that
+# can be machine read to produce timelines and comparisons:
+# see theoretical model at http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
 # VRA Core 4   date
 # DCMI         created
 # SICG         2.1 Datação
@@ -149,3 +171,10 @@ class Agent(models.Model):
 class IsoLanguage(models.Model):
     language_iso = models.CharField(max_length=16)
     language = models.CharField(max_length=64)
+
+###########################################################
+# Spectrum 4.0 Location information
+class Location(models.Model):
+    None
+# /Spectrum 4.0 Location information
+###########################################################
