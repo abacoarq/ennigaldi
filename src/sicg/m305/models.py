@@ -120,17 +120,21 @@ class ObjectLocation(models.Model):
     location_note = models.textField()
     location_date = models.DateField()
     normal_location = models.ForeignKey(Location, on_delete=models.PROTECT)
+
+# Spectrum 4.0 Location information
+class Location(models.Model):
+    None
 # /Spectrum 4.0 Object location information
 ###########################################################
 
 ###########################################################
-# Spectrum 4.0 Object description information, production date
-# To be replaced with more robust date application that
-# can be machine read to produce timelines and comparisons:
-# see theoretical model at http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
+# Spectrum 4.0 Object production information
 # VRA Core 4   date
 # DCMI         created
 # SICG         2.1 Datação
+# To be replaced with more robust date application that
+# can be machine read to produce timelines and comparisons:
+# see theoretical model at http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
 class ObjectDate(models.Model):
     date_type = models.ForeignKey(DateType, on_delete=models.PROTECT)
     date_earliest = models.CharField(max_length=200)
@@ -159,19 +163,13 @@ class TechniqueType(models.Model):
     production_technique_type = models.CharField(max_length = 200)
 
 # Move to a specific application for metadata when project grows:
-# Spectrum 4.0 organization, people, person
-# VRA Core 4   agent
-class Agent(models.Model):
-    None
-
-# Move to a specific application for metadata when project grows:
 # Spectrum 4.0 Language
 # VRA Core 4   xml:lang
 # DCMI         language
 class IsoLanguage(models.Model):
     language_iso = models.CharField(max_length=16)
     language = models.CharField(max_length=64)
-# /Spectrum 4.0 Object description information, production date
+# /Spectrum 4.0 Object production information
 ###########################################################
 
 ###########################################################
@@ -180,23 +178,24 @@ class IsoLanguage(models.Model):
 # DCMI         description
 class ObjectDescription(models.Model):
     # colour to be replaced by fkey to controlled vocab
+    # No VRA Core 4 equivalent
     colour = CharField(max_length=64)
     # status to be replaced by fkey to list of possible statuses
+    # VRA Core 4  status
     status = CharField(max_length=200)
 
 # object type selector should activate only
 # the appropriate class, if any, below.
 # VRA Core 4  StateEdition, issue
-# DCMI        hasFormat, hasVersion, isFormatOf, isReplacedBy, issued,
-#             isVersionOf, modified, replaces
+# DCMI        hasFormat, issued
 class ObjectBibliographic(models.Model):
     copy_number = CharField(max_length=16)
     edition_number = CharField(max_length=64)
     form = CharField(max_length=200)
 
 class ObjectBiological(models.Model):
+    # No VRA Core 4 equivalent to BiologicalObject
     # phase to be replaced by fkey to controlled vocab
-    # No VRA Core 4 equivalent
     phase = models.CharField(max_length=200)
     physical_description = models.TextField()
     sex = models.BooleanField()
@@ -207,6 +206,9 @@ class ObjectArtwork(models.Model):
     # Dublin Core coverage
     # SICG        recorte temático
     style = models.CharField(max_length=200)
+    # Cultural Context to be replaced by fkey to controlled vocab
+    # No Spectrum 4.0 equivalent for Cultural Context
+    cultural_context = models.CharField(max_length=200)
 
 # Helper classes to Object Description start here.
 
@@ -230,10 +232,11 @@ class ObjectComponent(models.Model):
 # /Spectrum 4.0 Object description information
 ###########################################################
 
-
 ###########################################################
-# Spectrum 4.0 Location information
-class Location(models.Model):
+# Move to a specific application for metadata when project grows:
+# Spectrum 4.0 organization, people, person
+# VRA Core 4   agent
+class Agent(models.Model):
     None
-# /Spectrum 4.0 Location information
+# /Spectrum 4.0 organization, people, person
 ###########################################################
