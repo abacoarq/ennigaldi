@@ -75,23 +75,13 @@ class ObjectName(models.Model):
     # VRA Core 4   title > pref
     # DCMI         title.alternative
     object_name_preferred = models.BooleanField()
+    # Spectrum 4.0 distinguishes between name and title
+    object_title = models.BooleanField()
+    object_title_translation = models.CharField(max_length=200)
 
 class ObjectNameType(models.Model):
+    # to be replaced by fkey to allowed types list
     object_name_type = models.CharField(max_length=200)
-
-# Spectrum 4.0 Object title
-# VRA Core 4   title
-# DCMI         title
-class ObjectTitle(models.Model):
-    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
-    object_title = models.CharField(max_length=200)
-    object_title_translation = models.CharField(max_length=200)
-    object_title_language = models.ForeignKey(IsoLanguage, on_delete=models.CASCADE)
-    object_title_type = models.ForeignKey(ObjectNameType, on_delete=models.CASCADE)
-    # VRA Core 4   title > pref
-    # DCMI         title.alternative
-    object_title_preferred = models.BooleanField()
-
 # /Spectrum 4.0 Object identification information
 ###########################################################
 
