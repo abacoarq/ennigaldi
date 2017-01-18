@@ -39,12 +39,6 @@ class ObjectId(models.Model):
     # DCMI         extent > count
     # SICG         3.4.2.1 Número de partes
     number_of_objects = models.PositiveIntegerField()
-    # SICG         1.1 Recorte territorial
-    territorial_context = models.CharField(max_length=200)
-    # VRA Core 4   cultural_context
-    # DCMI         coverage
-    # SICG         1.2 Recorte temático
-    cultural_context = models.CharField(max_length=200)
 
 # Spectrum 4.0 Other object number
 # SICG         7.4 Demais códigos
@@ -118,7 +112,30 @@ class Location(models.Model):
 ###########################################################
 
 ###########################################################
-# Spectrum 4.0 Object production information
+# Spectrum 4.0 Object description information
+
+# Simple description fields grouped under this class
+# for convenience
+class ObjectDescription(models.Model):
+    # Spectrum 4.0 physical description
+    # VRA Core 4   description
+    # DCMI         description
+    physical_description = models.TextField()
+    # colour to be replaced by fkey to controlled vocab
+    # Spectrum 4.0 colour
+    # No VRA Core 4 equivalent
+    colour = CharField(max_length=64)
+    # status to be replaced by fkey to list of possible statuses
+    # Spectrum 4.0 status
+    # VRA Core 4   status
+    status = CharField(max_length=200)
+    # territorial_context to be replaced by an advanced location app?
+    # No Spectrum 4.0, VRA Core equivalent for territorial_context
+    # SICG         1.1 Recorte territorial
+    # DCMI         coverage
+    territorial_context = models.CharField(max_length=200)
+
+# Spectrum 4.0 age
 # VRA Core 4   date
 # DCMI         created
 # SICG         2.1 Datação
@@ -148,32 +165,6 @@ class DateAccuracy(models.Model):
 class AgeUnit(models.Model):
     age_unit = models.CharField(max_length=72)
 
-# Spectrum 4.0 Production > Technique type
-class TechniqueType(models.Model):
-    production_technique_type = models.CharField(max_length = 200)
-
-# Move to a specific application for metadata when project grows:
-# Spectrum 4.0 Language
-# VRA Core 4   xml:lang
-# DCMI         language
-class IsoLanguage(models.Model):
-    language_iso = models.CharField(max_length=16)
-    language = models.CharField(max_length=64)
-# /Spectrum 4.0 Object production information
-###########################################################
-
-###########################################################
-# Spectrum 4.0 Object description information
-# VRA Core 4   description
-# DCMI         description
-class ObjectDescription(models.Model):
-    # colour to be replaced by fkey to controlled vocab
-    # No VRA Core 4 equivalent
-    colour = CharField(max_length=64)
-    # status to be replaced by fkey to list of possible statuses
-    # VRA Core 4  status
-    status = CharField(max_length=200)
-
 # object type selector should activate only
 # the appropriate class, if any, below.
 # VRA Core 4  StateEdition, issue
@@ -187,10 +178,9 @@ class ObjectBiological(models.Model):
     # No VRA Core 4 equivalent to BiologicalObject
     # phase to be replaced by fkey to controlled vocab
     phase = models.CharField(max_length=200)
-    physical_description = models.TextField()
     sex = models.BooleanField()
 
-class ObjectArtwork(models.Model):
+class ObjectArtifact(models.Model):
     # style to be replaced by fkey to controlled vocab
     # VRA Core 4  style_period
     # Dublin Core coverage
@@ -198,6 +188,9 @@ class ObjectArtwork(models.Model):
     style = models.CharField(max_length=200)
     # Cultural Context to be replaced by fkey to controlled vocab
     # No Spectrum 4.0 equivalent for Cultural Context
+    # VRA Core 4   cultural_context
+    # DCMI         coverage
+    # SICG         1.2 Recorte temático
     cultural_context = models.CharField(max_length=200)
 
 # Helper classes to Object Description start here.
@@ -229,4 +222,15 @@ class ObjectComponent(models.Model):
 class Agent(models.Model):
     None
 # /Spectrum 4.0 organization, people, person
+###########################################################
+
+###########################################################
+# Move to a specific application for metadata when project grows:
+# Spectrum 4.0 Language
+# VRA Core 4   xml:lang
+# DCMI         language
+class IsoLanguage(models.Model):
+    language_iso = models.CharField(max_length=16)
+    language = models.CharField(max_length=64)
+# /Spectrum 4.0 Language
 ###########################################################
