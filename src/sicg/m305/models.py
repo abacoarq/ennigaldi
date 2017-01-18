@@ -55,7 +55,7 @@ class OtherObjectNumber(models.Model):
 # DCMI         title
 # SICG         1.3 Identificação do bem
 class ObjectName(models.Model):
-    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
+    work = models.ForeignKey(ObjectIdentification, on_delete=models.CASCADE)
     object_name = models.CharField(max_length=200)
     # Spectrum 4.0 Object name currency
     # VRA Core 4   title
@@ -87,15 +87,17 @@ class ObjectNameType(models.Model):
 # VRA Core 4   date, agent
 # DCMI         created
 class ObjectProduction(models.Model):
-    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
-    agent = models.ForeignKey(Agent, on_delet=models.SET_NULL)
+    work = models.ForeignKey(ObjectIdentification, on_delete=models.CASCADE)
+    production_agent = models.ForeignKey(Agent, on_delet=models.PROTECT)
     production_note = models.TextField()
     # Move this to a Foreign key later on
     production_location = models.CharField(max_length=200)
     # Spectrum 4.0 Technique
+    # The following field declares the original function served
+    # by the object, that is, the justification for its production
+    technical_justification = models.TextField()
     # VRA Core 4   tech_name
-    production_technique = models.CharField(max_length=200)
-    production_technique_type = models.ForeignKey(TechniqueType, on_delete=models.PROTECT)
+    technique_type = models.ForeignKey(TechniqueType, on_delete=models.PROTECT)
 # /Spectrum 4.0 Object production information
 ###########################################################
 
