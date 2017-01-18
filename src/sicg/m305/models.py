@@ -176,6 +176,8 @@ class IsoLanguage(models.Model):
 
 ###########################################################
 # Spectrum 4.0 Object description information
+# VRA Core 4   description
+# DCMI         description
 class ObjectDescription(models.Model):
     # colour to be replaced by fkey to controlled vocab
     colour = CharField(max_length=64)
@@ -184,6 +186,9 @@ class ObjectDescription(models.Model):
 
 # object type selector should activate only
 # the appropriate class, if any, below.
+# VRA Core 4  StateEdition, issue
+# DCMI        hasFormat, hasVersion, isFormatOf, isReplacedBy, issued,
+#             isVersionOf, modified, replaces
 class ObjectBibliographic(models.Model):
     copy_number = CharField(max_length=16)
     edition_number = CharField(max_length=64)
@@ -191,12 +196,16 @@ class ObjectBibliographic(models.Model):
 
 class ObjectBiological(models.Model):
     # phase to be replaced by fkey to controlled vocab
+    # No VRA Core 4 equivalent
     phase = models.CharField(max_length=200)
     physical_description = models.TextField()
     sex = models.BooleanField()
 
 class ObjectArtwork(models.Model):
     # style to be replaced by fkey to controlled vocab
+    # VRA Core 4  style_period
+    # Dublin Core coverage
+    # SICG        recorte temático
     style = models.CharField(max_length=200)
 
 # Helper classes to Object Description start here.
