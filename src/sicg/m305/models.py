@@ -210,36 +210,56 @@ class ObjectStatus(models.Model):
 
 # Spectrum 4.0 can be used for Production date or Description age
 # VRA Core 4   date
-# DCMI         created
+# DCMI         created, etc.
 # SICG         Can be used with 2.1 Datação?
 # To be replaced with more robust date application that
 # can be machine read to produce timelines and comparisons:
 # see theoretical model at http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
+# This class is not restricted to Objects, but is named like so
+# to prevent conflicts with any built-in or third-party Date objects.
 class ObjectDate(models.Model):
     date_type = models.ForeignKey(DateType, on_delete=models.PROTECT)
     date_earliest = models.CharField(max_length=200)
-    date_earliest_accuracy = models.ForeignKey(DateAccuracy, on_delete=models.PROTECT)
+    date_earliest_accuracy = models.IntegerField(max_length=7)
     date_earliest_unit = models.ForeignKey(AgeUnit, on_delete=models.PROTECT)
+    date_earliest_qualifier = models.ForeignKey(AgeQualifier, on_delete=models.PROTECT)
     date_latest = models.CharField(max_length=200)
-    date_latest_accuracy = models.ForeignKey(DateAccuracy, on_delete=models.PROTECT)
+    date_latest_accuracy = models.IntegerField(max_length=7)
     date_latest_unit = models.ForeignKey(AgeUnit, on_delete=models.PROTECT)
+    date_latest_qualifier = models.ForeignKey(AgeQualifier, on_delete=models.PROTECT)
     date_source = models.CharField(max_length=200)
 
-# Spectrum 4.0 Age qualification
 # VRA Core 4   date_type
+# All other standards use a specific field for each date type,
+# e.g. Spectrum 4.0 Production date, DCMI created, issued, etc.
+# Therefore the only difference comes in rendering the output.
 class DateType(models.Model):
+    # A numeric id for this field is probably needed to make
+    # computations easier and more effective.
+    date_type_id = models.AutoField(max_length=1, primary_key=True)
+    # Date types in VRA Core are the types of events defined
+    # by that date, e.g. creation, discovery, removal, etc.
     date_type = models.CharField(max_length=72)
-
-# VRA Core 4   date_earliest_accuracy, date_latest_accuracy
-class DateAccuracy(models.Model):
-    date_accuracy = models.CharField(max_length=200)
-
 # Spectrum 4.0 Age unit
-class AgeUnit(models.Model):
-    age_unit = models.CharField(max_length=72)
+# VRA Core 4   date_earliest_unit, date_latest_unit
+class DateUnit(models.Model):
+    # A numeric id for this field is probably needed to make
+    # computations easier and more effective.
+    date_unit_id = models.AutoField(max_length=1, primary_key=True)
+    # Entries allowed in this field are time multipliers,
+    # e.g. decade, half-century, million years...
+    date_unit = models.CharField(max_length=200)
+# Spectrum 4.0 Age qualifier
+class AgeQualifier(models.Model):
+    # A numeric id for this field is probably needed to make
+    # computations easier and more effective.
+    age_qualifier_id = models.AutoField(max_length=1, primary_key=True)
+    # Only three entries are allowed: B.C., A.D., and B.P.
+    age_qualifier = models.CharField(max_length=16)
 
-# object type selector should activate only
-# the appropriate class, if any, below.
+# An Object type selector should activate only
+# the appropriate class, if any, when creating
+# an object record.
 # VRA Core 4  StateEdition, issue
 # DCMI        hasFormat, issued
 class ObjectBibliographic(models.Model):
