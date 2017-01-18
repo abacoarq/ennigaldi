@@ -116,6 +116,11 @@ class ObjectProduction(models.Model):
     technique_type = models.ForeignKey(TechniqueType, on_delete=models.PROTECT)
 
 class TechniqueType(models.Model):
+    # Spectrum 4.0 Technique
+    # This field actually records the Trade to which
+    # a specific Technique type belongs.
+    # Use controlled vocab
+    technique = models.CharField(max_length=64)
     # Use controlled vocab
     tecnique_type = models.CharField(max_length=200)
 # /Spectrum 4.0 Object production information
@@ -123,6 +128,9 @@ class TechniqueType(models.Model):
 
 ###########################################################
 # Spectrum 4.0 Object location information
+# This group pertains only to locating an object in a
+# collection, e.g. in a gallery or shelf.
+# For places in the outside world, use GeographicLocation.
 class ObjectLocation(models.Model):
     # Spectrum 4.0 Location
     # VRA Core 4   location, but only as pertaining to
@@ -141,9 +149,6 @@ class ObjectLocation(models.Model):
     # Spectrum 4.0 Normal location
     normal_location = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
 
-# The following class is for registering accession locations only,
-# typically within the organization itself.
-# For places in the outside world, use GeographicLocation.
 class AccessionLocation(models.Model):
     # The physical address where this accession location resides.
     # Defaults to own organization, auto-fill from parent if exists:
@@ -169,14 +174,15 @@ class AccessionLocation(models.Model):
 # Simple description fields grouped under this class
 # for convenience
 class ObjectDescription(models.Model):
-    # Spectrum 4.0 physical description
+    # Spectrum 4.0 Physical description
     # VRA Core 4   description
     # DCMI         description
     physical_description = models.TextField()
     # colour to be replaced by fkey to controlled vocab
-    # Spectrum 4.0 colour
-    # No VRA Core 4 equivalent
-    colour = CharField(max_length=64)
+    # Meanwhile, prompt user to write comma-separated list
+    # Spectrum 4.0 Colour
+    # No equivalent in other standards
+    colour = CharField(max_length=200)
     # status to be replaced by fkey to list of possible statuses
     # Spectrum 4.0 status
     # VRA Core 4   status
