@@ -5,14 +5,17 @@ from django.db import models
 # VRA Core 4   Namespace root level
 # DCMI         Namespace root level
 # SICG         1.3, 1.4, 3.4, 7.4
-class ObjectId(models.Model):
+class ObjectIdentification(models.Model):
     # VRA Core 4   work_id
+    # DCMI         identifier
     # Must prepend with 'w_' when rendering XML.
+    # This is NOT the object accession number but a unique identifier!
+    # (See the VRA Core 4 spec for clarification)
     work_id = models.AutoField(max_length=7, primary_key=True)
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
-    # DCMI         identifier
     # SICG         1.4 Código identificador Iphan
+    # This IS the object accession number used in the organization.
     # Provide a JQuery action to pre-fill this field when
     # entering a new object, to conform to the chosen
     # standard of object numbering in the organization.
@@ -43,7 +46,7 @@ class ObjectId(models.Model):
 # Spectrum 4.0 Other object number
 # SICG         7.4 Demais códigos
 class OtherObjectNumber(models.Model):
-    work = models.ForeignKey(ObjectId, on_delete=models.CASCADE)
+    work_id = models.ForeignKey(ObjectIdentification, on_delete=models.CASCADE)
     other_object_number = models.CharField(max_length=72)
     other_object_number_type = models.CharField(max_length=200)
 
@@ -74,7 +77,7 @@ class ObjectName(models.Model):
     object_title_translation = models.CharField(max_length=200)
 
 class ObjectNameType(models.Model):
-    # to be replaced by fkey to allowed types list
+    # To be populated with allowed name types as per VRA Core 4
     object_name_type = models.CharField(max_length=200)
 # /Spectrum 4.0 Object identification information
 ###########################################################
