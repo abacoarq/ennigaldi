@@ -88,7 +88,7 @@ class ObjectNameType(models.Model):
 # DCMI         created
 class ObjectProduction(models.Model):
     work = models.ForeignKey(ObjectIdentification, on_delete=models.CASCADE)
-    production_agent = models.ForeignKey(Agent, on_delet=models.PROTECT)
+    production_agent = models.ForeignKey(Agent, on_delete=models.PROTECT)
     production_note = models.TextField()
     # Move this to a Foreign key later on
     production_location = models.CharField(max_length=200)
@@ -98,6 +98,10 @@ class ObjectProduction(models.Model):
     technical_justification = models.TextField()
     # VRA Core 4   tech_name
     technique_type = models.ForeignKey(TechniqueType, on_delete=models.PROTECT)
+
+class TechniqueType(models.Model):
+    # Use controlled vocab
+    tecnique_type = models.CharField(max_length=200)
 # /Spectrum 4.0 Object production information
 ###########################################################
 
