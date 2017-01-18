@@ -28,9 +28,9 @@ class ObjectIdentification(models.Model):
     # The following field could be used to automate
     # exhibition labels or website summaries.
     # Spectrum 4.0 Brief description
-    # VRA Core 4   description
+    # VRA Core 4   description, or not used?
     # DCMI         abstract
-    # SICG         4.1 Descrição formal
+    # SICG         4.1 Descrição formal, or not used?
     description = models.TextField()
     # Turn this into a fk for a bibliography model.
     # VRA Core 4   description_source
@@ -92,8 +92,14 @@ class ObjectNameType(models.Model):
 # Simple fields grouped under the following class:
 class ObjectProduction(models.Model):
     work = models.ForeignKey(ObjectIdentification, on_delete=models.CASCADE)
-    # Sprvytum 4.0 Production organization, people, person
-    # VRA Core 4   agent
+    # Spectrum 4.0 Production date, is a separate field
+    #              from Description age
+    # VRA Core 4   date + date_type=created
+    # DCMI         created
+    # SICG         2.1 Datação
+    production_date = models.ForeignKey(ObjectDate, on_delete=models.PROTECT)
+    # Spectrum 4.0 Production organization, people, person
+    # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
     production_agent = models.ForeignKey(Agent, on_delete=models.PROTECT)
     # Spectrum 4.0 Production note
@@ -120,6 +126,10 @@ class TechniqueType(models.Model):
     # This field actually records the Trade to which
     # a specific Technique type belongs.
     # Use controlled vocab
+    # Note: the most correct conceptual model would be to
+    # have the Technique as a fkey to another class
+    # containing the controlled vocab, but that would be
+    # too unwieldy in practice.
     technique = models.CharField(max_length=64)
     # Use controlled vocab
     tecnique_type = models.CharField(max_length=200)
@@ -175,28 +185,33 @@ class AccessionLocation(models.Model):
 # for convenience
 class ObjectDescription(models.Model):
     # Spectrum 4.0 Physical description
-    # VRA Core 4   description
+    # VRA Core 4   Append to description in output,
+    #              or standalone description,
+    #              or not used?
     # DCMI         description
     physical_description = models.TextField()
     # colour to be replaced by fkey to controlled vocab
     # Meanwhile, prompt user to write comma-separated list
     # Spectrum 4.0 Colour
     # No equivalent in other standards
-    colour = CharField(max_length=200)
-    # status to be replaced by fkey to list of possible statuses
+    colour = models.CharField(max_length=200)
     # Spectrum 4.0 status
     # VRA Core 4   status
-    status = CharField(max_length=200)
+    status = models.ForeignKey(ObjectStatus, on_delete=models.PROTECT)
     # territorial_context to be replaced by an advanced location app?
     # No Spectrum 4.0, VRA Core equivalent for territorial_context
     # SICG         1.1 Recorte territorial
     # DCMI         coverage
     territorial_context = models.CharField(max_length=200)
 
-# Spectrum 4.0 age
+class ObjectStatus(models.Model):
+    # This field contains a list of allowed statuses
+    status = models.CharField(max_length=64)
+
+# Spectrum 4.0 can be used for Production date or Description age
 # VRA Core 4   date
 # DCMI         created
-# SICG         2.1 Datação
+# SICG         Can be used with 2.1 Datação?
 # To be replaced with more robust date application that
 # can be machine read to produce timelines and comparisons:
 # see theoretical model at http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
