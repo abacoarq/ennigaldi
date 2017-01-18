@@ -6,9 +6,8 @@ from django.db import models
 # DCMI         Namespace root level
 # SICG         1.3, 1.4, 3.4, 7.4
 class ObjectIdentification(models.Model):
-    # VRA Core 4   work_id
+    # VRA Core 4   work_id, must prepend with 'w_' when rendering XML.
     # DCMI         identifier
-    # Must prepend with 'w_' when rendering XML.
     # This is NOT the object accession number but a unique identifier!
     # (See the VRA Core 4 spec for clarification)
     work_id = models.AutoField(max_length=7, primary_key=True)
@@ -24,19 +23,25 @@ class ObjectIdentification(models.Model):
     refid = models.CharField(max_length=72)
     # VRA Core 4   work > source
     # Auto populate with owner organization?
-    # Turn this into a fk for an agent model.
+    # Turn this into a fk for an agent model?
     source = models.CharField(max_length=200)
+    # The following field could be used to automate
+    # exhibition labels or website summaries.
     # Spectrum 4.0 Brief description
     # VRA Core 4   description
     # DCMI         abstract
-    # SICG         4.1 Descrição formal (compounded with other fields)
+    # SICG         4.1 Descrição formal
     description = models.TextField()
     # Turn this into a fk for a bibliography model.
+    # VRA Core 4   description_source
     description_source = models.CharField(max_length=200)
     # Spectrum 4.0 Comments
-    # SICG         4.1 Descrição formal (compounded with other fields)
+    # VRA Core 4   Append to description in output
+    # SICG         Append to 4.1 Descrição formal in output
     comments = models.TextField()
     # Spectrum 4.0 Distinguishing features
+    # VRA Core 4   Append to description in output
+    # SICG         Append to 4.1 Descrição formal in output
     distinguishing_features = models.TextField()
     # Spectrum 4.0 Number of objects
     # DCMI         extent > count
@@ -84,19 +89,30 @@ class ObjectNameType(models.Model):
 
 ###########################################################
 # Spectrum 4.0 Object production information
-# VRA Core 4   date, agent
-# DCMI         created
+# Simple fields grouped under the following class:
 class ObjectProduction(models.Model):
     work = models.ForeignKey(ObjectIdentification, on_delete=models.CASCADE)
+    # Sprvytum 4.0 Production organization, people, person
+    # VRA Core 4   agent
+    # DCMI         creator
     production_agent = models.ForeignKey(Agent, on_delete=models.PROTECT)
+    # Spectrum 4.0 Production note
+    # Not applicable in other standards?
     production_note = models.TextField()
-    # Move this to a Foreign key later on
-    production_location = models.CharField(max_length=200)
-    # Spectrum 4.0 Technique
+    # Spectrum 4.0 Production place
+    # VRA Core 4   location + location_type=creation
+    # DCMI         spatial
+    # SICG         2.3 Origem
+    production_location = models.ForeignKey(GeographicLocation, on_delete=models.PROTECT)
     # The following field declares the original function served
     # by the object, that is, the justification for its production
+    # Spectrum 4.0 Technical justification
+    # VRA Core 4   Use a content field?
     technical_justification = models.TextField()
+    # Spectrum 4.0 Technique type
     # VRA Core 4   tech_name
+    # Not covered in DCMI
+    # SICG         3.2 Técnicas
     technique_type = models.ForeignKey(TechniqueType, on_delete=models.PROTECT)
 
 class TechniqueType(models.Model):
@@ -108,21 +124,48 @@ class TechniqueType(models.Model):
 ###########################################################
 # Spectrum 4.0 Object location information
 class ObjectLocation(models.Model):
-    location = models.ForeignKey(Location, on_delete=models.PROTECT)
+    # Spectrum 4.0 Location
+    # VRA Core 4   location, but only as pertaining to
+    #              locating the object in the collection
+    # DCMI         spatial, same caveat as above
+    # Not available in SICG
+    location = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
+    # Spectrum 4.0 Location fitness
     location_fitness = models.textField()
+    # Spectrum 4.0 Location note
     location_note = models.textField()
+    # The following field records the date the object
+    # was moved to this location
+    # Spectrum 4.0 Location date
     location_date = models.DateField()
-    normal_location = models.ForeignKey(Location, on_delete=models.PROTECT)
+    # Spectrum 4.0 Normal location
+    normal_location = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
 
-# Spectrum 4.0 Location information
-class Location(models.Model):
-    None
+# The following class is for registering accession locations only,
+# typically within the organization itself.
+# For places in the outside world, use GeographicLocation.
+class AccessionLocation(models.Model):
+    # The physical address where this accession location resides.
+    # Defaults to own organization, auto-fill from parent if exists:
+    address = models.ForeignKey(GeographicLocation, on_delete=models.PROTECT)
+    # The organization (or person, people) that owns the Geographic Location.
+    # Defaults to own organization, auto-fill from parent if exists:
+    agent = models.ForeignKey(Agent, on_delete=models.PROTECT)
+    # Locations can be recursive for maximum flexibility,
+    # e.g. building > wing > room > furniture > shelf
+    # or in any other way required by the organization.
+    # Root-level locations will have this set to NULL:
+    location_parent = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
+    location_id = models.CharField(max_length=7)
+    # Keep the name short, follow conventions
+    location_name = models.CharField(max_length=32)
+    # Notes on the location or its name (e.g. "so-called", "condemned", etc.)
+    location_note = models.TextField()
 # /Spectrum 4.0 Object location information
 ###########################################################
 
 ###########################################################
 # Spectrum 4.0 Object description information
-
 # Simple description fields grouped under this class
 # for convenience
 class ObjectDescription(models.Model):
@@ -228,6 +271,7 @@ class ObjectComponent(models.Model):
 # Move to a specific application for metadata when project grows:
 # Spectrum 4.0 organization, people, person
 # VRA Core 4   agent
+# Dublin Core  contributor, creator, publisher
 class Agent(models.Model):
     None
 # /Spectrum 4.0 organization, people, person
@@ -242,4 +286,16 @@ class IsoLanguage(models.Model):
     language_iso = models.CharField(max_length=16)
     language = models.CharField(max_length=64)
 # /Spectrum 4.0 Language
+###########################################################
+
+###########################################################
+# General location information for use in several models
+# Move to a specific application for integration with PostGIS
+# and other metadata when project grows:
+# Spectrum 4.0 several fields use this information
+# VRA Core 4   location
+# DCMI         spatial
+class GeographicLocation(models.Model):
+    None
+# /VRA Core 4  location
 ###########################################################
