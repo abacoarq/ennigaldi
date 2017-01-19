@@ -9,8 +9,10 @@ from django.contrib.contenttypes.models import ContentType
 # VRA Core 4   Namespace root level
 # DCMI         Namespace root level
 # SICG         1.3, 1.4, 3.4, 7.4
+# This is the minimum required set of information to
+# identify an object.
 class ObjectIdentification(models.Model):
-    # VRA Core 4   work_id, must prepend with 'w_' when rendering XML.
+    # VRA Core 4   work, must prepend with 'w_' when rendering XML.
     # DCMI         identifier
     # This is NOT the object accession number but a unique identifier!
     # (See the VRA Core 4 spec for clarification)
@@ -19,12 +21,11 @@ class ObjectIdentification(models.Model):
     # VRA Core 4   refid
     # SICG         1.4 Código identificador Iphan
     # This IS the object accession number used in the organization.
-    # Provide a JQuery action to pre-fill this field when
-    # entering a new object, to conform to the chosen
-    # standard of object numbering in the organization.
-    # Also make up another application to keep track of the
-    # object numbers.
-    refid = models.CharField(max_length=72)
+    # The class that automates the creation of accession
+    # numbers should be in a dedicated application,
+    # so that it is more easily customized for each
+    # organization.
+    refid = models.OneToOneField('AccessionNumber', models.CASCADE, related_name='accession_number')
     # VRA Core 4   work > source
     # Default to own organization.
     source = models.CharField(max_length=200, default="My Museum")
@@ -101,7 +102,7 @@ class ObjectNameType(models.Model):
 # databases, breaking down this group into different
 # actions, each of them with a 'creation' type.
 class ObjectProduction(models.Model):
-    work_id = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Production date, is a separate field
     #              from Description age
     # VRA Core 4   date + date_type=created
@@ -197,7 +198,7 @@ class Location(models.Model):
 # Simple description fields grouped under this class
 # for convenience
 class ObjectDescription(models.Model):
-    work_id = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Physical description
     # VRA Core 4   Append to description in output,
     #              or standalone description,
@@ -301,7 +302,7 @@ class IssuedObject(models.Model):
     # manuscript books, and so on.
     # Issued objects are implicitly artifacts,
     # but it seemed easier to just replicate the fields.
-    work_id = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
     # Copy number and Edition number will most often be integers,
     # but the fields can accommodate other explanations
     # as needed.
@@ -332,14 +333,14 @@ class IssuedObject(models.Model):
 class Specimen(models.Model):
     # Biological specimens (live or preserved animals,
     # taxidermic work, fossils, etc.)
-    work_id = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
     # No VRA Core 4 equivalent to Specimen
     # phase to be replaced by fkey to controlled vocab
     phase = models.CharField(max_length=200)
     sex = models.BooleanField()
 class Artifact(models.Model):
     # Pretty much everything else you would find in a museum.
-    work_id = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
     # style to be replaced by fkey to controlled vocab
     # VRA Core 4  style_period
     # Dublin Core coverage
