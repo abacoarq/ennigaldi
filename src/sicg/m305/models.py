@@ -109,7 +109,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
     # SICG         2.3 Origem
-    production_location = models.ForeignKey(GeographicLocation, on_delete=models.PROTECT)
+    production_location = models.ForeignKey(Place, on_delete=models.PROTECT)
     # The following field declares the original function served
     # by the object, that is, the justification for its production
     # Spectrum 4.0 Technical justification
@@ -140,14 +140,14 @@ class TechniqueType(models.Model):
 # Spectrum 4.0 Object location information
 # This group pertains only to locating an object in a
 # collection, e.g. in a gallery or shelf.
-# For places in the outside world, use GeographicLocation.
+# For places in the outside world, use Place.
 class ObjectLocation(models.Model):
     # Spectrum 4.0 Location
     # VRA Core 4   location, but only as pertaining to
     #              locating the object in the collection
     # DCMI         spatial, same caveat as above
     # Not available in SICG
-    location = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
+    location = models.ForeignKey(Location, on_delete=models.PROTECT)
     # Spectrum 4.0 Location fitness
     location_fitness = models.textField()
     # Spectrum 4.0 Location note
@@ -157,12 +157,12 @@ class ObjectLocation(models.Model):
     # Spectrum 4.0 Location date
     location_date = models.DateField()
     # Spectrum 4.0 Normal location
-    normal_location = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
+    normal_location = models.ForeignKey(Location, on_delete=models.PROTECT)
 
-class AccessionLocation(models.Model):
+class Location(models.Model):
     # The physical address where this accession location resides.
     # Defaults to own organization, auto-fill from parent if exists:
-    address = models.ForeignKey(GeographicLocation, on_delete=models.PROTECT)
+    address = models.ForeignKey(Place, on_delete=models.PROTECT)
     # The organization (or person, people) that owns the Geographic Location.
     # Defaults to own organization, auto-fill from parent if exists:
     agent = models.ForeignKey(Agent, on_delete=models.PROTECT)
@@ -170,7 +170,7 @@ class AccessionLocation(models.Model):
     # e.g. building > wing > room > furniture > shelf
     # or in any other way required by the organization.
     # Root-level locations will have this set to NULL:
-    location_parent = models.ForeignKey(AccessionLocation, on_delete=models.PROTECT)
+    location_parent = models.ForeignKey(Location, on_delete=models.PROTECT)
     location_id = models.CharField(max_length=7)
     # Keep the name short, follow conventions
     location_name = models.CharField(max_length=32)
@@ -195,18 +195,16 @@ class ObjectDescription(models.Model):
     # Spectrum 4.0 Colour
     # No equivalent in other standards
     colour = models.CharField(max_length=200)
-    # Spectrum 4.0 status
+    # Spectrum 4.0 Object status
     # VRA Core 4   status
-    status = models.ForeignKey(ObjectStatus, on_delete=models.PROTECT)
+    # Should this be restricted to a controlled vocab
+    # or left open for any needed comments?
+    status = models.CharField(max_length=200)
     # territorial_context to be replaced by an advanced location app?
     # No Spectrum 4.0, VRA Core equivalent for territorial_context
     # SICG         1.1 Recorte territorial
     # DCMI         coverage
     territorial_context = models.CharField(max_length=200)
-
-class ObjectStatus(models.Model):
-    # This field contains a list of allowed statuses
-    status = models.CharField(max_length=64)
 
 # Spectrum 4.0 can be used for Production date or Description age
 # VRA Core 4   date
@@ -260,20 +258,31 @@ class AgeQualifier(models.Model):
 # An Object type selector should activate only
 # the appropriate class, if any, when creating
 # an object record.
-# VRA Core 4  StateEdition, issue
-# DCMI        hasFormat, issued
-class ObjectBibliographic(models.Model):
-    copy_number = CharField(max_length=16)
+# Bibliographic objects are implicitly artifacts,
+# but the reverse is not true.
+class BibliographicObject(models.Model):
+    # Copy number and Edition number will most often be integers,
+    # but the fields can accommodate other explanations
+    # as needed.
+    # Spectrum 4.0 Copy number
+    # VRA Core 4   issue_count
+    copy_number = CharField(max_length=64)
+    # VRA Core 4  issue, issue_name
+    # DCMI        issued
     edition_number = CharField(max_length=64)
+    # VRA Core 4  issue_type, issue_desc?
+    # DCMI        hasFormat, stateEdition
     form = CharField(max_length=200)
-
-class ObjectBiological(models.Model):
+    # VRA Core 4  issue_source
+    # No equivalent in other standards
+    # To be replaced by fkey to bibliographic record
+    issue_source = models.CharField(max_length=200)
+class BiologicalObject(models.Model):
     # No VRA Core 4 equivalent to BiologicalObject
     # phase to be replaced by fkey to controlled vocab
     phase = models.CharField(max_length=200)
     sex = models.BooleanField()
-
-class ObjectArtifact(models.Model):
+class Artifact(models.Model):
     # style to be replaced by fkey to controlled vocab
     # VRA Core 4  style_period
     # Dublin Core coverage
@@ -286,10 +295,36 @@ class ObjectArtifact(models.Model):
     # SICG         1.2 Recorte temático
     cultural_context = models.CharField(max_length=200)
 
-# Helper classes to Object Description start here.
-
+# Spectrum 4.0 Content
+# VRA Core 4   subject
+# Dublin Core  subject
+# Check if this is the proper way to do it, since objects
+# can have several of each field.
 class ObjectDescriptionContent(models.Model):
-    None
+    # Most fields here will need careful review of the way
+    # they are supposed to work in the Spectrum standard.
+    # Spectrum 4.0 Content - activity
+    content_activity = models.TextField()
+    # Spectrum 4.0 Content - concept
+    # VRA Core 4   subj_type > content > conceptTopic
+    content_concept = models.
+    # Spectrum 4.0 Content - date
+    # VRA Core 4   date + (date_type != creation)
+    # DCMI         several fields
+    content_date = models.ForeignKey(ObjectDate, on_delete=models.CASCADE)
+    # Spectrum 4.0 does not define a date_type field,
+    # but it makes sense that it should have one.
+    # VRA Core 4   date_type
+    content_description = models.
+    content_event_name = models. # for each a Content event name type
+    content_note = models.
+    content_object = models.ForeignKey(ObjectIdentification, on_delete=models.PROTECT)
+    # content_object needs content_object_type
+    # Spectrum 4.0 renders content_organisation, content_people, and content_person
+    content_agent = models.ForeignKey(Agent, on_delete=models.PROTECT)
+    content_place = models.ForeignKey(Place, on_delete=models.PROTECT)
+    content_position = models.
+    content_other = models.
 
 class ObjectDimension(models.Model):
     None
@@ -333,10 +368,10 @@ class IsoLanguage(models.Model):
 # General location information for use in several models
 # Move to a specific application for integration with PostGIS
 # and other metadata when project grows:
-# Spectrum 4.0 several fields use this information
+# Spectrum 4.0 several fields with 'place' data
 # VRA Core 4   location
 # DCMI         spatial
-class GeographicLocation(models.Model):
+class Place(models.Model):
     None
 # /VRA Core 4  location
 ###########################################################
