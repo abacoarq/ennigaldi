@@ -71,7 +71,7 @@ class ObjectName(models.Model):
     object_name = models.CharField(max_length=200)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
     # No equivalent in other standards
-    object_name_currency = models.DateField(auto_now_add=True)
+    object_name_currency = models.DateField(default=timezone.now, null=True, blank=True)
     object_name_level = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Object name notes
     # VRA Core 4   title > source
@@ -167,7 +167,7 @@ class ObjectLocation(models.Model):
     # The following field records the date the object
     # was moved to this location
     # Spectrum 4.0 Location date
-    location_date = models.DateTimeField(default=timezone.now())
+    location_date = models.DateTimeField(default=timezone.now)
     # Spectrum 4.0 Normal location
     normal_location = models.ForeignKey(Location, models.PROTECT)
 
