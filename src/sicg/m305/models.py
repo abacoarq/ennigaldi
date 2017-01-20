@@ -1,8 +1,7 @@
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
+from historicdate import HistoricDate, DateType
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -157,7 +156,7 @@ class ObjectProduction(models.Model):
     # applies to unrelated objects or events,
     # making it a one-to-one relationship keeps things cleaner,
     # even though inconsistent from a metadata-key point of view.
-    production_date = models.OneToOneField(HistoricDate, models.PROTECT)
+    production_date = models.OneToOneField(historicdate.HistoricDate, models.PROTECT)
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
@@ -274,8 +273,8 @@ class Specimen(models.Model):
     # Geologic samples, and other natural objects.
     work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
     # Spectrum 4.0 Age, age qualification, age unit
-    geological_age = models.OneToOneField(HistoricDate, models.CASCADE, null=True, blank=True)
-    # Biological age cannot use the HistoricDate class
+    geological_age = models.OneToOneField(historicdate.HistoricDate, models.CASCADE, null=True, blank=True)
+    # Biological age cannot use the historicdate.HistoricDate class
     # and needs its own definition.
     specimen_age = models.PositiveIntegerField(null=True, blank=True)
     specimen_age_qualification = models.PositiveSmallIntegerField(max_length=1, default=0, choices=age_qualification_choice, null=True, blank=True)
@@ -372,9 +371,8 @@ class ObjectDescription(models.Model):
     territorial_context = models.CharField(max_length=200, null=True, blank=True)
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
-    # as discussed in the HistoricDate class.
-    date = models.ManyToManyField(HistoricDate, models.CASCADE, through=DateType)
-
+    # as discussed in the historicdate.HistoricDate class.
+    date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.DateType)
 
 # Spectrum 4.0 Colour
 # No equivalent in other standards
@@ -383,100 +381,6 @@ class Colour(models.Model):
     colour = models.CharField(max_length=200)
     def __str__(self):
         return colour
-
-# Spectrum 4.0 can be used for Production date or Description age
-# VRA Core 4   date
-# DCMI         created, etc.
-# SICG         Can be used with 2.1 Datação?
-# Move to a dedicated application that can be machine read
-# to produce timelines and comparisons: see theoretical model at
-# http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
-class HistoricDate(models.Model):
-    # The date model does not follow ISO-8601 due to this standard's
-    # limitations for historical and fuzzy dates, which are
-    # required in a museum context.
-    date_earliest = models.PositiveIntegerField(max_length=7, null=True, blank=True)
-    date_earliest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
-    date_earliest_unit = models.PositiveIntegerField(max_length=2, choices=date_unit, default=0)
-    date_earliest_qualifier = models.PositiveSmallIntegerField(max_length=1, choices=age_qualifier, default=1)
-    date_latest = models.PositiveIntegerField(max_length=7, null=True, blank=True)
-    date_latest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
-    date_latest_unit = models.ForeignKey(AgeUnit, models.PROTECT)
-    date_latest_qualifier = models.PositiveSmallIntegerField(max_length=1, choices=age_qualifier, default=1)
-    date_source = models.CharField(max_length=200, null=True, blank=True)
-    # Text representation of the date, for when more complex
-    # explanations are required. If left blank, will be filled
-    # with rendered concatenation of the previous fields
-    # at a pre-save hook.
-    date_text = models.CharField(max_length=200, null=True, blank=True)
-
-    # VRA Core 4   only allows a True/False setting for 'circa'
-    # Not provided in other standards.
-    date_accuracy = (
-        (0, ''),
-        (1, 'before'),
-        (2, 'up to'),
-        (3, 'circa'),
-        (4, 'after'),
-        (5, 'from')
-    )
-    # No standard for date_unit
-    date_unit = (
-        (0, 'year'),
-        (1, 'decade'),
-        (2, 'quarter of century'),
-        (3, 'third of century'),
-        (4, 'half of century'),
-        (5, 'century'),
-        (6, 'quarter of millennium'),
-        (7, 'third of millennium'),
-        (8, 'half of millennium'),
-        (9, 'millennium'),
-        (10, 'million years'),
-        (11, 'billion years')
-    )
-    # Spectrum 4.0 Age qualifier
-    # B.P. should automatically render "age" instead of "date"
-    age_qualifier = (
-        (0, 'B.C.'),
-        (1, 'A.D.'),
-        (2, 'B.P.')
-    )
-
-    def __str__(self):
-        return date_text
-
-# VRA Core 4   date > type
-# In VRA Core, 'date' is an attribute of any of the
-# three root-level classes (work, agent, or image),
-# and has distinct allowed date types accordingly.
-# All other standards use a specific field for each date type,
-# e.g. Spectrum 4.0 Production date, DCMI created, issued, etc.
-class DateType(models.Model):
-    # Date types in VRA Core are the types of events defined
-    # by that date, e.g. creation, discovery, removal, etc.
-    date_type = models.PositiveSmallIntegerField(max_length=2, choices=date_types)
-    # VRA Core 4   date > source
-    # Turn into fkey to bibliographic record
-    date_source = models.CharField(max_length=200, null=True, blank=True)
-
-    date_types = (
-        (0, 'alteration'),
-        (1, 'broadcast'),
-        (2, 'bulk'),
-        (3, 'commission'),
-        (4, 'creation'),
-        (5, 'design'),
-        (6, 'destruction'),
-        (7, 'discovery'),
-        (8, 'exhibition'),
-        (9, 'inclusive'),
-        (10, 'performance'),
-        (11, 'publication'),
-        (12, 'restoration'),
-        (13, 'view'),
-        (14, 'other')
-    )
 
 # Spectrum 4.0 Content
 # VRA Core 4   subject
@@ -495,7 +399,7 @@ class ObjectDescriptionContent(models.Model):
     # Spectrum 4.0 Content - date
     # VRA Core 4   date + (date_type != creation)
     # DCMI         several fields
-    # content_date = models.ForeignKey(HistoricDate, models.CASCADE)
+    # content_date = models.ForeignKey(historicdate.HistoricDate, models.CASCADE)
     # Spectrum 4.0 does not define a date_type field,
     # but it makes sense that it should have one.
     # VRA Core 4   date_type
