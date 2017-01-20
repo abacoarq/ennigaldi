@@ -144,7 +144,7 @@ class ObjectName(models.Model):
 # to have these informations grouped in one place.
 #
 # This class should only be active if the Object
-# is of Artifact or IssuedObject type.
+# is of Artifact or ArtifactInstance type.
 class ObjectProduction(models.Model):
     work = models.OneToOneField(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Production date is a separate field
@@ -327,10 +327,10 @@ class Artifact(models.Model):
     # SICG         1.2 Recorte temático
     cultural_context = models.CharField(max_length=200, null=True, blank=True)
 
-class IssuedObject(Artifact):
+class ArtifactInstance(Artifact):
     # Printed material (books, engravings, etc.),
-    # manuscript books, and so on.
-    # Subclass of Artifact.
+    # photographs, and other objects that can have originals in
+    # several instances. Subclass of Artifact.
     # Copy number and Edition number will most often be integers,
     # but the fields can accommodate other explanations
     # as needed.
@@ -415,8 +415,59 @@ class ObjectDescriptionContent(models.Model):
     # content_other = models.
     pass
 
+# Spectrum 4.0 Object dimension
+# VRA Core 4   Measurements
+# DCMI         extent
+# SICG         3.3 Dimensões
 class ObjectDimension(models.Model):
-    pass
+    # Spectrum 4.0 Dimension measured part
+    # VRA Core 4   measurements > extent
+    # Use controlled vocab
+    dimension_part = models.CharField(max_length=32)
+    # VRA Core 4   measurements > type
+    # Other standards mix up 'part' and 'type',
+    # the latter of which is properly height, length,
+    # weight, etc.
+    dimension_type = models.PositiveSmallIntegerField(max_length=2, default=11, choices=measurement_type)
+    # Spectrum 4.0 Dimension value
+    # VRA Core 4   measurements (root)
+    # DCMI         fields according to dimension_type
+    dimension_value = models.PositiveIntegerField()
+    # Spectrum 4.0 Dimension value date
+    # VRA Core 4   measurements > dataDate
+    dimension_value_date = models.DateField(default=timezone.now)
+    # Spectrum 4.0 Dimension value qualifier
+    # Not provided in VRA Core or DCMI
+    # SICG         3.3.1 Precisa / 3.3.2 Aproximada
+    # False = exact measurement, True = approximate measurement
+    dimension_value_qualifier = models.BooleanField(default=False)
+
+    measurement_type = (
+        # Spectrum 4.0 Dimension measurement unit is implicit
+        # from the measurement type chosen, to make
+        # things simpler.
+        # Fields below provided by VRA Core 4.
+        (0, 'area (cm²)'),
+        (1, 'base (mm)'),
+        (2, 'bit-depth'),            # Spectrum Technical attribute measurement
+        (3, 'circumference (mm)'),
+        (4, 'count'),
+        (5, 'depth (mm)'),
+        (6, 'diameter (mm)'),
+        (7, 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
+        (8, 'duration (s)'),         # Spectrum Technical attribute measurement
+        (9, 'fileSize (kB)'),        # Spectrum Technical attribute measurement
+        (10, 'height (mm)'),
+        (11, 'length (mm)'),
+        (12, 'resolution (ppi)'),    # Spectrum Technical attribute measurement
+        (13, 'runningTime (s)'),     # Spectrum Technical attribute measurement
+        (14, 'scale'),               # Spectrum Technical attribute measurement
+        (15, 'size'),                # Spectrum Technical attribute measurement
+        (16, 'target'),              # Spectrum Technical attribute measurement
+        (17, 'weight (g)'),
+        (18, 'width (mm)'),
+        (19, 'other')                # Spectrum Technical attribute measurement
+    )
 
 class ObjectInscription(models.Model):
     pass
