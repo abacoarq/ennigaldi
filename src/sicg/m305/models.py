@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
-# VRA Core 4   Namespace root level
+# VRA Core 4   work
 # DCMI         Namespace root level
 # SICG         1.3, 1.4, 3.4, 7.4
 # This is the minimum required set of information to
@@ -28,7 +28,7 @@ class ObjectIdentification(models.Model):
     refid = models.OneToOneField('AccessionNumber', models.CASCADE, related_name='accession_number')
     # VRA Core 4   work > source
     # Default to own organization.
-    source = models.CharField(max_length=200, default="My Museum")
+    source = models.CharField(max_length=200, default="My Museum", null=True, blank=True)
     # The following field could be used to automate
     # exhibition labels or website summaries.
     # Spectrum 4.0 Brief description
@@ -40,7 +40,7 @@ class ObjectIdentification(models.Model):
     # VRA Core 4   description_source
     description_source = models.CharField(max_length=200, null=True, blank=True)
     # Spectrum 4.0 Comments
-    # VRA Core 4   description > notes
+    # VRA Core 4   work > notes
     # SICG         Append to 4.1 Descrição formal in output
     comments = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Distinguishing features
@@ -54,12 +54,18 @@ class ObjectIdentification(models.Model):
     # rather than manually entered here.
     number_of_objects = models.PositiveIntegerField(default="1")
 
+    def __str__(self):
+        return refid + " " + self.objectname_set.filter(object_name_preferred=True)
+
 # Spectrum 4.0 Other object number
 # SICG         7.4 Demais códigos
 class OtherObjectNumber(models.Model):
     object_identification = models.ForeignKey(ObjectIdentification, CASCADE)
-    other_object_number = models.CharField(max_length=72)
-    other_object_number_type = models.CharField(max_length=200)
+    object_number = models.CharField(max_length=72)
+    object_number_type = models.CharField(max_length=200)
+
+    def __str__(self):
+        return object_number_type + ': ' + object_number
 
 # Spectrum 4.0 Object name
 # VRA Core 4   title
@@ -68,47 +74,90 @@ class OtherObjectNumber(models.Model):
 class ObjectName(models.Model):
     # Although artifacts can often have the same name,
     # every other metadata will be object-specific.
-    object_identification = models.OneToOneField(ObjectIdentification, models.CASCADE)
+    object_identification = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    # The name itself:
     object_name = models.CharField(max_length=200)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
     # No equivalent in other standards
     object_name_currency = models.DateField(default=timezone.now, null=True, blank=True)
-    object_name_level = models.TextField(null=True, blank=True)
+    # Spectrum 4.0 Object name level
+    # Indicates at which level of a hierarchy this object is located,
+    # e.g. is it a specimen, a genus, a group, etc.
+    # Use controlled vocab
+    object_name_level = models.CharField(max_length=64, null=True, blank=True)
     # Spectrum 4.0 Object name notes
-    # VRA Core 4   title > source
+    # VRA Core 4   title > note
     object_name_note = models.TextField(null=True, blank=True)
-    object_name_system = models.CharField(max_length=72)
+    # Spectrum 4.0 object name reference system
+    # VRA Core 4   name > source
+    # Eventually replace with fkey to bibliographic record
+    object_name_source = models.CharField(max_length=200, null=True, blank=True)
     # VRA Core 4   title > xml:lang
     object_name_lang = models.ForeignKey(IsoLanguage, models.CASCADE)
     # Spectrum 4.0 Object name type
     # VRA Core 4   title > type
-    object_name_type = models.ForeignKey(ObjectNameType, models.CASCADE)
+    object_name_type = models.PositiveSmallIntegerField(max_length=2, choices=object_name_type, default=3)
     # VRA Core 4   title > pref
     # DCMI         title.alternative
-    object_name_preferred = models.BooleanField()
     # Spectrum 4.0 distinguishes between name and title
-    object_title = models.BooleanField()
-    object_title_translation = models.CharField(max_length=200)
+    # Best model practice is to render the Spectrum title field
+    # when there is a title_type = creator
+    object_name_preferred = models.BooleanField(default=False)
+    # This should only be filled if there is a foreign-language
+    # name of type 'creator' or 'inscribed'.
+    # Eventually this should be handled by rendering
+    # alternate language names.
+    object_title_translation = models.CharField(max_length=200, null=True, blank=True)
+    # VRA Core 4   work > title > type
+    object_name_type = (
+        (0, 'brandName'),
+        (1, 'cited'),
+        (2, 'creator'),
+        (3, 'descriptive'),
+        (4, 'former'),
+        (5, 'inscribed'),
+        (6, 'owner'),
+        (7, 'popular'),
+        (8, 'repository'),
+        (9, 'translated'),
+        (10, 'other'),
+    )
 
-class ObjectNameType(models.Model):
-    # To be populated with allowed name types as per VRA Core 4
-    object_name_type = models.CharField(max_length=200)
+    def __str__(self):
+        return object_name
 # /Spectrum 4.0 Object identification information
 ###########################################################
 
 ###########################################################
 # Spectrum 4.0 Object production information
+#
 # VRA Core 4 has a more robust implementation for
 # databases, breaking down this group into different
-# actions, each of them with a 'creation' type.
+# actions, each of them with a 'creation' type---
+# although this has loopholes, for example in
+# allowing more than one 'creation' date_type.
+# Spectrum prevents this problem even though this
+# makes for inconsistent storage.
+#
+# We are tentatively implementing the Spectrum
+# Object production information group as a class because
+# it makes sense from a human reader point of view
+# to have these informations grouped in one place.
+#
+# This class should only be active if the Object
+# is of Artifact or IssuedObject type.
 class ObjectProduction(models.Model):
-    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
-    # Spectrum 4.0 Production date, is a separate field
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE)
+    # Spectrum 4.0 Production date is a separate field
     #              from Description age
     # VRA Core 4   date + date_type=created
     # DCMI         created
     # SICG         2.1 Datação
-    production_date = models.ForeignKey(HistoricDate, models.PROTECT)
+    # While there can be rare occasions in which the same date set
+    # applies to unrelated objects or events,
+    # making it a one-to-one relationship keeps things cleaner,
+    # even though inconsistent from a metadata-key point of view.
+    production_date = models.OneToOneField(HistoricDate, models.PROTECT)
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
@@ -130,20 +179,26 @@ class ObjectProduction(models.Model):
     # VRA Core 4   tech_name
     # Not covered in DCMI
     # SICG         3.2 Técnicas
-    technique_type = models.ForeignKey(TechniqueType, models.PROTECT)
+    technique_type = models.ManyToManyField(TechniqueType, models.PROTECT)
+
+    def __str__(self):
+        return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=work)
 
 class TechniqueType(models.Model):
     # Spectrum 4.0 Technique
-    # This field actually records the Trade to which
+    # Rather than an actual technique name,
+    # this field in fact records the Trade to which
     # a specific Technique type belongs.
-    # Use controlled vocab
-    # Note: the most correct conceptual model would be to
+    # The most correct conceptual model would be to
     # have the Technique as a fkey to another class
     # containing the controlled vocab, but that would be
     # too unwieldy in practice.
+    # Use controlled vocab
     technique = models.CharField(max_length=64)
     # Use controlled vocab
     tecnique_type = models.CharField(max_length=200)
+    def __str__(self):
+        return technique_type + " (" + technique + ")"
 # /Spectrum 4.0 Object production information
 ###########################################################
 
@@ -161,10 +216,11 @@ class ObjectLocation(models.Model):
     # Not available in SICG
     location = models.ForeignKey(Location, models.PROTECT)
     # Spectrum 4.0 Location fitness
-    location_fitness = models.textField()
+    # No equivalent in other standards.
+    location_fitness = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Location note
     # VRA Core 4   location > notes
-    location_note = models.textField()
+    location_note = models.TextField(null=True, blank=True)
     # The following field records the date the object
     # was moved to this location
     # Spectrum 4.0 Location date
@@ -172,31 +228,129 @@ class ObjectLocation(models.Model):
     # Spectrum 4.0 Normal location
     normal_location = models.ForeignKey(Location, models.PROTECT)
 
+    def __str__(self):
+        return 'Location information for object ' + ObjectIdentification.objects.filter(work_id=work)
+
 class Location(models.Model):
+    # Locations can be recursive for maximum flexibility,
+    # e.g. building > wing > room > furniture > shelf
+    # or in any other way required by the organization.
+    # Root-level locations will have this set to NULL:
+    location_parent = models.ForeignKey(Location, models.PROTECT, null=True, blank=True)
     # The physical address where this accession location resides.
     # Defaults to own organization, blank if inside a parent location.
     address = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
     # The organization (or person, people) that owns the Geographic Location.
     # Defaults to own organization, blank if inside a parent location.
     agent = models.ForeignKey(Agent, models.PROTECT, null=True, blank=True)
-    # Locations can be recursive for maximum flexibility,
-    # e.g. building > wing > room > furniture > shelf
-    # or in any other way required by the organization.
-    # Root-level locations will have this set to NULL:
-    location_parent = models.ForeignKey(Location, models.PROTECT, null=True, blank=True)
     # A code that identifies the location, if any.
     location_id = models.CharField(max_length=7, null=True, blank=True)
     # Keep the name short, follow conventions
     location_name = models.CharField(max_length=32)
+    # Spectrum 4.0 Location note
+    # VRA Core 4   location > notes
     # Notes on the location or its name (e.g. "so-called", "condemned", etc.)
     location_note = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        if location_parent:
+            parent_string = ' in ' + location_parent
+        else:
+            parent_string = ''
+        return location_id + ' ' + location_name + parent_string
 # /Spectrum 4.0 Object location information
 ###########################################################
 
 ###########################################################
 # Spectrum 4.0 Object description information
-# Simple description fields grouped under this class
-# for convenience
+# We begin by separating the objects into three major
+# classes which will have different descriptive fields.
+# An Object type selector should activate only
+# the appropriate class, if any, when creating
+# an object record.
+class Specimen(models.Model):
+    # Biological specimens (live or preserved animals,
+    # taxidermic work, fossils, etc.),
+    # Geologic samples, and other natural objects.
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+    # Spectrum 4.0 Age, age qualification, age unit
+    geological_age = models.OneToOneField(HistoricDate, models.CASCADE, null=True, blank=True)
+    # Biological age cannot use the HistoricDate class
+    # and needs its own definition.
+    specimen_age = models.PositiveIntegerField(null=True, blank=True)
+    specimen_age_qualification = models.PositiveSmallIntegerField(max_length=1, default=0, choices=age_qualification_choice, null=True, blank=True)
+    specimen_age_unit = models.PositiveSmallIntegerField(max_length=1, default=2, choices=age_unit_choice, null=True, blank=True)
+    # No VRA Core 4 equivalent to Specimen
+    # Biological phases, such as "larva" or "adult",
+    # possibly also mineral information
+    # Use controlled vocab
+    phase = models.CharField(max_length=200, null=True, blank=True)
+    sex = models.PositiveSmallIntegerField(max_length=1, default=0,  choices=sex_choice, null=True, blank=True)
+    age_qualification_choice = (
+        (0, ''),
+        (1, 'around'),
+        (2, 'less than'),
+        (3, 'more than')
+    )
+    age_unit_choice = (
+        (0, 'days'),
+        (1, 'weeks'),
+        (2, 'years'),
+        (3, 'million years'),
+        (4, 'billion years')
+    )
+    sex_choice = (
+        (0, 'neuter'),
+        (1, 'male'),
+        (2, 'female'),
+        (3, 'hermaphrodite'),
+        (4, 'other')
+    )
+
+class Artifact(models.Model):
+    # Pretty much everything else you would find in a museum.
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+    # Spectrum 4.0 Object status
+    # VRA Core 4   status
+    # Indicates relationship of this object to others,
+    # e.g. "copy," "counterfeit," "version," etc.
+    # Use controlled vocab
+    status = models.CharField(max_length=200, null=True, blank=True)
+    # style to be replaced by fkey to controlled vocab
+    # VRA Core 4  style_period
+    # Dublin Core coverage
+    # SICG        recorte temático
+    style = models.CharField(max_length=200, null=True, blank=True)
+    # Cultural Context to be replaced by fkey to controlled vocab
+    # No Spectrum 4.0 equivalent for Cultural Context
+    # VRA Core 4   cultural_context
+    # DCMI         coverage
+    # SICG         1.2 Recorte temático
+    cultural_context = models.CharField(max_length=200, null=True, blank=True)
+
+class IssuedObject(Artifact):
+    # Printed material (books, engravings, etc.),
+    # manuscript books, and so on.
+    # Subclass of Artifact.
+    # Copy number and Edition number will most often be integers,
+    # but the fields can accommodate other explanations
+    # as needed.
+    # Spectrum 4.0 Copy number
+    # VRA Core 4   issue_count
+    copy_number = CharField(max_length=64, null=True, blank=True)
+    # VRA Core 4  issue, issue_name
+    # DCMI        issued
+    edition_number = CharField(max_length=64, null=True, blank=True)
+    # VRA Core 4  issue_type, issue_desc?
+    # DCMI        hasFormat, stateEdition
+    form = CharField(max_length=200, null=True, blank=True)
+    # VRA Core 4  issue_source
+    # No equivalent in other standards
+    # To be replaced by fkey to bibliographic record
+    issue_source = models.CharField(max_length=200, null=True, blank=True)
+
+# Description fields common to all three object classes
+# are grouped under this class.
 class ObjectDescription(models.Model):
     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Physical description
@@ -205,36 +359,39 @@ class ObjectDescription(models.Model):
     #              or not used?
     # DCMI         description
     physical_description = models.TextField(null=True, blank=True)
-    # colour to be replaced by fkey to controlled vocab
-    # Meanwhile, prompt user to write comma-separated list
-    # Spectrum 4.0 Colour
+    # Spectrum 4.0 colour
+    # Using a fkey to better organize controlled vocab,
+    # but it's really a list of colors.
     # No equivalent in other standards
-    colour = models.CharField(max_length=200)
-    # Spectrum 4.0 Object status
-    # VRA Core 4   status
-    # Should this be restricted to a controlled vocab
-    # or left open for any needed comments?
-    status = models.CharField(max_length=200)
+    colour = models.ManyToManyField(Colour, models.PROTECT)
     # territorial_context to be replaced by an advanced location app?
     # No Spectrum 4.0, VRA Core equivalent for territorial_context
     # SICG         1.1 Recorte territorial
     # DCMI         coverage
-    territorial_context = models.CharField(max_length=200)
+    # Use controlled vocab
+    territorial_context = models.CharField(max_length=200, null=True, blank=True)
+    # VRA Core 4 date
+    # Not provided with this level of flexibility in other models,
+    # as discussed in the HistoricDate class.
+    date = models.ManyToManyField(HistoricDate, models.CASCADE, through=DateType)
+
+
+# Spectrum 4.0 Colour
+# No equivalent in other standards
+class Colour(models.Model):
+    # Use controlled vocab
+    colour = models.CharField(max_length=200)
+    def __str__(self):
+        return colour
 
 # Spectrum 4.0 can be used for Production date or Description age
 # VRA Core 4   date
 # DCMI         created, etc.
 # SICG         Can be used with 2.1 Datação?
-# To be replaced with more robust date application that
-# can be machine read to produce timelines and comparisons:
-# see theoretical model at http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
+# Move to a dedicated application that can be machine read
+# to produce timelines and comparisons: see theoretical model at
+# http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
 class HistoricDate(models.Model):
-    # While there can be rare occasions in which the same date set
-    # applies to unrelated objects or events,
-    # making it a one-to-many relationship keeps things cleaner.
-    # However, the ability to use Historic Dates on different
-    # object classes is more important.
-    content_type = models.ForeignKey(ContentType, models.CASCADE)
     # The date model does not follow ISO-8601 due to this standard's
     # limitations for historical and fuzzy dates, which are
     # required in a museum context.
@@ -246,9 +403,15 @@ class HistoricDate(models.Model):
     date_latest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
     date_latest_unit = models.ForeignKey(AgeUnit, models.PROTECT)
     date_latest_qualifier = models.PositiveSmallIntegerField(max_length=1, choices=age_qualifier, default=1)
-    date_source = models.CharField(max_length=200)
+    date_source = models.CharField(max_length=200, null=True, blank=True)
+    # Text representation of the date, for when more complex
+    # explanations are required. If left blank, will be filled
+    # with rendered concatenation of the previous fields
+    # at a pre-save hook.
+    date_text = models.CharField(max_length=200, null=True, blank=True)
 
-    # No standard for date_accuracy
+    # VRA Core 4   only allows a True/False setting for 'circa'
+    # Not provided in other standards.
     date_accuracy = (
         (0, ''),
         (1, 'before'),
@@ -280,78 +443,40 @@ class HistoricDate(models.Model):
         (2, 'B.P.')
     )
 
-# VRA Core 4   date_type
+    def __str__(self):
+        return date_text
+
+# VRA Core 4   date > type
+# In VRA Core, 'date' is an attribute of any of the
+# three root-level classes (work, agent, or image),
+# and has distinct allowed date types accordingly.
 # All other standards use a specific field for each date type,
 # e.g. Spectrum 4.0 Production date, DCMI created, issued, etc.
-# Therefore the only difference comes in rendering the output.
 class DateType(models.Model):
-    # A numeric id for this field is probably needed to make
-    # computations easier and more effective.
-    date_type_id = models.AutoField(max_length=1, primary_key=True)
     # Date types in VRA Core are the types of events defined
     # by that date, e.g. creation, discovery, removal, etc.
-    date_type = models.CharField(max_length=72)
-# Spectrum 4.0 Age unit
-# VRA Core 4   date_earliest_unit, date_latest_unit
+    date_type = models.PositiveSmallIntegerField(max_length=2, choices=date_types)
+    # VRA Core 4   date > source
+    # Turn into fkey to bibliographic record
+    date_source = models.CharField(max_length=200, null=True, blank=True)
 
-# An Object type selector should activate only
-# the appropriate class, if any, when creating
-# an object record.
-class IssuedObject(models.Model):
-    # Printed material (books, engravings, etc.),
-    # manuscript books, and so on.
-    # Issued objects are implicitly artifacts,
-    # but it seemed easier to just replicate the fields.
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
-    # Copy number and Edition number will most often be integers,
-    # but the fields can accommodate other explanations
-    # as needed.
-    # Spectrum 4.0 Copy number
-    # VRA Core 4   issue_count
-    copy_number = CharField(max_length=64)
-    # VRA Core 4  issue, issue_name
-    # DCMI        issued
-    edition_number = CharField(max_length=64)
-    # VRA Core 4  issue_type, issue_desc?
-    # DCMI        hasFormat, stateEdition
-    form = CharField(max_length=200)
-    # VRA Core 4  issue_source
-    # No equivalent in other standards
-    # To be replaced by fkey to bibliographic record
-    issue_source = models.CharField(max_length=200)
-    # style to be replaced by fkey to controlled vocab
-    # VRA Core 4  style_period
-    # Dublin Core coverage
-    # SICG        recorte temático
-    style = models.CharField(max_length=200)
-    # Cultural Context to be replaced by fkey to controlled vocab
-    # No Spectrum 4.0 equivalent for Cultural Context
-    # VRA Core 4   cultural_context
-    # DCMI         coverage
-    # SICG         1.2 Recorte temático
-    cultural_context = models.CharField(max_length=200)
-class Specimen(models.Model):
-    # Biological specimens (live or preserved animals,
-    # taxidermic work, fossils, etc.)
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
-    # No VRA Core 4 equivalent to Specimen
-    # phase to be replaced by fkey to controlled vocab
-    phase = models.CharField(max_length=200)
-    sex = models.BooleanField()
-class Artifact(models.Model):
-    # Pretty much everything else you would find in a museum.
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
-    # style to be replaced by fkey to controlled vocab
-    # VRA Core 4  style_period
-    # Dublin Core coverage
-    # SICG        recorte temático
-    style = models.CharField(max_length=200)
-    # Cultural Context to be replaced by fkey to controlled vocab
-    # No Spectrum 4.0 equivalent for Cultural Context
-    # VRA Core 4   cultural_context
-    # DCMI         coverage
-    # SICG         1.2 Recorte temático
-    cultural_context = models.CharField(max_length=200)
+    date_types = (
+        (0, 'alteration'),
+        (1, 'broadcast'),
+        (2, 'bulk'),
+        (3, 'commission'),
+        (4, 'creation'),
+        (5, 'design'),
+        (6, 'destruction'),
+        (7, 'discovery'),
+        (8, 'exhibition'),
+        (9, 'inclusive'),
+        (10, 'performance'),
+        (11, 'publication'),
+        (12, 'restoration'),
+        (13, 'view'),
+        (14, 'other')
+    )
 
 # Spectrum 4.0 Content
 # VRA Core 4   subject
