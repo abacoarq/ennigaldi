@@ -161,9 +161,10 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
-    production_agent = models.ForeignKey(Agent, models.PROTECT)
+    production_agent = models.ManyToManyField(Agent, models.PROTECT, through='Roles')
     # Spectrum 4.0 Production note
-    # Not applicable in other standards?
+    # VRA Core 4   Will have a notes field for each of
+    # 'agent > creator', 'date > created', and so on.
     production_note = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Production place
     # VRA Core 4   location + location_type=creation
