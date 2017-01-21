@@ -76,6 +76,8 @@ class DateType(models.Model):
     # VRA Core 4   date > source
     # Turn into fkey to bibliographic record
     date_source = models.CharField(max_length=200, null=True, blank=True)
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    description_date = models.ForeignKey(HistoricDate, models.PROTECT)
 
     date_types = (
         (0, 'alteration'),
