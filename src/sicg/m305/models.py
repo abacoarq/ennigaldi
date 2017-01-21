@@ -471,8 +471,89 @@ class ObjectDimension(models.Model):
         (19, 'other')                # Spectrum Technical attribute measurement
     )
 
+# Spectrum 4.0 Inscription
+# VRA Core 4   Inscription
+# SICG         4.2 Marcas e inscrições
 class ObjectInscription(models.Model):
-    pass
+    # Although there can be rare cases of identical
+    # inscriptions on different objects, for the sake of
+    # conceptual consistency (each inscription is marked
+    # on one specific artifact), let's make it a
+    # one-to-one relationship.
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE)
+    # Spectrum 4.0 Inscription content | Inscription description
+    # VRA Core 4   Inscription > [display]
+    # If left blank, will be auto-filled (or rendered?) based on
+    # other fields below.
+    inscription_display = models.TextField(null=True, blank=True)
+    # Spectrum 4.0 fills out
+    # different fields if it is a textual or graphic
+    # inscription, yet also sets a 'type'
+    # VRA Core 4   inscription > type
+    # Graphic inscription will usually fall under 'other'.
+    inscription_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=inscription_types)
+    # Spectrum 4.0 Inscriber
+    # VRA Core 4   inscription > author
+    inscription_author = models.ForeignKey(Agent, models.PROTECT, null=True, blank=True)
+    # Spectrum 4.0 Inscription date
+    # VRA Core 4   Not explicitly defined, but conceptually
+    # available at inscription > date.
+    inscription_date = models.OneToOneField(historicdate.HistoricDate, models.CASCADE, null=True, blank=True)
+    # Spectrum 4.0 Inscription interpretation
+    # VRA Core 4   Not explicitly defined, but conceptually
+    # available at inscription > notes
+    inscription_notes = models.TextField(null=True, blank=True)
+    # Spectrum 4.0 Inscription language
+    # VRA Core 4   xml:lang
+    inscription_language = models.ForeignKey(IsoLanguage, models.PROTECT, null=True, blank=True)
+    # Spectrum 4.0 Inscription method
+    # VRA Core 4   No specific field, usage is to put
+    # this information in the 'position' field.
+    # Strictly speaking this should not be allowed to be
+    # left blank, since every inscription has a method,
+    # but it might be easier for preliminary entry to leave
+    # it blank and fill out later with better research.
+    inscription_method = models.ForeignKey(TechniqueType, models.PROTECT, null=True, blank=True)
+    # Spectrum 4.0 Inscription position
+    # VRA Core 4   inscription > position
+    # A descriptive text, but using controlled vocab
+    # whenever possible.
+    inscription_position = models.CharField(max_length=200)
+    # Spectrum 4.0 Inscription script
+    # VRA Core 4   Not defined, presumably derived from xml:lang
+    # Use controlled vocab, leave blank if not writing.
+    inscription_script = models.CharField(max_length=64, null=True, blank=True)
+    # Spectrum 4.0 Does not define this field explicitly
+    # VRA Core 4   Caveat: since it is an XML format, the
+    # 'inscription > text' field should use the transliterated value,
+    # if it exists.
+    # Leave blank if the inscription does not contain writing.
+    inscription_text = models.CharField(null=True, blank=True)
+    # Best practice for museums that display information in
+    # several languages would be to define another model
+    # 'InscriptionText' with a fkey to the Inscription model;
+    # this way, there can be as many translations and
+    # transliterations as needed.
+    # Spectrum 4.0 Inscription transliteration
+    # VRA Core 4   inscription > text (for the reasons
+    # explained in 'inscription_text')
+    # Leave blank if the inscription does not contain writing
+    # or does not require transliteration.
+    inscription_transliteration = models.CharField(null=True, blank=True)
+    # Spectrum 4.0 Inscription translation
+    # VRA Core 4   Defined as a second 'inscription > text'
+    # field with the corresponding 'xml:lang' attribute.
+    inscription_translation = models.CharField(null=True, blank=True)
+
+    inscription_types = (
+        (0, 'signature'),
+        (1, 'mark'),
+        (2, 'caption'),
+        (3, 'date'),
+        (4, 'text'),
+        (5, 'translation'),
+        (6, 'other')
+    )
 
 class ObjectMaterial(models.Model):
     pass
