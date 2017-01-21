@@ -15,7 +15,7 @@ class ObjectIdentification(models.Model):
     # DCMI         identifier
     # This is NOT the object accession number but a unique identifier!
     # (See the VRA Core 4 spec for clarification)
-    work_id = models.AutoField(max_length=7, primary_key=True)
+    work_id = models.AutoField(max_length=7, primary_key=True, editable=False)
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG         1.4 Código identificador Iphan
@@ -59,7 +59,7 @@ class ObjectIdentification(models.Model):
 # Spectrum 4.0 Other object number
 # SICG         7.4 Demais códigos
 class OtherObjectNumber(models.Model):
-    object_identification = models.ForeignKey(ObjectIdentification, CASCADE)
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     object_number = models.CharField(max_length=72)
     object_number_type = models.CharField(max_length=200)
 
@@ -73,42 +73,43 @@ class OtherObjectNumber(models.Model):
 class ObjectName(models.Model):
     # Although artifacts can often have the same name,
     # every other metadata will be object-specific.
-    object_identification = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    identification = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # The name itself:
     object_name = models.CharField(max_length=200)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
     # No equivalent in other standards
-    object_name_currency = models.DateField(default=timezone.now, null=True, blank=True)
+    name_currency = models.DateField(default=timezone.now, null=True, blank=True)
     # Spectrum 4.0 Object name level
     # Indicates at which level of a hierarchy this object is located,
     # e.g. is it a specimen, a genus, a group, etc.
     # Use controlled vocab
-    object_name_level = models.CharField(max_length=64, null=True, blank=True)
+    name_level = models.CharField(max_length=64, null=True, blank=True)
     # Spectrum 4.0 Object name notes
     # VRA Core 4   title > note
-    object_name_note = models.TextField(null=True, blank=True)
+    name_note = models.TextField(null=True, blank=True)
     # Spectrum 4.0 object name reference system
     # VRA Core 4   name > source
     # Eventually replace with fkey to bibliographic record
-    object_name_source = models.CharField(max_length=200, null=True, blank=True)
+    name_source = models.CharField(max_length=200, null=True, blank=True)
     # VRA Core 4   title > xml:lang
-    object_name_lang = models.ForeignKey(IsoLanguage, models.CASCADE)
+    name_lang = models.ForeignKey(IsoLanguage, models.CASCADE)
     # Spectrum 4.0 Object name type
     # VRA Core 4   title > type
-    object_name_type = models.PositiveSmallIntegerField(max_length=2, choices=object_name_type, default=3)
+    name_type = models.PositiveSmallIntegerField(max_length=2, choices=title_type, default=3)
     # VRA Core 4   title > pref
     # DCMI         title.alternative
     # Spectrum 4.0 distinguishes between name and title
     # Best model practice is to render the Spectrum title field
     # when there is a title_type = creator
-    object_name_preferred = models.BooleanField(default=False)
+    name_preferred = models.BooleanField(default=False)
     # This should only be filled if there is a foreign-language
     # name of type 'creator' or 'inscribed'.
     # Eventually this should be handled by rendering
     # alternate language names.
-    object_title_translation = models.CharField(max_length=200, null=True, blank=True)
+    title_translation = models.CharField(max_length=200, null=True, blank=True)
+
     # VRA Core 4   work > title > type
-    object_name_type = (
+    title_type = (
         (0, 'brandName'),
         (1, 'cited'),
         (2, 'creator'),
@@ -195,7 +196,7 @@ class TechniqueType(models.Model):
     # Use controlled vocab
     technique = models.CharField(max_length=64)
     # Use controlled vocab
-    tecnique_type = models.CharField(max_length=200)
+    tecnique_type = models.CharField(max_length=200, unique=True)
     def __str__(self):
         return technique_type + " (" + technique + ")"
 # /Spectrum 4.0 Object production information
@@ -348,8 +349,8 @@ class ArtifactInstance(Artifact):
     # To be replaced by fkey to bibliographic record
     issue_source = models.CharField(max_length=200, null=True, blank=True)
 
-# Description fields common to all three object classes
-# are grouped under this class.
+# Simple Description fields common to all three object classes
+# are grouped under this class for convenience.
 class ObjectDescription(models.Model):
     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Physical description
@@ -378,7 +379,7 @@ class ObjectDescription(models.Model):
 # No equivalent in other standards
 class Colour(models.Model):
     # Use controlled vocab
-    colour = models.CharField(max_length=200)
+    colour = models.CharField(max_length=200, unique)
     def __str__(self):
         return colour
 
@@ -420,6 +421,7 @@ class ObjectDescriptionContent(models.Model):
 # DCMI         extent
 # SICG         3.3 Dimensões
 class ObjectDimension(models.Model):
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Dimension measured part
     # VRA Core 4   measurements > extent
     # Use controlled vocab
