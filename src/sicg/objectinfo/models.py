@@ -53,7 +53,7 @@ class ObjectIdentification(models.Model):
     # rather than manually entered here.
     number_of_objects = models.PositiveIntegerField(default=1)
     # VRA Core 4   worktype
-    # Not defined in other standards
+    # SICG         M301 Classificação do bem
     # Use controlled vocab
     work_type = CharField(max_length=200)
 
@@ -799,7 +799,7 @@ class Ownership(models.Model):
     # Spectrum 4.0 Ownership category
     # Use standardized vocabulary, preferred values are
     # 'public,' 'private,' and 'corporate.'
-    owner_category = models.CharField(max_length=32)
+    owner_category = models.PositiveSmallIntegerField(max_length=1, default=0, choices=owner_categories)
     # Spectrum 4.0 Ownership dates
     # As per VRA Core 4.0, blank dates should be rendered
     # as 'present' in the output.
@@ -813,6 +813,14 @@ class Ownership(models.Model):
     owner_price = models.DecimalField(max_length=11, null=True, blank=True)
     # Spectrum 4.0 Ownership place
     owner_place = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
+
+    # SICG M301 3. Propriedade
+    owner_categories = (
+        (0, 'public'),
+        (1, 'private'),
+        (2, 'mixed'),
+        (3, 'other')
+    )
 
     # 'Lease' is of course not a method of transfer of
     # ownership, but it is provided here for compatibility
@@ -851,52 +859,66 @@ class RelatedObject:
     # Can we do this without having a separate through-class
     # for each pair of associations?
     relation_types = (
-        (1, "cartoonFor"),
-        (2, "cartoonIs"),
-        (3, "componentOf"),
-        (4, "componentIs"),
-        (5, "copyAfter"),
-        (6, "copyIs"),
-        (7, "counterProofFor"),
-        (8, "counterProofIs"),
-        (9, "depicts"),
-        (10, "depictedIn"),
-        (11, "derivedFrom"),
-        (12, "sourceFor"),
-        (13, "designedFor"),
-        (14, "contextIs"),# Not an object-to-object relation
-        (15, "exhibitedAt"), # Not an object-to-object relation
-        (16, "venueFor"),    # Not an object-to-object relation
-        (17, "facsimileOf"),
-        (18, "facsimileIs"),
-        (19, "formerlyPartOf"),
-        (20, "formerlyLargerContextFor"),# Not an object-to-object relation
-        (21, "imageOf"),
-        (22, "imageIs"),
-        (23, "mateOf"),
-        (24, "modelFor"),
-        (25, "modelIs"),
-        (26, "partOf"),
-        (27, "largerContextFor"),# Not an object-to-object relation
-        (28, "partnerInSetWith"),# Not an object-to-object relation
-        (29, "pendantOf"),
-        (30, "planFor"),
-        (31, "planIs"),
-        (32, "prepatoryFor"),
-        (33, "basedOn"),
-        (34, "printingPlateFor"),
-        (35, "printingPlateIs"),
-        (36, "prototypeFor"),
-        (37, "prototypeIs"),
-        (38, "relatedTo"),
-        (39, "reliefFor"),
-        (40, "impressionIs"),
-        (41, "replicaOf"),
-        (42, "replicaIs"),
-        (43, "studyFor"),
-        (44, "studyIs"),
-        (45, "versionOf"),
-        (46, "versionIs")
+        ('default', (
+            (37, "relatedTo"),
+        ) )
+        ('hierarchical', (
+            (25, "partOf"),
+            (26, "largerContextFor"),
+            (18, "formerlyPartOf"),
+            (19, "formerlyLargerContextFor"),
+        ))
+        ('components', (
+            (2, "componentOf"),
+            (3, "componentIs"),
+        ))
+        ('steps', (
+            (0, "cartoonFor"),
+            (1, "cartoonIs"),
+            (6, "counterProofFor"),
+            (7, "counterProofIs"),
+            (23, "modelFor"),
+            (24, "modelIs"),
+            (29, "planFor"),
+            (30, "planIs"),
+            (31, "prepatoryFor"),
+            (32, "basedOn"),
+            (33, "printingPlateFor"),
+            (34, "printingPlateIs"),
+            (35, "prototypeFor"),
+            (36, "prototypeIs"),
+            (38, "reliefFor"),
+            (39, "impressionIs"),
+            (42, "studyFor"),
+            (43, "studyIs"),
+        ))
+        ('together', (
+            (12, "designedFor"),
+            (13, "contextIs"),
+            (14, "exhibitedAt"), # Not an object-to-object relation
+            (15, "venueFor"),    # Not an object-to-object relation
+            (22, "mateOf"),
+            (27, "partnerInSetWith"),# Not an object-to-object relation
+            (28, "pendantOf"),
+        ))
+        ('after', (
+            (4, "copyAfter"),
+            (5, "copyIs"),
+            (8, "depicts"),
+            (9, "depictedIn"),
+            (10, "derivedFrom"),
+            (11, "sourceFor"),
+            (16, "facsimileOf"),
+            (17, "facsimileIs"),
+            (40, "replicaOf"),
+            (41, "replicaIs"),
+            (44, "versionOf"),
+            (45, "versionIs")
+        ))
+        ('image', (
+            (20, "imageOf"),
+            (21, "imageIs"),
+        ))
     )
 
 # Spectrum 4.0 Usage
