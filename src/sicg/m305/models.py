@@ -443,6 +443,10 @@ class DescriptionContent(models.Model):
         (14, 'note')
     )
 
+# The content itself is distinguished from its metadata
+# because a piece of content is a keyword that can occur in
+# several works, but the metadata is how that content is
+# applied on the specific object.
 class ContentMeta:
     object = models.ForeignKey(ObjectDescription, models.CASCADE)
     content = models.ForeignKey(DescriptionContent, models.PROTECT)
