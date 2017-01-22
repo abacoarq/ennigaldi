@@ -707,6 +707,46 @@ class TechnicalAttribute(models.Model):
 ###########################################################
 
 ###########################################################
+# Spectrum 4.0 Object rights information group
+# VRA Core 4   rights
+# DCMI         license
+# SICG         5. Situação jurídica
+# This is distinct from the 'Object *rights in*
+# information' group, which declares rights granted on
+# the object by a third party.
+class ObjectRights:
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    # Spectrum 4.0 right begin date
+    right_begin_date = models.DateField(null=True, blank=True)
+    # Spectrum 4.0 right end date
+    right_end_date = models.DateField(null=True, blank=True)
+    # Spectrum 4.0 Right holder
+    # VRA Core 4   rights > rightsHolder
+    rights_holder = models.ManyToManyField(Agent, models.PROTECT, null=True, blank=True)
+    # VRA Core 4   rights > text
+    rights_display = models.CharField(max_length=200)
+    # Spectrum 4.0 Right notes
+    # VRA Core 4   rights > notes
+    rights_notes = models.TextField(null=True, blank=True)
+    # Spectrum 4.0 Right reference number
+    # Not defined in other standards. Made editable in case
+    # someone needs to write a custom contract number, for
+    # example, but handle with care.
+    rights_refid = models.AutoField(max_length=7, primary_key=True, editable=True)
+    # Spectrum 4.0 Right type
+    # VRA Core 4   rights > type
+    rights_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=rights_types)
+
+    rights_types = (
+        (0, 'copyrighted'),
+        (1, 'publicDomain'),
+        (2, 'undetermined'),
+        (3, 'other')
+    )
+# /Spectrum 4.0 Object rights information group
+###########################################################
+
+###########################################################
 # Move to a specific application for metadata when project grows:
 # Spectrum 4.0 organization, people, person
 # VRA Core 4   agent
