@@ -375,6 +375,10 @@ class ObjectDescription(models.Model):
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
     date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.DateType)
+    # Spectrum 4.0 Material
+    # VRA Core 4   material
+    # SICG         3.1 Materiais
+    material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
 
 # Spectrum 4.0 Colour
 # No equivalent in other standards
@@ -556,8 +560,48 @@ class ObjectInscription(models.Model):
         (6, 'other')
     )
 
+# Spectrum 4.0 Material
+# VRA Core 4   material
+# SICG         3.1 Materiais
 class ObjectMaterial(models.Model):
-    pass
+    # Spectrum 4.0 Material component
+    # No equivalent in other standards
+    # Only input information based on technical analysis.
+    material_component = models.CharField(max_length=64, null=True, blank=True)
+    # Spectrum 4.0 Material component note
+    # VRA Core 4   material > notes
+    material_note = models.CharField(null=True, blank=True)
+    # Spectrum 4.0 Material name
+    # VRA Core 4   material
+    # Common name for apparent material, based on visual
+    # inspection. This is the only required field in this class.
+    # Use controlled vocab.
+    material_name = models.CharField(max_length=200)
+    # Spectrum 4.0 Material source
+    # No equivalent in other standards
+    # Geographic origin of material, if known.
+    material_source = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
+    # VRA Core 4 requires an ID field for each material,
+    # linked to a controlled vocabulary.
+    # Can be activated by uncommenting the following line.
+    # material_refid = models.IntegerField(max_length=9, primary_key=True, editable=True)
+
+class MaterialType(models.Model):
+    material_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=material_types)
+    material = models.ForeignKey(models.ObjectMaterial, models.PROTECT)
+    work = models.ForeignKey(models.ObjectIdentification, models.CASCADE)
+    # VRA Core 4   material > extent
+    # Not defined in other standards.
+    # Use only if needed to distinguish different parts
+    # in distinct materials.
+    material_extent = models.CharField(max_length=200, null=True, blank=True)
+
+    # VRA Core 4   material > type
+    material_types = (
+        (0, 'medium'),
+        (1, 'support'),
+        (2, 'other')
+    )
 
 class TechnicalAttribute(models.Model):
     pass
