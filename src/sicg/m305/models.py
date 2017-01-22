@@ -319,8 +319,9 @@ class ObjectDescription(models.Model):
     material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
     # The field that picks up content (Spectrum) / subject (VRA Core) items
     # into the object description.
-    description_content = models.ManyToManyField(DescriptionContent, models.PROTECT, null=True, blank=True)
+    description_content = models.ManyToManyField(DescriptionContent, models.PROTECT, through=ContentMeta, null=True, blank=True)
     # The textual description of the content, as required by Spectrum
+    # and allowed by VRA Core 4.
     description_display = models.TextField(null=True, blank=True)
 
     class Meta:
@@ -414,42 +415,15 @@ class Colour(models.Model):
     def __str__(self):
         return colour
 
-# Spectrum 4.0 Content, comprising:
-#              description (a description of the work's content)
-#              language (the content's language in the work)
-#              script (in which script or font is the content written)
-#              activity
-#              concept
-#              date (a date that is the subject of the work)
-#              event name (a specific event name, subset of 'description')
-#              event type (the generic category that encompasses the event)
-#              note (as a content item)
-#              object (a specific object)
-#              object type (typological classification of the aforementioned object)
-#              organisation, people, person (shown or referred to in the work)
-#              place (same as above)
-#              other
-#              other type (the general group that comprises an 'other' topic)
-#              note (a note on the content as a whole)
-#              position (the placement of any content item within the work)
-# VRA Core 4   subject, comprising:
-#              name (corporate, family, other, personal, scientific)
-#              location (built work, geographic, other)
-#              topic (concept, descriptive, iconographic, other)
+# Spectrum 4.0 Content
+# VRA Core 4   subject
 # Dublin Core  subject
 # SICG         7.2 Características iconográficas
-# This class should be a relationship manager
-# whereas actual content should reside in
-# type-specific classes.
 class DescriptionContent(models.Model):
-    # To keep it simple, only three fields:
-    # 1. the subject matter itself
-    # 2. the subject matter type
-    # 3. the relationship.
-    # The MtM field will be located in the ObjectDescription meta class
     content_name = models.CharField()
     content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
     content_types = (
+        # First, the VRA Core 4 types
         (0, 'corporateName'),
         (1, 'familyName'),
         (2, 'otherName'),
@@ -461,32 +435,30 @@ class DescriptionContent(models.Model):
         (8, 'conceptTopic'),
         (9, 'descriptiveTopic'),
         (10, 'iconographicTopic'),
-        (11, 'otherTopic')
-        # Fill with remaining Spectrum categories
+        (11, 'otherTopic'),
+        # Fill with remaining Spectrum 4.0 categories
+        (12, 'activity'),
+        (13, 'date'),
+        (14, 'event name'),
+        (14, 'note')
     )
-    #
-    # Spectrum 4.0 Content - activity
-    # content_activity = models.TextField(null=True, blank=True)
-    # Spectrum 4.0 Content - concept
-    # VRA Core 4   subj_type > content > conceptTopic
-    # content_concept = models.
-    # Spectrum 4.0 Content - date
-    # VRA Core 4   date + (date_type != creation)
-    # DCMI         several fields
-    # content_date = models.ForeignKey(historicdate.HistoricDate, models.CASCADE)
-    # Spectrum 4.0 does not define a date_type field,
-    # but it makes sense that it should have one.
-    # VRA Core 4   date_type
-    # content_description = models.
-    # content_event_name = models. # for each a Content event name type
-    # content_note = models.
-    # content_object = models.ForeignKey(ObjectIdentification, models.PROTECT)
-    # content_object needs content_object_type
-    # Spectrum 4.0 renders content_organisation, content_people, and content_person
-    # content_agent = models.ForeignKey(Agent, models.PROTECT)
-    # content_place = models.ForeignKey(Place, models.PROTECT)
-    # content_position = models.
-    # content_other = models.
+
+class ContentMeta:
+    object = models.ForeignKey(ObjectDescription, models.CASCADE)
+    content = models.ForeignKey(DescriptionContent, models.PROTECT)
+    # Spectrum 4.0 object type
+    object_type = models.CharField(max_length=64, null=True, blank=True)
+    # Spectrum 4.0 event type
+    event_type = models.CharField(max_length=64, null=True, blank=True)
+    # Spectrum 4.0 other type
+    other_type = models.CharField(max_length=64, null=True, blank=True)
+    # Spectrum 4.0 content script
+    content_script = models.CharField(max_length=200, null=True, blank=True)
+    # Spectrum 4.0 content language
+    content_lang = models.ForeignKey(IsoLanguage, models.PROTECT, null=True, blank=True)
+    # Spectrum 4.0 content position. Can be null because it might cover
+    # the entire work.
+    content_position = models.CharField(max_length=64, null=True, blank=True)
 
 # Spectrum 4.0 Object dimension
 # VRA Core 4   Measurements
