@@ -456,24 +456,24 @@ class ObjectDimension(models.Model):
         # Fields below provided by VRA Core 4.
         (0, 'area (cm²)'),
         (1, 'base (mm)'),
-        (2, 'bit-depth'),            # Spectrum Technical attribute measurement
+        # (2, 'bit-depth'),            # Spectrum Technical attribute measurement
         (3, 'circumference (mm)'),
         (4, 'count'),
         (5, 'depth (mm)'),
         (6, 'diameter (mm)'),
-        (7, 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
-        (8, 'duration (s)'),         # Spectrum Technical attribute measurement
-        (9, 'fileSize (kB)'),        # Spectrum Technical attribute measurement
+        # (7, 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
+        # (8, 'duration (s)'),         # Spectrum Technical attribute measurement
+        # (9, 'fileSize (kB)'),        # Spectrum Technical attribute measurement
         (10, 'height (mm)'),
         (11, 'length (mm)'),
-        (12, 'resolution (ppi)'),    # Spectrum Technical attribute measurement
-        (13, 'runningTime (s)'),     # Spectrum Technical attribute measurement
-        (14, 'scale'),               # Spectrum Technical attribute measurement
-        (15, 'size'),                # Spectrum Technical attribute measurement
-        (16, 'target'),              # Spectrum Technical attribute measurement
+        # (12, 'resolution (ppi)'),    # Spectrum Technical attribute measurement
+        # (13, 'runningTime (s)'),     # Spectrum Technical attribute measurement
+        # (14, 'scale'),               # Spectrum Technical attribute measurement
+        # (15, 'size'),                # Spectrum Technical attribute measurement
+        # (16, 'target'),              # Spectrum Technical attribute measurement
         (17, 'weight (g)'),
         (18, 'width (mm)'),
-        (19, 'other')                # Spectrum Technical attribute measurement
+        # (19, 'other')                # Spectrum Technical attribute measurement
     )
 
 # Spectrum 4.0 Inscription
@@ -603,11 +603,60 @@ class MaterialType(models.Model):
         (2, 'other')
     )
 
+# Spectrum 4.0 Technical attribute
+# VRA Core 4   The nature of the information that Spectrum
+# requests as a technical attribute is provided by VRA
+# Core 4 in the 'measurements' group.
 class TechnicalAttribute(models.Model):
-    pass
+     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+     # Spectrum 4.0 Technical attribute
+     # VRA Core 4   measurements > type
+     # Other standards mix up 'part' and 'type',
+     # the latter of which is properly height, length,
+     # weight, etc.
+     attribute_type = models.PositiveSmallIntegerField(max_length=2, default=11, choices=attribute_types)
+     # Spectrum 4.0 Technical attribute measurement
+     # VRA Core 4   measurements (root)
+     # DCMI         fields according to dimension_type
+     attribute_value = models.PositiveIntegerField()
 
-class ObjectComponent(models.Model):
-    pass
+     attribute_types = (
+         # Spectrum 4.0 Technical attribute measurement unit is implicit
+         # from the measurement type chosen, to make
+         # things simpler.
+         # Fields below provided by VRA Core 4.
+         # (0, 'area (cm²)'),           # Spectrum Dimension
+         # (1, 'base (mm)'),            # Spectrum Dimension
+         (2, 'bit-depth'),            # Spectrum Technical attribute measurement
+         # (3, 'circumference (mm)'),   # Spectrum Dimension
+         # (4, 'count'),                # Spectrum Dimension
+         # (5, 'depth (mm)'),           # Spectrum Dimension
+         # (6, 'diameter (mm)'),        # Spectrum Dimension
+         (7, 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
+         (8, 'duration (s)'),         # Spectrum Technical attribute measurement
+         (9, 'fileSize (kB)'),        # Spectrum Technical attribute measurement
+         # (10, 'height (mm)'),         # Spectrum Dimension
+         # (11, 'length (mm)'),         # Spectrum Dimension
+         (12, 'resolution (ppi)'),    # Spectrum Technical attribute measurement
+         (13, 'runningTime (s)'),     # Spectrum Technical attribute measurement
+         (14, 'scale'),               # Spectrum Technical attribute measurement
+         (15, 'size'),                # Spectrum Technical attribute measurement
+         (16, 'target'),              # Spectrum Technical attribute measurement
+         # (17, 'weight (g)'),          # Spectrum Dimension
+         # (18, 'width (mm)'),          # Spectrum Dimension
+         (19, 'other')                # Spectrum Technical attribute measurement
+     )
+
+# Spectrum 4.0 Object component
+# Description of non-removable parts of an object
+# (for removable parts, number each part individually
+# in an Object Identification group and describe them
+# as separate objects).
+# This class should only be activated if needed for a
+# particularly complex object, otherwise it adds
+# too much complexity to the entry process.
+# class ObjectComponent(models.Model):
+#     pass
 # /Spectrum 4.0 Object description information
 ###########################################################
 
