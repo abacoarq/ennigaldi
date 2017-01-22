@@ -816,19 +816,77 @@ class Ownership(models.Model):
 
 # Spectrum 4.0 Related object
 # VRA Core 4   relation
+# SICG         3.5 Objetos relacionados
 # This is distinct from the subject > object
 # field, in that it records objects related to one
-# another, rather than an object portrayed/described in
+# another, rather than an object referred to in
 # another object.
 class RelatedObject:
     # Spectrum 4.0 Related object number
+    # Read as 'work1' 'related_association' 'work2'
     work1 = models.ForeignKey(ObjectIdentification, models.CASCADE)
     work2 = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Related object association
-    # Use controlled vocab
-    related_association = models.CharField(max_length=200)
+    # The type of association between the objects (copy, model,
+    # representation, etc.)
+    related_association = models.PositiveSmallIntegerField(max_length=2, choices=relation_types)
     # Spectrum 4.0 Related object note
     related_note = models.TextField(null=True, blank=True)
+
+    # VRA Core 4
+    # There are duplicate relations for two-way rendering,
+    # make sure they are identified as each other's reverse.
+    # Can we do this without having a separate through-class
+    # for each pair of associations?
+    relation_types = (
+        (1, "cartoonFor"),
+        (2, "cartoonIs"),
+        (3, "componentOf"),
+        (4, "componentIs"),
+        (5, "copyAfter"),
+        (6, "copyIs"),
+        (7, "counterProofFor"),
+        (8, "counterProofIs"),
+        (9, "depicts"),
+        (10, "depictedIn"),
+        (11, "derivedFrom"),
+        (12, "sourceFor"),
+        (13, "designedFor"),
+        (14, "contextIs"),# Not an object-to-object relation
+        (15, "exhibitedAt"), # Not an object-to-object relation
+        (16, "venueFor"),    # Not an object-to-object relation
+        (17, "facsimileOf"),
+        (18, "facsimileIs"),
+        (19, "formerlyPartOf"),
+        (20, "formerlyLargerContextFor"),# Not an object-to-object relation
+        (21, "imageOf"),
+        (22, "imageIs"),
+        (23, "mateOf"),
+        (24, "modelFor"),
+        (25, "modelIs"),
+        (26, "partOf"),
+        (27, "largerContextFor"),# Not an object-to-object relation
+        (28, "partnerInSetWith"),# Not an object-to-object relation
+        (29, "pendantOf"),
+        (30, "planFor"),
+        (31, "planIs"),
+        (32, "prepatoryFor"),
+        (33, "basedOn"),
+        (34, "printingPlateFor"),
+        (35, "printingPlateIs"),
+        (36, "prototypeFor"),
+        (37, "prototypeIs"),
+        (38, "relatedTo"),
+        (39, "reliefFor"),
+        (40, "impressionIs"),
+        (41, "replicaOf"),
+        (42, "replicaIs"),
+        (43, "studyFor"),
+        (44, "studyIs"),
+        (45, "versionOf"),
+        (46, "versionIs")
+    )
+
 
 # Spectrum 4.0 Usage
 # Spectrum 4.0 Usage note
