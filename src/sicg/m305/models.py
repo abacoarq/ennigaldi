@@ -267,13 +267,58 @@ class Location(models.Model):
 # We begin by separating the objects into three major
 # classes which will have different descriptive fields.
 # An Object type selector should activate only
-# the appropriate class, if any, when creating
-# an object record.
-class Specimen(models.Model):
-    # Biological specimens (live or preserved animals,
-    # taxidermic work, fossils, etc.),
-    # Geologic samples, and other natural objects.
+# the appropriate class when creating an object record.
+#
+# First we create an abstract meta-class to be referenced
+# by each of the three object types.
+# Simple Description fields common to all three object classes
+# are grouped under this class for convenience.
+class ObjectDescription(models.Model):
+    # Object description is strictly bound to its respective
+    # Object identification, so much so that we only split
+    # the two groups to remain consistent with the Spectrum
+    # standard, and also to make each class easier to manage.
     work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+    # Spectrum 4.0 Physical description
+    # VRA Core 4   Append to description in output,
+    #              or standalone description,
+    #              or not used?
+    # DCMI         description
+    # SICG         4.1 Descrição formal
+    physical_description = models.TextField(null=True, blank=True)
+    # Spectrum 4.0 colour
+    # Using a fkey to better organize controlled vocab,
+    # but it's really a list of colors.
+    # No equivalent in other standards
+    colour = models.ManyToManyField(Colour, models.PROTECT)
+    # Strictly speaking, Territorial context is only required
+    # by SICG, so consider removing it because it only
+    # functions in a very specific context of nationwide
+    # heritage management. Any one museum should have no need
+    # to specify several territorial contexts and ought
+    # rather to rely on style_period and cultural_context.
+    # No Spectrum 4.0, VRA Core equivalent for territorial_context
+    # SICG         1.1 Recorte territorial
+    # DCMI         coverage
+    # Use controlled vocab
+    # territorial_context = models.CharField(max_length=200, null=True, blank=True)
+    #
+    # VRA Core 4 date
+    # Not provided with this level of flexibility in other models,
+    # as discussed in the historicdate.HistoricDate class.
+    object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.DateType)
+    # Spectrum 4.0 Material
+    # VRA Core 4   material
+    # SICG         3.1 Materiais
+    material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
+
+    class Meta:
+        abstract = True
+
+# Biological specimens (live or preserved animals,
+# taxidermic work, fossils, etc.),
+# Geologic samples, and other natural objects.
+class Specimen(ObjectDescription):
     # Spectrum 4.0 Age, age qualification, age unit
     geological_age = models.OneToOneField(historicdate.HistoricDate, models.CASCADE, null=True, blank=True)
     # Biological age cannot use the historicdate.HistoricDate class
@@ -308,9 +353,8 @@ class Specimen(models.Model):
         (4, 'other')
     )
 
-class Artifact(models.Model):
-    # Pretty much everything else you would find in a museum.
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
+# Pretty much everything else you would find in a museum.
+class Artifact(ObjectDescription):
     # Spectrum 4.0 Object status
     # VRA Core 4   status
     # Indicates relationship of this object to others,
@@ -318,9 +362,10 @@ class Artifact(models.Model):
     # Use controlled vocab
     status = models.CharField(max_length=200, null=True, blank=True)
     # style to be replaced by fkey to controlled vocab
-    # VRA Core 4  style_period
-    # Dublin Core coverage
-    # SICG        recorte temático
+    # Spectrum 4.0 Style
+    # VRA Core 4   style_period
+    # Dublin Core  coverage
+    # SICG         7.1 Características estilísticas
     style = models.CharField(max_length=200, null=True, blank=True)
     # Cultural Context to be replaced by fkey to controlled vocab
     # No Spectrum 4.0 equivalent for Cultural Context
@@ -329,10 +374,10 @@ class Artifact(models.Model):
     # SICG         1.2 Recorte temático
     cultural_context = models.CharField(max_length=200, null=True, blank=True)
 
-class ArtifactInstance(Artifact):
-    # Printed material (books, engravings, etc.),
-    # photographs, and other objects that can have originals in
-    # several instances. Subclass of Artifact.
+# Printed material (books, engravings, etc.),
+# photographs, and other objects that can have originals in
+# several instances. Subclass of Artifact.
+class WorkInstance(Artifact):
     # Copy number and Edition number will most often be integers,
     # but the fields can accommodate other explanations
     # as needed.
@@ -350,36 +395,6 @@ class ArtifactInstance(Artifact):
     # To be replaced by fkey to bibliographic record
     issue_source = models.CharField(max_length=200, null=True, blank=True)
 
-# Simple Description fields common to all three object classes
-# are grouped under this class for convenience.
-class ObjectDescription(models.Model):
-    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
-    # Spectrum 4.0 Physical description
-    # VRA Core 4   Append to description in output,
-    #              or standalone description,
-    #              or not used?
-    # DCMI         description
-    physical_description = models.TextField(null=True, blank=True)
-    # Spectrum 4.0 colour
-    # Using a fkey to better organize controlled vocab,
-    # but it's really a list of colors.
-    # No equivalent in other standards
-    colour = models.ManyToManyField(Colour, models.PROTECT)
-    # territorial_context to be replaced by an advanced location app?
-    # No Spectrum 4.0, VRA Core equivalent for territorial_context
-    # SICG         1.1 Recorte territorial
-    # DCMI         coverage
-    # Use controlled vocab
-    territorial_context = models.CharField(max_length=200, null=True, blank=True)
-    # VRA Core 4 date
-    # Not provided with this level of flexibility in other models,
-    # as discussed in the historicdate.HistoricDate class.
-    date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.DateType)
-    # Spectrum 4.0 Material
-    # VRA Core 4   material
-    # SICG         3.1 Materiais
-    material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
-
 # Spectrum 4.0 Colour
 # No equivalent in other standards
 class Colour(models.Model):
@@ -391,6 +406,7 @@ class Colour(models.Model):
 # Spectrum 4.0 Content
 # VRA Core 4   subject
 # Dublin Core  subject
+# SICG         7.2 Características iconográficas
 # This class should be a relationship manager
 # whereas actual content should reside in
 # type-specific classes.
@@ -455,7 +471,7 @@ class ObjectDimension(models.Model):
         # things simpler.
         # Fields below provided by VRA Core 4.
         (0, 'area (cm²)'),
-        (1, 'base (mm)'),
+        (1, 'base (mm)'), # Obviously inconsistent with what VRA Core distinguishes as measurement type vs. measurement extent, keep track to see if they fix this in a future version.
         # (2, 'bit-depth'),            # Spectrum Technical attribute measurement
         (3, 'circumference (mm)'),
         (4, 'count'),
@@ -676,7 +692,7 @@ class Agent(models.Model):
 # VRA Core 4   xml:lang
 # DCMI         language
 class IsoLanguage(models.Model):
-    language_iso = models.CharField(max_length=7)
+    language_iso = models.CharField(max_length=5)
     language = models.CharField(max_length=64)
 # /Spectrum 4.0 Language
 ###########################################################
