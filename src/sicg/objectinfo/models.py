@@ -428,23 +428,33 @@ class DescriptionContent(models.Model):
     content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
     content_types = (
         # First, the VRA Core 4 types
-        (0, 'corporateName'),
-        (1, 'familyName'),
-        (2, 'otherName'),
-        (3, 'personalName'),
-        (4, 'scientificName'), # For Spectrum, contained in content > object
-        (5, 'builtWorkPlace'),
-        (6, 'geographicPlace'),
-        (7, 'otherPlace'),
-        (8, 'conceptTopic'),
-        (9, 'descriptiveTopic'),
-        (10, 'iconographicTopic'),
-        (11, 'otherTopic'),
+        ('Agent', (
+            (0, 'corporateName'),
+            (1, 'familyName'),
+            (2, 'otherName'),
+            (3, 'personalName')
+        ) )
+        ('Object', (
+            (4, 'scientificName') # For Spectrum, contained in content > object
+        ) )
+        ('Place', (
+            (5, 'builtWorkPlace'),
+            (6, 'geographicPlace'),
+            (7, 'otherPlace')
+        ) )
+        ('Topic', (
+            (8, 'conceptTopic'),
+            (9, 'descriptiveTopic'),
+            (10, 'iconographicTopic'),
+            (11, 'otherTopic')
+        ) )
         # Fill with remaining Spectrum 4.0 categories
-        (12, 'activity'),
-        (13, 'date'),
-        (14, 'event name'),
-        (14, 'note')
+        ('Other', (
+            (12, 'activity'),
+            (13, 'date'),
+            (14, 'event name'),
+            (14, 'note')
+        ) )
     )
 
 # The content itself is distinguished from its metadata
@@ -816,6 +826,7 @@ class Ownership(models.Model):
 
 # Spectrum 4.0 Related object
 # VRA Core 4   relation
+# Dublin Core  relation
 # SICG         3.5 Objetos relacionados
 # This is distinct from the subject > object
 # field, in that it records objects related to one
@@ -823,13 +834,14 @@ class Ownership(models.Model):
 # another object.
 class RelatedObject:
     # Spectrum 4.0 Related object number
+    # VRA Core 4   relid
     # Read as 'work1' 'related_association' 'work2'
     work1 = models.ForeignKey(ObjectIdentification, models.CASCADE)
     work2 = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Related object association
     # The type of association between the objects (copy, model,
     # representation, etc.)
-    related_association = models.PositiveSmallIntegerField(max_length=2, choices=relation_types)
+    relation_type = models.PositiveSmallIntegerField(max_length=2, choices=relation_types)
     # Spectrum 4.0 Related object note
     related_note = models.TextField(null=True, blank=True)
 
@@ -886,7 +898,6 @@ class RelatedObject:
         (45, "versionOf"),
         (46, "versionIs")
     )
-
 
 # Spectrum 4.0 Usage
 # Spectrum 4.0 Usage note
