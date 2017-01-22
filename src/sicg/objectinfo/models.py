@@ -26,8 +26,8 @@ class ObjectIdentification(models.Model):
     # organization.
     refid = models.OneToOneField('AccessionNumber', models.CASCADE, related_name='accession_number')
     # VRA Core 4   work > source
-    # Default to own organization.
-    source = models.CharField(max_length=200, default="My Museum", null=True, blank=True)
+    # Source of knoledge regarding the work.
+    source = models.CharField(max_length=200, null=True, blank=True)
     # The following field could be used to automate
     # exhibition labels or website summaries.
     # Spectrum 4.0 Brief description
@@ -51,7 +51,11 @@ class ObjectIdentification(models.Model):
     # SICG         3.4.2.1 Número de partes
     # Best if this is computed from related objects,
     # rather than manually entered here.
-    number_of_objects = models.PositiveIntegerField(default="1")
+    number_of_objects = models.PositiveIntegerField(default=1)
+    # VRA Core 4   worktype
+    # Not defined in other standards
+    # Use controlled vocab
+    work_type = CharField(max_length=200)
 
     def __str__(self):
         return refid + " " + self.objectname_set.filter(object_name_preferred=True)
@@ -747,7 +751,92 @@ class ObjectRights:
 ###########################################################
 
 ###########################################################
-# Move to a specific application for metadata when project grows:
+# Spectrum 4.0 Object history and association information
+# Spectrum 4.0 associated activity
+# Spectrum 4.0 associated activity note
+# Spectrum 4.0 associated concept
+# Spectrum 4.0 associated cultural affinity
+# Spectrum 4.0 associated date
+# Spectrum 4.0 associated event date
+# Spectrum 4.0 associated event name
+# Spectrum 4.0 associated event name type
+# Spectrum 4.0 associated event organisation/people/person
+# Spectrum 4.0 associated event place
+# Spectrum 4.0 associated object
+# Spectrum 4.0 associated object type
+# Spectrum 4.0 associated organisation/people/person
+# Spectrum 4.0 associated place
+# Spectrum 4.0 association note
+# Spectrum 4.0 association type
+# Spectrum 4.0 object history note
+
+# Spectrum 4.0 owner/ownership
+# SICG         5. Estatuto jurídico (inconsistently)
+# Not defined in VRA Core 4, DCMI
+# Designed to hold information abou previous ownership
+# conditions, not current policies, since it is assumed
+# the object is owned by the home organisation.
+# However, CIDOC/ICOM recommends current information be
+# recorded so it can be made available to others.
+# SICG requires both information on current ownership
+# as well as the last recorded owner.
+class Ownership(models.Model):
+    # Spectrum 4.0 Owner organisation/person (not people)
+    # Defaults to own organization.
+    owner = models.ForeignKey(Agent, models.PROTECT, default="My Museum")
+    # Spectrum 4.0 Ownership access
+    # Names the access restriction in place.
+    # Spectrum 4.0 Ownership category
+    # Use standardized vocabulary, preferred values are
+    # 'public,' 'private,' and 'corporate.'
+    owner_category = models.CharField(max_length=32)
+    # Spectrum 4.0 Ownership dates
+    # As per VRA Core 4.0, blank dates should be rendered
+    # as 'present' in the output.
+    owner_begin_date = models.DateField(null=True, blank=True)
+    owner_end_date = models.DateField(null=True, blank=True)
+    # Spectrum 4.0 Ownership exchange method
+    owner_method = models.PositiveSmallIntegerField(max_length=1, default=0, choices=owner_methods)
+    # Spectrum 4.0 Ownership exchange note
+    owner_note = models.TextField(null=True, blank=True)
+    # Spectrum 4.0 Ownership exchange price
+    owner_price = models.DecimalField(max_length=11, null=True, blank=True)
+    # Spectrum 4.0 Ownership place
+    owner_place = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
+
+    # 'Lease' is of course not a method of transfer of
+    # ownership, but it is provided here for compatibility
+    # with the SICG standard.
+    owner_methods = (
+        (0, 'purchase'),
+        (1, 'lease'),
+        (2, 'donation'),
+        (3, 'other')
+    )
+
+# Spectrum 4.0 Related object
+# VRA Core 4   relation
+# This is distinct from the subject > object
+# field, in that it records objects related to one
+# another, rather than an object portrayed/described in
+# another object.
+class RelatedObject:
+    # Spectrum 4.0 Related object number
+    work1 = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    work2 = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    # Spectrum 4.0 Related object association
+    # Use controlled vocab
+    related_association = models.CharField(max_length=200)
+    # Spectrum 4.0 Related object note
+    related_note = models.TextField(null=True, blank=True)
+
+# Spectrum 4.0 Usage
+# Spectrum 4.0 Usage note
+# /Spectrum 4.0 Object history and association information
+###########################################################
+
+###########################################################
+# Move to a specific application when project grows:
 # Spectrum 4.0 organization, people, person
 # VRA Core 4   agent
 # Dublin Core  contributor, creator, publisher
@@ -769,12 +858,29 @@ class IsoLanguage(models.Model):
 
 ###########################################################
 # General location information for use in several models
-# Move to a specific application for integration with PostGIS
-# and other metadata when project grows:
+# Move to a specific application for integration with
+# PostGIS and other metadata when project grows.
+# Also distinguish between places that must be
+# geographically located and those that only need to be
+# named, e.g. Description content > Place.
+# In the end it depends on the use the museum wants to
+# make of different Place information types.
 # Spectrum 4.0 several fields with 'place' data
 # VRA Core 4   location
 # DCMI         spatial
 class Place(models.Model):
     pass
 # /VRA Core 4  location
+###########################################################
+
+###########################################################
+# A number of other groups defined by Spectrum 4.0 as
+# 'Object ... groups' are actually procedure information.
+# Therefore, they will not be included in this application,
+# but rather in a separate Object Procedure app.
+# These include:
+# - Object audit information
+# - Object conservation and treatment information
+# - Object valuation information
+# - Object viewer's contribution information
 ###########################################################
