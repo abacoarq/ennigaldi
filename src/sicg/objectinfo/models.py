@@ -16,6 +16,10 @@ class ObjectIdentification(models.Model):
     # This is NOT the object accession number but a unique identifier!
     # (See the VRA Core 4 spec for clarification)
     work_id = models.AutoField(max_length=7, primary_key=True, editable=False)
+    # This image is for quick reference purposes only,
+    # to be photographed in the field when doing the
+    # preliminary recording work.
+    work_snapshot = models.ImageField()
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
