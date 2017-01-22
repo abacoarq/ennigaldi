@@ -762,23 +762,36 @@ class ObjectRights(models.Model):
 
 ###########################################################
 # Spectrum 4.0 Object history and association information
-# Spectrum 4.0 associated activity
-# Spectrum 4.0 associated activity note
-# Spectrum 4.0 associated concept
-# Spectrum 4.0 associated cultural affinity
-# Spectrum 4.0 associated date
-# Spectrum 4.0 associated event date
-# Spectrum 4.0 associated event name
-# Spectrum 4.0 associated event name type
-# Spectrum 4.0 associated event organisation/people/person
-# Spectrum 4.0 associated event place
-# Spectrum 4.0 associated object
-# Spectrum 4.0 associated object type
-# Spectrum 4.0 associated organisation/people/person
-# Spectrum 4.0 associated place
-# Spectrum 4.0 association note
-# Spectrum 4.0 association type
-# Spectrum 4.0 object history note
+# Will eventually have the following information:
+# Spectrum 4.0 Associated activity
+# Spectrum 4.0 Associated activity note
+# Spectrum 4.0 Associated concept
+# Spectrum 4.0 Associated cultural affinity
+# Spectrum 4.0 Associated date
+# Spectrum 4.0 Associated event date
+# Spectrum 4.0 Associated event name
+# Spectrum 4.0 Associated event name type
+# Spectrum 4.0 Associated event organisation/people/person
+# Spectrum 4.0 Associated event place
+
+# Spectrum 4.0 Associated object
+# SICG M305    6. Documentos relacionados
+# Tentatively being used to record documents and sources
+# with detail that object_source cannot have.
+class AssociatedObject(models.Model):
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    associated_object_name = models.CharField(max_length=200)
+    # Spectrum 4.0 Associated object type
+    # SCIG M305    Formato do arquivo
+    # Use a simple term, preferably from controlled vocab
+    associated_object_type = models.CharField(max_length=64)
+    associated_object_datadate = models.DateField(default=timezone.now)
+
+# Spectrum 4.0 Associated organisation/people/person
+# Spectrum 4.0 Associated place
+# Spectrum 4.0 Association note
+# Spectrum 4.0 Association type
+# Spectrum 4.0 Object history note
 
 # Spectrum 4.0 owner/ownership
 # SICG M305    5. Estatuto jurídico (inconsistently)
