@@ -51,7 +51,7 @@ class ObjectIdentification(models.Model):
     # SICG M305    3.4.2.1 Número de partes
     # Best if this is computed from related objects,
     # rather than manually entered here.
-    number_of_objects = models.PositiveIntegerField(default=1)
+    # number_of_objects = models.PositiveIntegerField(default=1)
     # VRA Core 4   worktype
     # SICG M305    M301 Classificação do bem
     # Use controlled vocab
