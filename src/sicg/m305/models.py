@@ -264,6 +264,12 @@ class Location(models.Model):
 
 ###########################################################
 # Spectrum 4.0 Object description information
+# This is the most complex information group in Spectrum,
+# and the most inconsistent across different standards,
+# so modeling must be careful to account for all the
+# required information while making sure it can be
+# exchanged properly.
+#
 # We begin by separating the objects into three major
 # classes which will have different descriptive fields.
 # An Object type selector should activate only
@@ -311,6 +317,11 @@ class ObjectDescription(models.Model):
     # VRA Core 4   material
     # SICG         3.1 Materiais
     material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
+    # The field that picks up content (Spectrum) / subject (VRA Core) items
+    # into the object description.
+    description_content = models.ManyToManyField(DescriptionContent, models.PROTECT, null=True, blank=True)
+    # The textual description of the content, as required by Spectrum
+    description_display = models.TextField(null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -403,16 +414,57 @@ class Colour(models.Model):
     def __str__(self):
         return colour
 
-# Spectrum 4.0 Content
-# VRA Core 4   subject
+# Spectrum 4.0 Content, comprising:
+#              description (a description of the work's content)
+#              language (the content's language in the work)
+#              script (in which script or font is the content written)
+#              activity
+#              concept
+#              date (a date that is the subject of the work)
+#              event name (a specific event name, subset of 'description')
+#              event type (the generic category that encompasses the event)
+#              note (as a content item)
+#              object (a specific object)
+#              object type (typological classification of the aforementioned object)
+#              organisation, people, person (shown or referred to in the work)
+#              place (same as above)
+#              other
+#              other type (the general group that comprises an 'other' topic)
+#              note (a note on the content as a whole)
+#              position (the placement of any content item within the work)
+# VRA Core 4   subject, comprising:
+#              name (corporate, family, other, personal, scientific)
+#              location (built work, geographic, other)
+#              topic (concept, descriptive, iconographic, other)
 # Dublin Core  subject
 # SICG         7.2 Características iconográficas
 # This class should be a relationship manager
 # whereas actual content should reside in
 # type-specific classes.
-class ObjectDescriptionContent(models.Model):
-    # Most fields here will need careful review of the way
-    # they are supposed to work in the Spectrum standard.
+class DescriptionContent(models.Model):
+    # To keep it simple, only three fields:
+    # 1. the subject matter itself
+    # 2. the subject matter type
+    # 3. the relationship.
+    # The MtM field will be located in the ObjectDescription meta class
+    content_name = models.CharField()
+    content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
+    content_types = (
+        (0, 'corporateName'),
+        (1, 'familyName'),
+        (2, 'otherName'),
+        (3, 'personalName'),
+        (4, 'scientificName'), # For Spectrum, contained in content > object
+        (5, 'builtWorkPlace'),
+        (6, 'geographicPlace'),
+        (7, 'otherPlace'),
+        (8, 'conceptTopic'),
+        (9, 'descriptiveTopic'),
+        (10, 'iconographicTopic'),
+        (11, 'otherTopic')
+        # Fill with remaining Spectrum categories
+    )
+    #
     # Spectrum 4.0 Content - activity
     # content_activity = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Content - concept
@@ -435,7 +487,6 @@ class ObjectDescriptionContent(models.Model):
     # content_place = models.ForeignKey(Place, models.PROTECT)
     # content_position = models.
     # content_other = models.
-    pass
 
 # Spectrum 4.0 Object dimension
 # VRA Core 4   Measurements
