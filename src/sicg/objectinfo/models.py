@@ -7,7 +7,7 @@ from historicdate import HistoricDate, DateType
 # Spectrum 4.0 Object Identification Information
 # VRA Core 4   work
 # DCMI         Namespace root level
-# SICG         1.3, 1.4, 3.4, 7.4
+# SICG M305    1.3, 1.4, 3.4, 7.4
 # This is the minimum required set of information to
 # identify an object.
 class ObjectIdentification(models.Model):
@@ -18,7 +18,7 @@ class ObjectIdentification(models.Model):
     work_id = models.AutoField(max_length=7, primary_key=True, editable=False)
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
-    # SICG         1.4 Código identificador Iphan
+    # SICG M305    1.4 Código identificador Iphan
     # This IS the object accession number used in the organization.
     # The class that automates the creation of accession
     # numbers should be in a dedicated application,
@@ -33,27 +33,27 @@ class ObjectIdentification(models.Model):
     # Spectrum 4.0 Brief description
     # VRA Core 4   description, or not used?
     # DCMI         abstract
-    # SICG         4.1 Descrição formal, or not used?
+    # SICG M305    4.1 Descrição formal, or not used?
     description = models.TextField(null=True, blank=True)
     # Turn this into a fk for a bibliography model.
     # VRA Core 4   description_source
     description_source = models.CharField(max_length=200, null=True, blank=True)
     # Spectrum 4.0 Comments
     # VRA Core 4   work > notes
-    # SICG         Append to 4.1 Descrição formal in output
+    # SICG M305    Append to 4.1 Descrição formal in output
     comments = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Distinguishing features
     # VRA Core 4   Append to description in output
-    # SICG         Append to 4.1 Descrição formal in output
+    # SICG M305    Append to 4.1 Descrição formal in output
     distinguishing_features = models.TextField(null=True, blank=True)
     # Spectrum 4.0 Number of objects
     # DCMI         extent > count
-    # SICG         3.4.2.1 Número de partes
+    # SICG M305    3.4.2.1 Número de partes
     # Best if this is computed from related objects,
     # rather than manually entered here.
     number_of_objects = models.PositiveIntegerField(default=1)
     # VRA Core 4   worktype
-    # SICG         M301 Classificação do bem
+    # SICG M305    M301 Classificação do bem
     # Use controlled vocab
     work_type = CharField(max_length=200)
 
@@ -61,7 +61,7 @@ class ObjectIdentification(models.Model):
         return refid + " " + self.objectname_set.filter(object_name_preferred=True)
 
 # Spectrum 4.0 Other object number
-# SICG         7.4 Demais códigos
+# SICG M305    7.4 Demais códigos
 class OtherObjectNumber(models.Model):
     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     object_number = models.CharField(max_length=72)
@@ -73,7 +73,7 @@ class OtherObjectNumber(models.Model):
 # Spectrum 4.0 Object name
 # VRA Core 4   title
 # DCMI         title
-# SICG         1.3 Identificação do bem
+# SICG M305    1.3 Identificação do bem
 class ObjectName(models.Model):
     # Although artifacts can often have the same name,
     # every other metadata will be object-specific.
@@ -156,7 +156,7 @@ class ObjectProduction(models.Model):
     #              from Description age
     # VRA Core 4   date + date_type=created
     # DCMI         created
-    # SICG         2.1 Datação
+    # SICG M305    2.1 Datação
     # While there can be rare occasions in which the same date set
     # applies to unrelated objects or events,
     # making it a one-to-one relationship keeps things cleaner,
@@ -173,7 +173,7 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Production place
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
-    # SICG         2.3 Origem
+    # SICG M305    2.3 Origem
     production_location = models.ForeignKey(Place, models.PROTECT)
     # The following field declares the original function served
     # by the object, that is, the justification for its production
@@ -183,7 +183,7 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Technique type
     # VRA Core 4   tech_name
     # Not covered in DCMI
-    # SICG         3.2 Técnicas
+    # SICG M305    3.2 Técnicas
     technique_type = models.ManyToManyField(TechniqueType, models.PROTECT)
 
     def __str__(self):
@@ -294,7 +294,7 @@ class ObjectDescription(models.Model):
     #              or standalone description,
     #              or not used?
     # DCMI         description
-    # SICG         4.1 Descrição formal
+    # SICG M305    4.1 Descrição formal
     physical_description = models.TextField(null=True, blank=True)
     # Spectrum 4.0 colour
     # Using a fkey to better organize controlled vocab,
@@ -308,7 +308,7 @@ class ObjectDescription(models.Model):
     # to specify several territorial contexts and ought
     # rather to rely on style_period and cultural_context.
     # No Spectrum 4.0, VRA Core equivalent for territorial_context
-    # SICG         1.1 Recorte territorial
+    # SICG M305    1.1 Recorte territorial
     # DCMI         coverage
     # Use controlled vocab
     # territorial_context = models.CharField(max_length=200, null=True, blank=True)
@@ -319,7 +319,7 @@ class ObjectDescription(models.Model):
     object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.DateType)
     # Spectrum 4.0 Material
     # VRA Core 4   material
-    # SICG         3.1 Materiais
+    # SICG M305    3.1 Materiais
     material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
     # The field that picks up content (Spectrum) / subject (VRA Core) items
     # into the object description.
@@ -381,13 +381,13 @@ class Artifact(ObjectDescription):
     # Spectrum 4.0 Style
     # VRA Core 4   style_period
     # Dublin Core  coverage
-    # SICG         7.1 Características estilísticas
+    # SICG M305    7.1 Características estilísticas
     style = models.CharField(max_length=200, null=True, blank=True)
     # Cultural Context to be replaced by fkey to controlled vocab
     # No Spectrum 4.0 equivalent for Cultural Context
     # VRA Core 4   cultural_context
     # DCMI         coverage
-    # SICG         1.2 Recorte temático
+    # SICG M305    1.2 Recorte temático
     cultural_context = models.CharField(max_length=200, null=True, blank=True)
 
 # Printed material (books, engravings, etc.),
@@ -422,7 +422,7 @@ class Colour(models.Model):
 # Spectrum 4.0 Content
 # VRA Core 4   subject
 # Dublin Core  subject
-# SICG         7.2 Características iconográficas
+# SICG M305    7.2 Características iconográficas
 class DescriptionContent(models.Model):
     content_name = models.CharField()
     content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
@@ -461,7 +461,7 @@ class DescriptionContent(models.Model):
 # because a piece of content is a keyword that can occur in
 # several works, but the metadata is how that content is
 # applied on the specific object.
-class ContentMeta:
+class ContentMeta(models.Model):
     object = models.ForeignKey(ObjectDescription, models.CASCADE)
     content = models.ForeignKey(DescriptionContent, models.PROTECT)
     # Spectrum 4.0 object type
@@ -484,7 +484,7 @@ class ContentMeta:
 # Spectrum 4.0 Object dimension
 # VRA Core 4   Measurements
 # DCMI         extent
-# SICG         3.3 Dimensões
+# SICG M305    3.3 Dimensões
 class ObjectDimension(models.Model):
     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Dimension measured part
@@ -505,7 +505,7 @@ class ObjectDimension(models.Model):
     dimension_value_date = models.DateField(default=timezone.now)
     # Spectrum 4.0 Dimension value qualifier
     # Not provided in VRA Core or DCMI
-    # SICG         3.3.1 Precisa / 3.3.2 Aproximada
+    # SICG M305    3.3.1 Precisa / 3.3.2 Aproximada
     # False = exact measurement, True = approximate measurement
     dimension_value_qualifier = models.BooleanField(default=False)
 
@@ -538,7 +538,7 @@ class ObjectDimension(models.Model):
 
 # Spectrum 4.0 Inscription
 # VRA Core 4   Inscription
-# SICG         4.2 Marcas e inscrições
+# SICG M305    4.2 Marcas e inscrições
 class ObjectInscription(models.Model):
     # Although there can be rare cases of identical
     # inscriptions on different objects, for the sake of
@@ -622,7 +622,7 @@ class ObjectInscription(models.Model):
 
 # Spectrum 4.0 Material
 # VRA Core 4   material
-# SICG         3.1 Materiais
+# SICG M305    3.1 Materiais
 class ObjectMaterial(models.Model):
     # Spectrum 4.0 Material component
     # No equivalent in other standards
@@ -724,11 +724,11 @@ class TechnicalAttribute(models.Model):
 # Spectrum 4.0 Object rights information group
 # VRA Core 4   rights
 # DCMI         license
-# SICG         5. Situação jurídica
+# SICG M305    5. Situação jurídica
 # This is distinct from the 'Object *rights in*
 # information' group, which declares rights granted on
 # the object by a third party.
-class ObjectRights:
+class ObjectRights(models.Model):
     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 right begin date
     right_begin_date = models.DateField(null=True, blank=True)
@@ -781,7 +781,7 @@ class ObjectRights:
 # Spectrum 4.0 object history note
 
 # Spectrum 4.0 owner/ownership
-# SICG         5. Estatuto jurídico (inconsistently)
+# SICG M305    5. Estatuto jurídico (inconsistently)
 # Not defined in VRA Core 4, DCMI
 # Designed to hold information abou previous ownership
 # conditions, not current policies, since it is assumed
@@ -835,12 +835,12 @@ class Ownership(models.Model):
 # Spectrum 4.0 Related object
 # VRA Core 4   relation
 # Dublin Core  relation
-# SICG         3.5 Objetos relacionados
+# SICG M305    3.5 Objetos relacionados
 # This is distinct from the subject > object
 # field, in that it records objects related to one
 # another, rather than an object referred to in
 # another object.
-class RelatedObject:
+class RelatedObject(models.Model):
     # Spectrum 4.0 Related object number
     # VRA Core 4   relid
     # Read as 'work1' 'related_association' 'work2'
@@ -924,6 +924,50 @@ class RelatedObject:
 # Spectrum 4.0 Usage
 # Spectrum 4.0 Usage note
 # /Spectrum 4.0 Object history and association information
+###########################################################
+
+###########################################################
+# VRA Core 4   textref
+# SICG M305    7.3 Referência bibliográfica e arquivística
+# This group primarly intended to record the object in
+# catalogues and where it gets other reference numbers.
+class TextRef(models.Model):
+    # Because the TextRef includes a specific citation
+    # to the object, it will not be reusable in other
+    # objects' records, therefore not Many-to-Many.
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    # Eventually render the name from a bibliographic
+    # database record.
+    textref_name = models.CharField(max_length=200)
+    textref_name_type = models.CharField(max_length=16, default='book', choices=textref_name_types)
+    # If the reference provides a different number for
+    # the object, or a citation, record it here:
+    textref_refid = models.CharField(max_length=64, null=True, blank=True)
+    textref_refid_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=textref_refid_types)
+    # Date when the information was located
+    textref_datadate = models.DateF(default=timezone.now)
+    # Required by SICG:
+    textref_location = models.ForeignKey(Place, models.PROTECT)
+
+    textref_name_types = (
+        ('book', 'Book'),
+        ('catalog', 'Catalog'),
+        ('corpus', 'Corpus'),
+        ('electronic', 'Electronic format'),
+        ('serial', 'Serial'),
+        ('other', 'Other')
+    )
+
+    textref_refid_types = (
+        ('citation', 'Citation'),
+        ('openURL', 'OpenURL'),
+        ('isbn', 'ISBN'),
+        ('issn', 'ISSN'),
+        ('uri', 'URI'),
+        ('vendor', 'Vendor reference'),
+        ('other', 'Other')
+    )
+# /VRA Core 4   textref
 ###########################################################
 
 ###########################################################
