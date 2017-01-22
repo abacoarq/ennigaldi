@@ -459,6 +459,9 @@ class ContentMeta:
     # Spectrum 4.0 content position. Can be null because it might cover
     # the entire work.
     content_position = models.CharField(max_length=64, null=True, blank=True)
+    # Spectrum 4.0 content note
+    # VRA Core 4   content > source
+    content_source = models.CharField(max_length=200, null=True, blank=True)
 
 # Spectrum 4.0 Object dimension
 # VRA Core 4   Measurements
@@ -715,8 +718,8 @@ class Agent(models.Model):
 # VRA Core 4   xml:lang
 # DCMI         language
 class IsoLanguage(models.Model):
-    language_iso = models.CharField(max_length=5)
-    language = models.CharField(max_length=64)
+    language_iso = models.CharField(max_length=7, primary_key=True)
+    language = models.CharField(max_length=64, unique=True)
 # /Spectrum 4.0 Language
 ###########################################################
 
