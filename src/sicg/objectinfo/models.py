@@ -83,6 +83,20 @@ class OtherObjectNumber(models.Model):
 # DCMI         title
 # SICG M305    1.3 Identificação do bem
 class ObjectName(models.Model):
+    # VRA Core 4   work > title > type
+    title_type = (
+        (0, 'brandName'),
+        (1, 'cited'),
+        (2, 'creator'),
+        (3, 'descriptive'),
+        (4, 'former'),
+        (5, 'inscribed'),
+        (6, 'owner'),
+        (7, 'popular'),
+        (8, 'repository'),
+        (9, 'translated'),
+        (10, 'other'),
+    )
     # Although artifacts can often have the same name,
     # every other metadata will be object-specific.
     identification = models.ForeignKey(ObjectIdentification, models.CASCADE)
@@ -119,21 +133,6 @@ class ObjectName(models.Model):
     # Eventually this should be handled by rendering
     # alternate language names.
     title_translation = models.CharField(max_length=200, null=True, blank=True)
-
-    # VRA Core 4   work > title > type
-    title_type = (
-        (0, 'brandName'),
-        (1, 'cited'),
-        (2, 'creator'),
-        (3, 'descriptive'),
-        (4, 'former'),
-        (5, 'inscribed'),
-        (6, 'owner'),
-        (7, 'popular'),
-        (8, 'repository'),
-        (9, 'translated'),
-        (10, 'other'),
-    )
 
     def __str__(self):
         return object_name
@@ -346,18 +345,6 @@ class ObjectDateType(historicdate.DateType):
 # taxidermic work, fossils, etc.),
 # Geologic samples, and other natural objects.
 class Specimen(ObjectDescription):
-    # Spectrum 4.0 Age, age qualification, age unit
-    # Biological age cannot use the HistoricDate class
-    # and needs its own definition.
-    specimen_age = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    specimen_age_qualification = models.PositiveSmallIntegerField(max_length=1, default=0, choices=age_qualification_choice, null=True, blank=True)
-    specimen_age_unit = models.PositiveSmallIntegerField(max_length=1, default=2, choices=age_unit_choice, null=True, blank=True)
-    # No VRA Core 4 equivalent to Specimen
-    # Biological phases, such as "larva" or "adult",
-    # as well as textual description of age.
-    # Use controlled vocab
-    phase = models.CharField(max_length=200, null=True, blank=True)
-    sex = models.PositiveSmallIntegerField(max_length=1, default=0,  choices=sex_choice, null=True, blank=True)
     age_qualification_choice = (
         (0, ''),
         (1, 'around'),
@@ -376,6 +363,18 @@ class Specimen(ObjectDescription):
         (3, 'hermaphrodite'),
         (4, 'other')
     )
+    # Spectrum 4.0 Age, age qualification, age unit
+    # Biological age cannot use the HistoricDate class
+    # and needs its own definition.
+    specimen_age = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    specimen_age_qualification = models.PositiveSmallIntegerField(max_length=1, default=0, choices=age_qualification_choice, null=True, blank=True)
+    specimen_age_unit = models.PositiveSmallIntegerField(max_length=1, default=2, choices=age_unit_choice, null=True, blank=True)
+    # No VRA Core 4 equivalent to Specimen
+    # Biological phases, such as "larva" or "adult",
+    # as well as textual description of age.
+    # Use controlled vocab
+    phase = models.CharField(max_length=200, null=True, blank=True)
+    sex = models.PositiveSmallIntegerField(max_length=1, default=0,  choices=sex_choice, null=True, blank=True)
 
 # Pretty much everything else you would find in a museum.
 class Artifact(ObjectDescription):
@@ -432,8 +431,6 @@ class Colour(models.Model):
 # Dublin Core  subject
 # SICG M305    7.2 Características iconográficas
 class DescriptionContent(models.Model):
-    content_name = models.CharField()
-    content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
     content_types = (
         # First, the VRA Core 4 types
         ('agent.Agent', (
@@ -464,6 +461,8 @@ class DescriptionContent(models.Model):
             (14, 'note')
         ) )
     )
+    content_name = models.CharField()
+    content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
 
 # The content itself is distinguished from its metadata
 # because a piece of content is a keyword that can occur in
@@ -494,29 +493,6 @@ class ContentMeta(models.Model):
 # DCMI         extent
 # SICG M305    3.3 Dimensões
 class ObjectDimension(models.Model):
-    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
-    # Spectrum 4.0 Dimension measured part
-    # VRA Core 4   measurements > extent
-    # Use controlled vocab
-    dimension_part = models.CharField(max_length=32)
-    # VRA Core 4   measurements > type
-    # Other standards mix up 'part' and 'type',
-    # the latter of which is properly height, length,
-    # weight, etc.
-    dimension_type = models.PositiveSmallIntegerField(max_length=2, default=11, choices=measurement_type)
-    # Spectrum 4.0 Dimension value
-    # VRA Core 4   measurements (root)
-    # DCMI         fields according to dimension_type
-    dimension_value = models.PositiveIntegerField()
-    # Spectrum 4.0 Dimension value date
-    # VRA Core 4   measurements > dataDate
-    dimension_value_date = models.DateField(default=timezone.now)
-    # Spectrum 4.0 Dimension value qualifier
-    # Not provided in VRA Core or DCMI
-    # SICG M305    3.3.1 Precisa / 3.3.2 Aproximada
-    # False = exact measurement, True = approximate measurement
-    dimension_value_qualifier = models.BooleanField(default=False)
-
     measurement_type = (
         # Spectrum 4.0 Dimension measurement unit is implicit
         # from the measurement type chosen, to make
@@ -543,11 +519,42 @@ class ObjectDimension(models.Model):
         (18, 'width (mm)'),
         # (19, 'other')                # Spectrum Technical attribute measurement
     )
+    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    # Spectrum 4.0 Dimension measured part
+    # VRA Core 4   measurements > extent
+    # Use controlled vocab
+    dimension_part = models.CharField(max_length=32)
+    # VRA Core 4   measurements > type
+    # Other standards mix up 'part' and 'type',
+    # the latter of which is properly height, length,
+    # weight, etc.
+    dimension_type = models.PositiveSmallIntegerField(max_length=2, default=11, choices=measurement_type)
+    # Spectrum 4.0 Dimension value
+    # VRA Core 4   measurements (root)
+    # DCMI         fields according to dimension_type
+    dimension_value = models.PositiveIntegerField()
+    # Spectrum 4.0 Dimension value date
+    # VRA Core 4   measurements > dataDate
+    dimension_value_date = models.DateField(default=timezone.now)
+    # Spectrum 4.0 Dimension value qualifier
+    # Not provided in VRA Core or DCMI
+    # SICG M305    3.3.1 Precisa / 3.3.2 Aproximada
+    # False = exact measurement, True = approximate measurement
+    dimension_value_qualifier = models.BooleanField(default=False)
 
 # Spectrum 4.0 Inscription
 # VRA Core 4   Inscription
 # SICG M305    4.2 Marcas e inscrições
 class ObjectInscription(models.Model):
+    inscription_types = (
+        (0, 'signature'),
+        (1, 'mark'),
+        (2, 'caption'),
+        (3, 'date'),
+        (4, 'text'),
+        (5, 'translation'),
+        (6, 'other')
+    )
     # Although there can be rare cases of identical
     # inscriptions on different objects, for the sake of
     # conceptual consistency (each inscription is marked
@@ -618,16 +625,6 @@ class ObjectInscription(models.Model):
     # field with the corresponding 'xml:lang' attribute.
     inscription_translation = models.CharField(null=True, blank=True)
 
-    inscription_types = (
-        (0, 'signature'),
-        (1, 'mark'),
-        (2, 'caption'),
-        (3, 'date'),
-        (4, 'text'),
-        (5, 'translation'),
-        (6, 'other')
-    )
-
 # Spectrum 4.0 Material
 # VRA Core 4   material
 # SICG M305    3.1 Materiais
@@ -655,6 +652,12 @@ class ObjectMaterial(models.Model):
     # material_refid = models.IntegerField(max_length=9, primary_key=True, editable=True)
 
 class MaterialType(models.Model):
+    # VRA Core 4   material > type
+    material_types = (
+        (0, 'medium'),
+        (1, 'support'),
+        (2, 'other')
+    )
     material_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=material_types)
     material = models.ForeignKey(models.ObjectMaterial, models.PROTECT)
     work = models.ForeignKey(models.ObjectIdentification, models.CASCADE)
@@ -664,30 +667,11 @@ class MaterialType(models.Model):
     # in distinct materials.
     material_extent = models.CharField(max_length=200, null=True, blank=True)
 
-    # VRA Core 4   material > type
-    material_types = (
-        (0, 'medium'),
-        (1, 'support'),
-        (2, 'other')
-    )
-
 # Spectrum 4.0 Technical attribute
 # VRA Core 4   The nature of the information that Spectrum
 # requests as a technical attribute is provided by VRA
 # Core 4 in the 'measurements' group.
 class TechnicalAttribute(models.Model):
-     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
-     # Spectrum 4.0 Technical attribute
-     # VRA Core 4   measurements > type
-     # Other standards mix up 'part' and 'type',
-     # the latter of which is properly height, length,
-     # weight, etc.
-     attribute_type = models.PositiveSmallIntegerField(max_length=2, default=11, choices=attribute_types)
-     # Spectrum 4.0 Technical attribute measurement
-     # VRA Core 4   measurements (root)
-     # DCMI         fields according to dimension_type
-     attribute_value = models.PositiveIntegerField()
-
      attribute_types = (
          # Spectrum 4.0 Technical attribute measurement unit is implicit
          # from the measurement type chosen, to make
@@ -714,6 +698,17 @@ class TechnicalAttribute(models.Model):
          # (18, 'width (mm)'),          # Spectrum Dimension
          (19, 'other')                # Spectrum Technical attribute measurement
      )
+     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+     # Spectrum 4.0 Technical attribute
+     # VRA Core 4   measurements > type
+     # Other standards mix up 'part' and 'type',
+     # the latter of which is properly height, length,
+     # weight, etc.
+     attribute_type = models.PositiveSmallIntegerField(max_length=2, default=11, choices=attribute_types)
+     # Spectrum 4.0 Technical attribute measurement
+     # VRA Core 4   measurements (root)
+     # DCMI         fields according to dimension_type
+     attribute_value = models.PositiveIntegerField()
 
 # Spectrum 4.0 Object component
 # Description of non-removable parts of an object
@@ -737,6 +732,12 @@ class TechnicalAttribute(models.Model):
 # information' group, which declares rights granted on
 # the object by a third party.
 class ObjectRights(models.Model):
+    rights_types = (
+        (0, 'copyrighted'),
+        (1, 'publicDomain'),
+        (2, 'undetermined'),
+        (3, 'other')
+    )
     work = models.ForeignKey(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 right begin date
     right_begin_date = models.DateField(null=True, blank=True)
@@ -758,13 +759,6 @@ class ObjectRights(models.Model):
     # Spectrum 4.0 Right type
     # VRA Core 4   rights > type
     rights_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=rights_types)
-
-    rights_types = (
-        (0, 'copyrighted'),
-        (1, 'publicDomain'),
-        (2, 'undetermined'),
-        (3, 'other')
-    )
 # /Spectrum 4.0 Object rights information group
 ###########################################################
 
@@ -812,6 +806,22 @@ class AssociatedObject(models.Model):
 # SICG requires both information on current ownership
 # as well as the last recorded owner.
 class Ownership(models.Model):
+    # SICG M301 3. Propriedade
+    owner_categories = (
+        (0, 'public'),
+        (1, 'private'),
+        (2, 'mixed'),
+        (3, 'other')
+    )
+    # 'Lease' is of course not a method of transfer of
+    # ownership, but it is provided here for compatibility
+    # with the SICG standard.
+    owner_methods = (
+        (0, 'purchase'),
+        (1, 'lease'),
+        (2, 'donation'),
+        (3, 'other')
+    )
     # Spectrum 4.0 Owner organisation/person (not people)
     # Defaults to own organization.
     owner = models.ForeignKey(agent.Agent, models.PROTECT, default="My Museum")
@@ -835,24 +845,6 @@ class Ownership(models.Model):
     # Spectrum 4.0 Ownership place
     owner_place = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
 
-    # SICG M301 3. Propriedade
-    owner_categories = (
-        (0, 'public'),
-        (1, 'private'),
-        (2, 'mixed'),
-        (3, 'other')
-    )
-
-    # 'Lease' is of course not a method of transfer of
-    # ownership, but it is provided here for compatibility
-    # with the SICG standard.
-    owner_methods = (
-        (0, 'purchase'),
-        (1, 'lease'),
-        (2, 'donation'),
-        (3, 'other')
-    )
-
 # Spectrum 4.0 Related object
 # VRA Core 4   relation
 # Dublin Core  relation
@@ -862,18 +854,6 @@ class Ownership(models.Model):
 # another, rather than an object referred to in
 # another object.
 class RelatedObject(models.Model):
-    # Spectrum 4.0 Related object number
-    # VRA Core 4   relid
-    # Read as 'work1' 'related_association' 'work2'
-    work1 = models.ForeignKey(ObjectIdentification, models.CASCADE)
-    work2 = models.ForeignKey(ObjectIdentification, models.CASCADE)
-    # Spectrum 4.0 Related object association
-    # The type of association between the objects (copy, model,
-    # representation, etc.)
-    relation_type = models.PositiveSmallIntegerField(max_length=2, choices=relation_types)
-    # Spectrum 4.0 Related object note
-    related_note = models.TextField(null=True, blank=True)
-
     # VRA Core 4
     # There are duplicate relations for two-way rendering,
     # make sure they are identified as each other's reverse.
@@ -941,6 +921,17 @@ class RelatedObject(models.Model):
             (21, "imageIs"),
         ))
     )
+    # Spectrum 4.0 Related object number
+    # VRA Core 4   relid
+    # Read as 'work1' 'related_association' 'work2'
+    work1 = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    work2 = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    # Spectrum 4.0 Related object association
+    # The type of association between the objects (copy, model,
+    # representation, etc.)
+    relation_type = models.PositiveSmallIntegerField(max_length=2, choices=relation_types)
+    # Spectrum 4.0 Related object note
+    related_note = models.TextField(null=True, blank=True)
 
 # Spectrum 4.0 Usage
 # Spectrum 4.0 Usage note
@@ -953,6 +944,23 @@ class RelatedObject(models.Model):
 # This group primarly intended to record the object in
 # catalogues and where it gets other reference numbers.
 class TextRef(models.Model):
+    textref_name_types = (
+        ('book', 'Book'),
+        ('catalog', 'Catalog'),
+        ('corpus', 'Corpus'),
+        ('electronic', 'Electronic format'),
+        ('serial', 'Serial'),
+        ('other', 'Other')
+    )
+    textref_refid_types = (
+        ('citation', 'Citation'),
+        ('openURL', 'OpenURL'),
+        ('isbn', 'ISBN'),
+        ('issn', 'ISSN'),
+        ('uri', 'URI'),
+        ('vendor', 'Vendor reference'),
+        ('other', 'Other')
+    )
     # Because the TextRef includes a specific citation
     # to the object, it will not be reusable in other
     # objects' records, therefore not Many-to-Many.
@@ -969,25 +977,6 @@ class TextRef(models.Model):
     textref_datadate = models.DateF(default=timezone.now)
     # Required by SICG:
     textref_location = models.ForeignKey(Place, models.PROTECT)
-
-    textref_name_types = (
-        ('book', 'Book'),
-        ('catalog', 'Catalog'),
-        ('corpus', 'Corpus'),
-        ('electronic', 'Electronic format'),
-        ('serial', 'Serial'),
-        ('other', 'Other')
-    )
-
-    textref_refid_types = (
-        ('citation', 'Citation'),
-        ('openURL', 'OpenURL'),
-        ('isbn', 'ISBN'),
-        ('issn', 'ISSN'),
-        ('uri', 'URI'),
-        ('vendor', 'Vendor reference'),
-        ('other', 'Other')
-    )
 # /VRA Core 4   textref
 ###########################################################
 
