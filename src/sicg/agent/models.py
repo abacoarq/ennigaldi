@@ -1,5 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 from historicdate import HistoricDate, ObjectDateType
+from countries_plus.models import Country
 
 ###########################################################
 # Spectrum 4.0 organisation, people, person
@@ -15,8 +17,27 @@ class Agent(models.Model):
     # Use controlled vocab, can be replaced by nationality
     # in the case of modern agents.
     agent_culture = models.CharField(max_length=64, null=True, blank=True)
-    agent_dates = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=AgentDateType, null=True, blank=True)
+    agent_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=AgentDateType, null=True, blank=True)
+    # Use this for complex name display or autopopulate from
+    # above data using a pre-save hook.
     agent_display = models.CharField(max_length=255)
+    # Further identification, if available
+    user = models.OneToOneField(User, null=True, blank=True)
+    orcid = models.CharField(max_length=32, null=True, blank=True)
+    parent_organisation = models.ForeignKey(Agent, limit_choices_to={name_type: 'corporate'}, null=True, blank=True)
+    # Contact information, if applicable
+    email = models.EmailField(null=True, blank=True)
+    phone_primary = models.CharField(max_length=32, null=True, blank=True)
+    phone_mobile = models.CharField(max_length=32, null=True, blank=True)
+    phone_business = models.CharField(max_length=32, null=True, blank=True)
+    phone_home = models.CharField(max_length=32, null=True, blank=True)
+    address_1 = models.CharField(max_length=100, null=True, blank=True)
+    address_2 = models.CharField(max_length=100, null=True, blank=True)
+    city = models.CharField(max_length=100, null=True, blank=True)
+    state_province = models.CharField(max_length=32, null=True, blank=True)
+    zip_code = models.CharField(max_length=32, null=True, blank=True)
+    # Replace the following field by the Countries Plus list.
+    country = models.CharField(max_length=32, null=True, blank=True)
 
     def __str__(self):
         return agent_display
