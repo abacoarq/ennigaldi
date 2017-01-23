@@ -10,14 +10,6 @@ from django.db import models
 class HistoricDate(models.Model):
     # VRA Core 4   only allows a True/False setting for 'circa'
     # Not provided in other standards.
-    date_accuracy = (
-        (0, ''),
-        (1, 'before'),
-        (2, 'up to'),
-        (3, 'circa'),
-        (4, 'from'),
-        (5, 'after'),
-    )
     # Defined by the VRA Core 4 restricted XML schema.
     # The date model attempts to follow ISO-8601 with accommodations
     # for historic requirements, so the format must be filled
@@ -34,10 +26,11 @@ class HistoricDate(models.Model):
     # -425, date_accuracy=3
     #
     date_earliest = models.CharField(max_length=15)
-    date_earliest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
+    # 'False' interprets to exact date, 'True' to circa.
+    date_earliest_accuracy = models.BooleanField(default=False)
     # Enter 'present' if living person or continued event.
     date_latest = models.CharField(max_length=15)
-    date_latest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
+    date_latest_accuracy = models.BooleanField(default=False)
     date_source = models.CharField(max_length=255, blank=True)
     # Text representation of the date, for when more complex
     # explanations are required. If left blank, will be filled
@@ -82,3 +75,6 @@ class DateType(models.Model):
     date_source = models.CharField(max_length=255, null=True, blank=True)
     date_of = models.ForeignKey('genericmodel', models.CASCADE)
     date_value = models.ForeignKey(HistoricDate, models.PROTECT)
+
+    class Meta:
+        abstract = True
