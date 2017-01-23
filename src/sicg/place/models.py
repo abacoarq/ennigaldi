@@ -25,18 +25,18 @@ class Place(models.Model):
     # the character of a location, e.g. if one is referring
     # to the city of Rome, to the province with the
     # same name, or to the Roman Empire.
-    location_extent = models.CharField(max_length=63, null=True, blank=True)
+    location_extent = models.CharField(max_length=63, blank=True)
     # The following fields record modern location data.
-    email = models.EmailField(null=True, blank=True)
-    phone_primary = models.CharField(max_length=31, null=True, blank=True)
-    phone_secondary = models.CharField(max_length=31, null=True, blank=True)
-    website = models.CharField(null=True, blank=True)
-    address_1 = models.CharField(max_length=35, null=True, blank=True)
-    address_2 = models.CharField(max_length=35, null=True, blank=True)
-    city = models.CharField(max_length=35, null=True, blank=True)
-    state_province = models.CharField(max_length=35, null=True, blank=True)
-    zip_code = models.CharField(max_length=35, null=True, blank=True)
-    country = models.CharField(max_length=35, null=True, blank=True)
+    email = models.EmailField(blank=True)
+    phone_primary = models.CharField(max_length=31, blank=True)
+    phone_secondary = models.CharField(max_length=31, blank=True)
+    website = models.CharField(max_length=255, blank=True)
+    address_1 = models.CharField(max_length=35, blank=True)
+    address_2 = models.CharField(max_length=35, blank=True)
+    city = models.CharField(max_length=35, blank=True)
+    state_province = models.CharField(max_length=35, blank=True)
+    zip_code = models.CharField(max_length=35, blank=True)
+    country = models.CharField(max_length=35, blank=True)
 
 class PlaceType(models.Model):
     location_types = (

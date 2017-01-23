@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'countries_plus',
     'historicdate',
-#    'place',
-#    'agent',
+    'place',
+    'agent',
 #    'objectinfo',
 ]
 
