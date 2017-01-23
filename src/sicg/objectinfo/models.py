@@ -423,7 +423,7 @@ class WorkInstance(Artifact):
 # No equivalent in other standards
 class Colour(models.Model):
     # Use controlled vocab
-    colour = models.CharField(max_length=200, unique)
+    colour = models.CharField(unique, max_length=200)
     def __str__(self):
         return colour
 
