@@ -321,7 +321,7 @@ class ObjectDescription(models.Model):
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
-    object_date = models.OneToOneField(historicdate.HistoricDate, models.CASCADE, through=historicdate.ObjectDateType)
+    object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=ObjectDateType)
     # Spectrum 4.0 Material
     # VRA Core 4   material
     # SICG M305    3.1 Materiais
@@ -335,6 +335,9 @@ class ObjectDescription(models.Model):
 
     class Meta:
         abstract = True
+
+class ObjectDateType(historicdate.DateType):
+    date_of = models.ForeignKey(ObjectDescription, models.CASCADE)
 
 # Biological specimens (live or preserved animals,
 # taxidermic work, fossils, etc.),

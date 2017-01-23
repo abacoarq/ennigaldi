@@ -56,14 +56,16 @@ class HistoricDate(models.Model):
 # and has distinct allowed date types accordingly.
 # All other standards use a specific field for each date type,
 # e.g. Spectrum 4.0 Production date, DCMI created, issued, etc.
-class ObjectDateType(models.Model):
+# This model is not to be used directly, but subclassed to fit
+# the requirements of the requesting object.
+class DateType(models.Model):
     # Date types in VRA Core are the types of events defined
     # by that date, e.g. creation, discovery, removal, etc.
     date_type = models.CharField(max_length=32, choices=date_types)
     # VRA Core 4   date > source
     # Turn into fkey to bibliographic record
     date_source = models.CharField(max_length=200, null=True, blank=True)
-    date_of = models.ForeignKey(objectinfo.ObjectIdentification, models.CASCADE)
+    date_of = models.ForeignKey('genericmodel', models.CASCADE)
     date_value = models.ForeignKey(HistoricDate, models.PROTECT)
 
     date_types = (
@@ -83,3 +85,6 @@ class ObjectDateType(models.Model):
         ('view', 'Viewed'),
         ('other', 'Other')
     )
+
+    class Meta:
+        abstract = True
