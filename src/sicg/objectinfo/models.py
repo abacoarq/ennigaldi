@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Count
 from django.utils import timezone
 from historicdate.models import HistoricDate, DateType
-from agent.models import Agent, AgentRole
+from agent.models import Agent
 from place.models import Place, PlaceType
 from languages_plus.models import Language
 from languages_plus.utils import associate_countries_and_languages
@@ -173,7 +173,7 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
-    production_agent = models.ManyToManyField(agent.Agent, models.PROTECT, through=agent.AgentRole)
+    production_agent = models.ManyToManyField(Agent, models.PROTECT, through=AgentRole)
     # Spectrum 4.0 Production note
     # VRA Core 4   Will have a notes field for each of
     # 'agent > creator', 'date > created', and so on.
@@ -182,7 +182,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
     # SICG M305    2.3 Origem
-    production_location = models.ManyToManyField(place.Place, models.PROTECT, through=ObjectPlaceType)
+    production_location = models.ManyToManyField(Place, models.PROTECT, through=ObjectPlaceType)
     # The following field declares the original function served
     # by the object, that is, the justification for its production
     # Spectrum 4.0 Technical justification
@@ -196,6 +196,24 @@ class ObjectProduction(models.Model):
 
     def __str__(self):
         return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=work)
+
+class AgentRole(models.Model):
+    agent = models.ForeignKey(Agent, models.PROTECT)
+    work = models.ForeignKey(objectinfo.ObjectIdentification, models.PROTECT)
+    # VRA Core 4 agent > role
+    # Use controlled vocab
+    agent_role = models.CharField(max_length=31)
+    # 'False' means the work is securely known, e.g. from a
+    # signature, while 'True' means it is attributed.
+    attributed = models.BooleanField(default=False)
+    attribution_type = models.CharField(max_length=31, blank=True)
+    # Optional field to record complex attribution.
+    # If left blank, a pre-save hook should render it from
+    # the information provided above.
+    agent_role_display = models.CharField(max_length=255)
+
+    def __str__(self):
+        return agent_role_display
 
 class ObjectPlaceType(models.Model):
     work = models.ForeignKey(ObjectIdentification, models.PROTECT)
