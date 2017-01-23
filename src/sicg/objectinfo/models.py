@@ -1,8 +1,9 @@
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
-from historicdate import HistoricDate, DateType
-from agent import Agent, AgentRole
+from historicdate.models import HistoricDate, DateType
+from agent.models import Agent, AgentRole
+from place.models import Place, PlaceType
 from languages_plus.models import Language
 from languages_plus.utils import associate_countries_and_languages
 associate_countries_and_languages()
@@ -181,7 +182,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
     # SICG M305    2.3 Origem
-    production_location = models.ForeignKey(Place, models.PROTECT)
+    production_location = models.ManyToManyField(place.Place, models.PROTECT, through=ObjectPlaceType)
     # The following field declares the original function served
     # by the object, that is, the justification for its production
     # Spectrum 4.0 Technical justification
@@ -195,6 +196,9 @@ class ObjectProduction(models.Model):
 
     def __str__(self):
         return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=work)
+
+class ObjectPlaceType(models.Model):
+    work = models.ForeignKey(ObjectIdentification, models.PROTECT)
 
 class TechniqueType(models.Model):
     # Spectrum 4.0 Technique

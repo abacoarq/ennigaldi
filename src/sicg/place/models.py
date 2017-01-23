@@ -56,7 +56,10 @@ class PlaceType(models.Model):
         ('other', 'Other'),
     )
     location = models.ForeignKey(Place, models.PROTECT)
-    work = models.ForeignKey(ObjectIdentification, models.PROTECT)
+    work = models.ForeignKey('genericmodel', models.PROTECT)
     location_type = models.CharField(max_length=31, choices=location_types, default='creation')
+
+    class Meta:
+        abstract=True
 # /VRA Core 4  location
 ###########################################################

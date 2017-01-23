@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 # Spectrum 4.0 Several fields that use Date or Age
 # VRA Core 4   date
@@ -34,16 +33,17 @@ class HistoricDate(models.Model):
     # 'First half of the 5th century B.C.'
     # -425, date_accuracy=3
     #
-    date_earliest = models.CharField(max_length=16, null=True, blank=True)
+    date_earliest = models.CharField(max_length=15)
     date_earliest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
-    date_latest = models.CharField(max_length=16, null=True, blank=True)
+    # Enter 'present' if living person or continued event.
+    date_latest = models.CharField(max_length=15)
     date_latest_accuracy = models.PositiveSmallIntegerField(max_length=1, choices=date_accuracy, default=0)
-    date_source = models.CharField(max_length=200, null=True, blank=True)
+    date_source = models.CharField(max_length=255, blank=True)
     # Text representation of the date, for when more complex
     # explanations are required. If left blank, will be filled
     # with rendered concatenation of the previous fields
     # at a pre-save hook.
-    date_display = models.CharField(max_length=200, null=True, blank=True)
+    date_display = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return date_display
