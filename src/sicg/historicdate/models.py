@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from objectinfo import ObjectIdentification, ObjectDescription
 
 # Spectrum 4.0 Several fields that use Date or Age
 # VRA Core 4   date
@@ -9,6 +10,7 @@ from django.utils import timezone
 # to produce timelines and comparisons: see theoretical model at
 # http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
 class HistoricDate(models.Model):
+    # Defined by the VRA Core 4 restricted XML schema.
     # The date model attempts to follow ISO-8601 with accommodations
     # for historic requirements, so the format must be filled
     # with the relevant choice of information from the example below:
@@ -20,7 +22,6 @@ class HistoricDate(models.Model):
     # January, 1792: 1792-01
     #
     # An example of a complex date:
-    #
     # 'First half of the 5th century B.C.'
     # -425, date_accuracy=3
     #
@@ -62,8 +63,8 @@ class ObjectDateType(models.Model):
     # VRA Core 4   date > source
     # Turn into fkey to bibliographic record
     date_source = models.CharField(max_length=200, null=True, blank=True)
-    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
-    description_date = models.ForeignKey(HistoricDate, models.PROTECT)
+    date_of = models.ForeignKey(objectinfo.ObjectIdentification, models.CASCADE)
+    date_value = models.ForeignKey(HistoricDate, models.PROTECT)
 
     date_types = (
         ('alteration', 'Altered'),

@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Count
 from django.utils import timezone
 from historicdate import HistoricDate, ObjectDateType
+from agent import Agent, AgentRole
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -169,7 +170,7 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
-    production_agent = models.ManyToManyField(Agent, models.PROTECT, through='Roles')
+    production_agent = models.ManyToManyField(agent.Agent, models.PROTECT, through=agent.AgentRole)
     # Spectrum 4.0 Production note
     # VRA Core 4   Will have a notes field for each of
     # 'agent > creator', 'date > created', and so on.
@@ -251,7 +252,7 @@ class Location(models.Model):
     address = models.ForeignKey(Place, models.PROTECT, null=True, blank=True)
     # The organization (or person, people) that owns the Geographic Location.
     # Defaults to own organization, blank if inside a parent location.
-    agent = models.ForeignKey(Agent, models.PROTECT, null=True, blank=True)
+    agent = models.ForeignKey(agent.Agent, models.PROTECT, null=True, blank=True)
     # A code that identifies the location, if any.
     location_id = models.CharField(max_length=7, null=True, blank=True)
     # Keep the name short, follow conventions
@@ -320,7 +321,7 @@ class ObjectDescription(models.Model):
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
-    object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.ObjectDateType)
+    object_date = models.OneToOneField(historicdate.HistoricDate, models.CASCADE, through=historicdate.ObjectDateType)
     # Spectrum 4.0 Material
     # VRA Core 4   material
     # SICG M305    3.1 Materiais
@@ -429,7 +430,7 @@ class DescriptionContent(models.Model):
     content_type = models.PositiveSmallIntegerField(max_length=2, choices=content_types)
     content_types = (
         # First, the VRA Core 4 types
-        ('Agent', (
+        ('agent.Agent', (
             (0, 'corporateName'),
             (1, 'familyName'),
             (2, 'otherName'),
@@ -560,7 +561,7 @@ class ObjectInscription(models.Model):
     inscription_type = models.PositiveSmallIntegerField(max_length=1, default=0, choices=inscription_types)
     # Spectrum 4.0 Inscriber
     # VRA Core 4   inscription > author
-    inscription_author = models.ForeignKey(Agent, models.PROTECT, null=True, blank=True)
+    inscription_author = models.ForeignKey(agent.Agent, models.PROTECT, null=True, blank=True)
     # Spectrum 4.0 Inscription date
     # VRA Core 4   Not explicitly defined, but conceptually
     # available at inscription > date.
@@ -737,7 +738,7 @@ class ObjectRights(models.Model):
     right_end_date = models.DateField(null=True, blank=True)
     # Spectrum 4.0 Right holder
     # VRA Core 4   rights > rightsHolder
-    rights_holder = models.ManyToManyField(Agent, models.PROTECT, null=True, blank=True)
+    rights_holder = models.ManyToManyField(agent.Agent, models.PROTECT, null=True, blank=True)
     # VRA Core 4   rights > text
     rights_display = models.CharField(max_length=200)
     # Spectrum 4.0 Right notes
@@ -807,7 +808,7 @@ class AssociatedObject(models.Model):
 class Ownership(models.Model):
     # Spectrum 4.0 Owner organisation/person (not people)
     # Defaults to own organization.
-    owner = models.ForeignKey(Agent, models.PROTECT, default="My Museum")
+    owner = models.ForeignKey(agent.Agent, models.PROTECT, default="My Museum")
     # Spectrum 4.0 Ownership access
     # Names the access restriction in place.
     # Spectrum 4.0 Ownership category
