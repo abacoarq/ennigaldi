@@ -3,6 +3,9 @@ from django.db.models import Count
 from django.utils import timezone
 from historicdate import HistoricDate, ObjectDateType
 from agent import Agent, AgentRole
+from languages_plus.models import Language
+from languages_plus.utils import associate_countries_and_languages
+associate_countries_and_languages()
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
