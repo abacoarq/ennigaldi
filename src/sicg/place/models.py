@@ -13,9 +13,52 @@ from django.db import models
 # VRA Core 4   location
 # DCMI         spatial
 class Place(models.Model):
-    pass
+    location_name = models.CharField(max_length=63)
+    location_name_type = models.CharField(max_length=11, default='geographic', choices=location_name_types)
+    # location > extent is used to disambiguate or specify
+    # the character of a location, e.g. if one is referring
+    # to the city of Rome, to the province with the
+    # same name, or to the Roman Empire.
+    location_extent = models.CharField(max_length=63, null=True, blank=True)
+    # The following fields record modern location data.
+    email = models.EmailField(null=True, blank=True)
+    phone_primary = models.CharField(max_length=31, null=True, blank=True)
+    phone_secondary = models.CharField(max_length=31, null=True, blank=True)
+    website = models.CharField(null=True, blank=True)
+    address_1 = models.CharField(max_length=35, null=True, blank=True)
+    address_2 = models.CharField(max_length=35, null=True, blank=True)
+    city = models.CharField(max_length=35, null=True, blank=True)
+    state_province = models.CharField(max_length=35, null=True, blank=True)
+    zip_code = models.CharField(max_length=35, null=True, blank=True)
+    country = models.CharField(max_length=35, null=True, blank=True)
+
+    location_name_types = (
+        ('corporate', 'Corporate'),
+        ('geographic', 'Geographic'),
+        ('personal', 'Personal'),
+        ('other', 'Other'),
+    )
 
 class PlaceType(models.Model):
-    pass
+    location = models.ForeignKey(Place, models.PROTECT)
+    work = models.ForeignKey(ObjectIdentification, models.PROTECT)
+    location_type = models.CharField(max_length=31, choices=location_types, default='creation')
+
+    location_types = (
+        ('creation', 'Creation'),
+        ('discovery', 'Discovery'),
+        ('exhibition', 'Exhibition'),
+        ('formerOwner', 'Location of former owner'),
+        ('formerRepository', 'Former repository'),
+        ('formerSite', 'Former site'),
+        ('installation', 'Installed location'),
+        ('intended', 'Unbuilt project intended for'),
+        ('owner', 'Owner location'),
+        ('performance', 'Performed at'),
+        ('publication', 'Publication'),
+        ('repository', 'Repository'),
+        ('site', 'Current location on site'),
+        ('other', 'Other'),
+    )
 # /VRA Core 4  location
 ###########################################################
