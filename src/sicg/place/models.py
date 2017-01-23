@@ -13,6 +13,12 @@ from django.db import models
 # VRA Core 4   location
 # DCMI         spatial
 class Place(models.Model):
+    location_name_types = (
+        ('corporate', 'Corporate'),
+        ('geographic', 'Geographic'),
+        ('personal', 'Personal'),
+        ('other', 'Other'),
+    )
     location_name = models.CharField(max_length=63)
     location_name_type = models.CharField(max_length=11, default='geographic', choices=location_name_types)
     # location > extent is used to disambiguate or specify
@@ -32,18 +38,7 @@ class Place(models.Model):
     zip_code = models.CharField(max_length=35, null=True, blank=True)
     country = models.CharField(max_length=35, null=True, blank=True)
 
-    location_name_types = (
-        ('corporate', 'Corporate'),
-        ('geographic', 'Geographic'),
-        ('personal', 'Personal'),
-        ('other', 'Other'),
-    )
-
 class PlaceType(models.Model):
-    location = models.ForeignKey(Place, models.PROTECT)
-    work = models.ForeignKey(ObjectIdentification, models.PROTECT)
-    location_type = models.CharField(max_length=31, choices=location_types, default='creation')
-
     location_types = (
         ('creation', 'Creation'),
         ('discovery', 'Discovery'),
@@ -60,5 +55,8 @@ class PlaceType(models.Model):
         ('site', 'Current location on site'),
         ('other', 'Other'),
     )
+    location = models.ForeignKey(Place, models.PROTECT)
+    work = models.ForeignKey(ObjectIdentification, models.PROTECT)
+    location_type = models.CharField(max_length=31, choices=location_types, default='creation')
 # /VRA Core 4  location
 ###########################################################

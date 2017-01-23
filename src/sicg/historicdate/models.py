@@ -9,6 +9,16 @@ from django.utils import timezone
 # to produce timelines and comparisons: see theoretical model at
 # http://www.museumsandtheweb.com/biblio/issues_in_historical_geography.html
 class HistoricDate(models.Model):
+    # VRA Core 4   only allows a True/False setting for 'circa'
+    # Not provided in other standards.
+    date_accuracy = (
+        (0, ''),
+        (1, 'before'),
+        (2, 'up to'),
+        (3, 'circa'),
+        (4, 'from'),
+        (5, 'after'),
+    )
     # Defined by the VRA Core 4 restricted XML schema.
     # The date model attempts to follow ISO-8601 with accommodations
     # for historic requirements, so the format must be filled
@@ -35,17 +45,6 @@ class HistoricDate(models.Model):
     # at a pre-save hook.
     date_display = models.CharField(max_length=200, null=True, blank=True)
 
-    # VRA Core 4   only allows a True/False setting for 'circa'
-    # Not provided in other standards.
-    date_accuracy = (
-        (0, ''),
-        (1, 'before'),
-        (2, 'up to'),
-        (3, 'circa'),
-        (4, 'from'),
-        (5, 'after')
-    )
-
     def __str__(self):
         return date_display
 
@@ -58,15 +57,6 @@ class HistoricDate(models.Model):
 # This model is not to be used directly, but subclassed to fit
 # the requirements of the requesting object.
 class DateType(models.Model):
-    # Date types in VRA Core are the types of events defined
-    # by that date, e.g. creation, discovery, removal, etc.
-    date_type = models.CharField(max_length=31, choices=date_types)
-    # VRA Core 4   date > source
-    # Turn into fkey to bibliographic record
-    date_source = models.CharField(max_length=255, null=True, blank=True)
-    date_of = models.ForeignKey('genericmodel', models.CASCADE)
-    date_value = models.ForeignKey(HistoricDate, models.PROTECT)
-
     date_types = (
         ('alteration', 'Altered'),
         ('broadcast', 'Broadcast'),
@@ -84,3 +74,11 @@ class DateType(models.Model):
         ('view', 'Viewed'),
         ('other', 'Other')
     )
+    # Date types in VRA Core are the types of events defined
+    # by that date, e.g. creation, discovery, removal, etc.
+    date_type = models.CharField(max_length=31, choices=date_types)
+    # VRA Core 4   date > source
+    # Turn into fkey to bibliographic record
+    date_source = models.CharField(max_length=255, null=True, blank=True)
+    date_of = models.ForeignKey('genericmodel', models.CASCADE)
+    date_value = models.ForeignKey(HistoricDate, models.PROTECT)
