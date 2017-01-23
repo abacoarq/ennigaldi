@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
-from historicdate import HistoricDate, ObjectDateType
+from historicdate import HistoricDate, DateType
 from agent import Agent, AgentRole
 from languages_plus.models import Language
 from languages_plus.utils import associate_countries_and_languages

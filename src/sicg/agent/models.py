@@ -52,7 +52,7 @@ class Agent(models.Model):
         ('other', 'Other')
     )
 
-class AgentDateType(historicdate.ObjectDateType):
+class AgentDateType(historicdate.DateType):
     date_of = models.ForeignKey(Agent, models.CASCADE)
 
     date_types = (

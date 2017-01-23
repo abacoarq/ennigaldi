@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from objectinfo import ObjectIdentification, ObjectDescription
 
 # Spectrum 4.0 Several fields that use Date or Age
 # VRA Core 4   date
@@ -61,10 +60,10 @@ class HistoricDate(models.Model):
 class DateType(models.Model):
     # Date types in VRA Core are the types of events defined
     # by that date, e.g. creation, discovery, removal, etc.
-    date_type = models.CharField(max_length=32, choices=date_types)
+    date_type = models.CharField(max_length=31, choices=date_types)
     # VRA Core 4   date > source
     # Turn into fkey to bibliographic record
-    date_source = models.CharField(max_length=200, null=True, blank=True)
+    date_source = models.CharField(max_length=255, null=True, blank=True)
     date_of = models.ForeignKey('genericmodel', models.CASCADE)
     date_value = models.ForeignKey(HistoricDate, models.PROTECT)
 
@@ -85,6 +84,3 @@ class DateType(models.Model):
         ('view', 'Viewed'),
         ('other', 'Other')
     )
-
-    class Meta:
-        abstract = True
