@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
-from historicdate import HistoricDate, DateType
+from historicdate import HistoricDate, ObjectDateType
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -320,7 +320,7 @@ class ObjectDescription(models.Model):
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
-    object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.DateType)
+    object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=historicdate.ObjectDateType)
     # Spectrum 4.0 Material
     # VRA Core 4   material
     # SICG M305    3.1 Materiais
@@ -340,15 +340,14 @@ class ObjectDescription(models.Model):
 # Geologic samples, and other natural objects.
 class Specimen(ObjectDescription):
     # Spectrum 4.0 Age, age qualification, age unit
-    geological_age = models.OneToOneField(historicdate.HistoricDate, models.CASCADE, null=True, blank=True)
-    # Biological age cannot use the historicdate.HistoricDate class
+    # Biological age cannot use the HistoricDate class
     # and needs its own definition.
-    specimen_age = models.PositiveIntegerField(null=True, blank=True)
+    specimen_age = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
     specimen_age_qualification = models.PositiveSmallIntegerField(max_length=1, default=0, choices=age_qualification_choice, null=True, blank=True)
     specimen_age_unit = models.PositiveSmallIntegerField(max_length=1, default=2, choices=age_unit_choice, null=True, blank=True)
     # No VRA Core 4 equivalent to Specimen
     # Biological phases, such as "larva" or "adult",
-    # possibly also mineral information
+    # as well as textual description of age.
     # Use controlled vocab
     phase = models.CharField(max_length=200, null=True, blank=True)
     sex = models.PositiveSmallIntegerField(max_length=1, default=0,  choices=sex_choice, null=True, blank=True)
@@ -361,9 +360,7 @@ class Specimen(ObjectDescription):
     age_unit_choice = (
         (0, 'days'),
         (1, 'weeks'),
-        (2, 'years'),
-        (3, 'million years'),
-        (4, 'billion years')
+        (2, 'years')
     )
     sex_choice = (
         (0, 'neuter'),
