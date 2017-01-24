@@ -33,3 +33,7 @@ Session.vim
 *.pyc
 venv
 *.log
+
+# Database
+*.sqlite
+migrations
