@@ -37,8 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'countries_plus',
-    'languages_plus',
     'historicdate',
     'place',
     'agent',
@@ -83,7 +81,7 @@ WSGI_APPLICATION = 'ennigaldi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'ennigaldi',
+        'NAME': 'ennigaldi.sqlite',
     }
 }
 

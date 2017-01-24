@@ -4,9 +4,6 @@ from django.utils import timezone
 from historicdate.models import HistoricDate, DateType
 from agent.models import Agent
 from place.models import Place, PlaceType
-from languages_plus.models import Language
-from languages_plus.utils import associate_countries_and_languages
-associate_countries_and_languages()
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -33,7 +30,7 @@ class ObjectIdentification(models.Model):
     # numbers should be in a dedicated application,
     # so that it is more easily customized for each
     # organization.
-    refid = models.OneToOneField('AccessionNumber', models.CASCADE, 'accession_number')
+    # refid = models.OneToOneField('AccessionNumber', models.CASCADE, 'accession_number')
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=255, blank=True)
