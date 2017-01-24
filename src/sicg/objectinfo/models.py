@@ -33,7 +33,7 @@ class ObjectIdentification(models.Model):
     # numbers should be in a dedicated application,
     # so that it is more easily customized for each
     # organization.
-    refid = models.OneToOneField('AccessionNumber', models.CASCADE, related_name='accession_number')
+    refid = models.OneToOneField('AccessionNumber', models.CASCADE, 'accession_number')
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=200, null=True, blank=True)
@@ -173,7 +173,7 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
-    production_agent = models.ManyToManyField(Agent, models.PROTECT, through=AgentRole)
+    production_agent = models.ManyToManyField(Agent, 'object_produced', models.PROTECT, through=AgentRole)
     # Spectrum 4.0 Production note
     # VRA Core 4   Will have a notes field for each of
     # 'agent > creator', 'date > created', and so on.
@@ -182,7 +182,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
     # SICG M305    2.3 Origem
-    production_location = models.ManyToManyField(Place, models.PROTECT, through=ObjectPlaceType)
+    production_location = models.ManyToManyField(Place, 'produced_at_location', models.PROTECT, through=ObjectPlaceType)
     # The following field declares the original function served
     # by the object, that is, the justification for its production
     # Spectrum 4.0 Technical justification
@@ -192,7 +192,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   tech_name
     # Not covered in DCMI
     # SICG M305    3.2 Técnicas
-    technique_type = models.ManyToManyField(TechniqueType, models.PROTECT)
+    technique_type = models.ManyToManyField(TechniqueType, 'uses_technique', models.PROTECT)
 
     def __str__(self):
         return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=work)
@@ -329,7 +329,7 @@ class ObjectDescription(models.Model):
     # Using a fkey to better organize controlled vocab,
     # but it's really a list of colors.
     # No equivalent in other standards
-    colour = models.ManyToManyField(Colour, models.PROTECT)
+    colour = models.ManyToManyField(Colour, 'colour_in', models.PROTECT)
     # Strictly speaking, Territorial context is only required
     # by SICG, so consider removing it because it only
     # functions in a very specific context of nationwide
@@ -345,14 +345,14 @@ class ObjectDescription(models.Model):
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
-    object_date = models.ManyToManyField(historicdate.HistoricDate, models.CASCADE, through=ObjectDateType)
+    object_date = models.ManyToManyField(HistoricDate, 'date_for_object', models.CASCADE, through=ObjectDateType)
     # Spectrum 4.0 Material
     # VRA Core 4   material
     # SICG M305    3.1 Materiais
-    material = models.ManyToManyField(ObjectMaterial, models.PROTECT, through=MaterialType)
+    material = models.ManyToManyField(ObjectMaterial, 'material_in', models.PROTECT, through=MaterialType)
     # The field that picks up content (Spectrum) / subject (VRA Core) items
     # into the object description.
-    description_content = models.ManyToManyField(DescriptionContent, models.PROTECT, through=ContentMeta, null=True, blank=True)
+    description_content = models.ManyToManyField(DescriptionContent, 'content_in_object', models.PROTECT, through=ContentMeta, null=True, blank=True)
     # The textual description of the content, as required by Spectrum
     # and allowed by VRA Core 4.
     description_display = models.TextField(null=True, blank=True)
@@ -767,7 +767,7 @@ class ObjectRights(models.Model):
     right_end_date = models.DateField(null=True, blank=True)
     # Spectrum 4.0 Right holder
     # VRA Core 4   rights > rightsHolder
-    rights_holder = models.ManyToManyField(agent.Agent, models.PROTECT, null=True, blank=True)
+    rights_holder = models.ManyToManyField(Agent, 'has_rights', models.PROTECT, null=True, blank=True)
     # VRA Core 4   rights > text
     rights_display = models.CharField(max_length=200)
     # Spectrum 4.0 Right notes
