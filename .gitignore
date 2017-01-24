@@ -32,6 +32,3 @@ Session.vim
 # Python and venv
 *.pyc
 venv
-
-# Machine-specific settings
-src/ennigaldi/ennigaldi/settings.py
