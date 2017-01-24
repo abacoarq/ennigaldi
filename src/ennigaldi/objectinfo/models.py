@@ -824,7 +824,7 @@ class AssociatedObject(models.Model):
 # Spectrum 4.0 owner/ownership
 # SICG M305    5. Estatuto jurídico (inconsistently)
 # Not defined in VRA Core 4, DCMI
-# Designed to hold information abou previous ownership
+# Designed to hold information about previous ownership
 # conditions, not current policies, since it is assumed
 # the object is owned by the home organisation.
 # However, CIDOC/ICOM recommends current information be

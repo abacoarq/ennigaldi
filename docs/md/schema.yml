@@ -1,0 +1,286 @@
+###########################################################
+#   Ennigaldi: a lightweight set of museum applications   #
+#             YAML Textual representation                 #
+#   (c) 2017 Ábaco Arquitetura & Design Ambiental Ltda.   #
+#          Distributed under the M.I.T. License           #
+#       This document for reference purposes only.        #
+#       Authoritative and current schema only at:         #
+#        https://github.com/arq-abaco/ennigaldi           #
+###########################################################
+# All the fields below have identical names to the fields
+# in the Spectrum 4.0 or VRA Core 4 standards, unless
+# otherwise noted.
+# All lists are derived from the VRA Core 4 restricted
+# schema.
+###########################################################
+# Spectrum 4.0 Object Identification Information
+# VRA Core 4   work
+# DCMI         Namespace root level
+# SICG M305    1.3, 1.4, 3.4, 7.4
+# This is the minimum required set of information to
+# identify an object.
+work_display: # plain text. Display name for easy identification on lists.
+work_snapshot: # An image for field reference purposes only.
+work_id: # integer, a unique identification for cross-referencing.
+accession_number: # accession number used in the organisation.
+source: # plain text. Source of knoledge regarding the work.
+description: # plain text. Brief description.
+description_source: # plain text. Source for the description, normally a citation.
+comments: # plain text. Other comments or notes that apply to the work as a whole.
+distinguishing_features: # plain text. To help visually identify the work.
+work_type: # plain text, controlled vocab.
+other_object_number: # accession numbers used in other contexts
+  - number:
+    number_type:
+# Spectrum 4.0 Object name
+# VRA Core 4   title
+# DCMI         title
+# SICG M305    1.3 Identificação do bem
+object_name:
+  - name_display:
+    name_currency: # set of begin and end dates.
+    name_level: # plain text. At which level of a hierarchy the object is located.
+    name_note:
+    title_source:
+    xml_lang: # XML language codes
+    title_type: # list
+    title_pref: # boolean. Whether this is the preferred title for the work.
+    title_translation: # plain text. Should not be needed since we have xml:lang.
+
+###########################################################
+# Spectrum 4.0 Object production information
+#
+# VRA Core 4 has a more robust implementation for
+# databases, breaking down this group into different
+# actions, each of them with a 'creation' type---
+# although this has loopholes, for example in
+# allowing more than one 'creation' date_type.
+# Spectrum prevents this problem even though this
+# makes for inconsistent storage.
+#
+# We are tentatively implementing the Spectrum
+# Object production information group as a class because
+# it makes sense from a human reader point of view
+# to have these informations grouped in one place.
+# This class should only be active if the Object
+# is of Artifact or ArtifactInstance type.
+object_production:
+  - production_date: # set of dates. Can encompass other actions on the object as well.
+  - production_agent: # agent model reference. Can encompass other actions.
+  - production_note: # plain text. Further information as needed.
+  - production_location: # place model reference. Can encompass other actions.
+  - technical_justification: # controlled vocab. The trade the work belongs to.
+    technique_type: # controlled vocab. The specific techniques used, repeat as needed.
+
+###########################################################
+# Spectrum 4.0 Object location information
+# This group pertains only to locating an object in a
+# collection, e.g. in a gallery or shelf.
+# For places in the outside world, use Place.
+location_name: # location model reference. Where the work is located within the site.
+  - location_note: # plain text. Comments on the location.
+    location_fitness: # plain text. Comments on the suitability of the location.
+    normal_location: # location model reference. The default storage unit for the work.
+    location_date: # date set. When the work was moved to and from this location.
+
+###########################################################
+# Spectrum 4.0 Object description information
+# This is the most complex information group in Spectrum,
+# and the most inconsistent across different standards,
+# so modeling must be careful to account for all the
+# required information while making sure it can be
+# exchanged properly.
+#
+# We begin by separating the objects into three major
+# classes which will have different descriptive fields.
+# An Object type selector should activate only
+# the appropriate class when creating an object record.
+#
+# First we create an abstract meta-class to be referenced
+# by each of the three object types.
+# Simple Description fields common to all three object classes
+# are grouped under this class for convenience.
+object_description:
+  physical_description: # plain text
+  colour: # controlled vocab
+
+# Biological specimens (live or preserved animals,
+# taxidermic work, fossils, etc.),
+# Geologic samples, and other natural objects.
+specimen:
+  age: # decimal number. The biological age of the specimen.
+  - age_unit: # list. Whether the age is counted in days, weeks, years.
+    age_qualification: # boolean. Exact or approximate.
+  phase: # controlled vocab. Biological phase.
+  sex: # controlled vocab.
+
+# Pretty much everything else you would find in a museum.
+artifact:
+  status: # controlled vocab. Relationship to other objects ('copy', etc.)
+  style_period: # controlled vocab
+  cultural_context: # controlled vocab
+  description_content: # plain text
+  - material_name: # controlled vocab. Repeat as needed.
+    material_component: # chemical or other unit component, as analysed
+    material_type: # medium or support
+    material_note: # plain text
+    material_source: # plain text. Citation
+  instance: # if the work is an instance of several originals, e.g. prints, books.
+    copy_number: # integer
+    edition_number: # normally an integer, but can have text
+    form: # plain text
+    issue_source: # source of information regarding its issuance
+
+# Spectrum 4.0 Object dimension
+# VRA Core 4   Measurements
+# DCMI         extent
+# SICG M305    3.3 Dimensões
+dimension:
+  - dimension_part: # controlled vocab
+    dimension_type: # list
+    dimension_value: # integer, the unit is implicit in the dimension_type
+    dimension_value_date: # same as VRA Core 4 dataDate
+    dimension_value_qualifier: # boolean, exact or approximate
+
+# Spectrum 4.0 Inscription
+# VRA Core 4   Inscription
+# SICG M305    4.2 Marcas e inscrições
+inscription:
+  - inscription_display: # display text
+    inscription_type: # list
+    inscription_author: # agent model reference
+    inscription_date: # date set
+    inscription_notes: # plain text
+    inscription_language: # XML:lang
+    inscription_method: # list
+    inscription_position: # controlled vocab
+    inscription_script: # controlled vocab
+    inscritption_text: # plain text rendering of original script
+    inscription_transliteration: # plain text rendering in Roman script
+    inscription_translation: # plain text translation to home language
+
+# Spectrum 4.0 Technical attribute
+# VRA Core 4   The nature of the information that Spectrum
+# requests as a technical attribute is provided by VRA
+# Core 4 in the 'measurements' group.
+- attribute_type: # list
+  attribute_value: # normally a number
+
+# Spectrum 4.0 Content
+# VRA Core 4   subject
+# Dublin Core  subject
+# SICG M305    7.2 Características iconográficas
+- content_name: # controlled vocab, repeat as many times as needed.
+  content_type: # list
+  content_meta: # a workable implementation of the crazy way Spectrum lists content types
+    object_type: # controlled vocab. when the content is another object
+    event_type: # controlled vocab. when the content is a historical event
+    other_type: # controlled vocab. when the content is something else
+    content_script:
+    content_lang:
+    content_position:
+    content_source:
+
+# Spectrum 4.0 Object component
+# Not implemented yet.
+#
+# /Spectrum 4.0 Object description information
+###########################################################
+
+###########################################################
+# Spectrum 4.0 Object rights information group
+# VRA Core 4   rights
+# DCMI         license
+# SICG M305    5. Situação jurídica
+- rights_display:
+  rights_type: # list
+  rights_begin_date:
+  rights_end_date:
+  rights_holder: # agent model reference
+  rights_refid: # plain text. Contract numbers, etc.
+# /Spectrum 4.0 Object rights information group
+###########################################################
+
+###########################################################
+# Spectrum 4.0 Object history and association information
+# Will eventually have the following information:
+# Spectrum 4.0 Associated activity
+# Spectrum 4.0 Associated activity note
+# Spectrum 4.0 Associated concept
+# Spectrum 4.0 Associated cultural affinity
+# Spectrum 4.0 Associated date
+# Spectrum 4.0 Associated event date
+# Spectrum 4.0 Associated event name
+# Spectrum 4.0 Associated event name type
+# Spectrum 4.0 Associated event organisation/people/person
+# Spectrum 4.0 Associated event place
+
+# Spectrum 4.0 Associated object
+# SICG M305    6. Documentos relacionados
+# Tentatively being used to record documents and sources
+# with detail that object_source cannot have.
+- associated_object_display:
+  associated_object_name:
+  associated_object_type: # controlled vocab
+  associated_object_datadate: # date the information was accessed, required by SICG
+
+
+# Not implemented yet:
+# Spectrum 4.0 Associated organisation/people/person
+# Spectrum 4.0 Associated place
+# Spectrum 4.0 Association note
+# Spectrum 4.0 Association type
+# Spectrum 4.0 Object history note
+
+# Spectrum 4.0 owner/ownership
+# SICG M305    5. Estatuto jurídico (inconsistently)
+# Not defined in VRA Core 4, DCMI
+# Designed to hold information about previous ownership
+# conditions, not current policies, since it is assumed
+# the object is owned by the home organisation.
+# However, CIDOC/ICOM recommends current information be
+# recorded so it can be made available to others.
+# SICG requires both information on current ownership
+# as well as the last recorded owner.
+- owner_display:
+  owner_category: # list (public, private...)
+  ownership_method: # list (purchase, donation...)
+  owner_begin_date:
+  owner_end_date:
+  owner_note:
+  sale_price: # in home country currency
+  owner_place: # place model reference
+
+# Spectrum 4.0 Related object
+# VRA Core 4   relation
+# Dublin Core  relation
+# SICG M305    3.5 Objetos relacionados
+# This is distinct from the subject > object
+# field, in that it records objects related to one
+# another, rather than an object referred to in
+# another object.
+- related_object_display:
+  relation_type: # list
+  related_object_name:
+  related_note:
+
+# Not yet implemented:
+# Spectrum 4.0 Usage
+# Spectrum 4.0 Usage note
+# /Spectrum 4.0 Object history and association information
+###########################################################
+
+###########################################################
+# VRA Core 4   textref
+# SICG M305    7.3 Referência bibliográfica e arquivística
+# This group primarly intended to record the object in
+# catalogues and where it gets other reference numbers.
+- textref_display:
+  textref_name:
+  textref_name_type: # list
+  textref_refid:
+  textref_refid_type: # list (ISBN, etc.)
+  textref_location:
+  textref_datadate:
+# /VRA Core 4   textref
+###########################################################
