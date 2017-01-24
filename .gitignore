@@ -33,3 +33,6 @@ Session.vim
 *.pyc
 venv
 *.log
+
+# Machine-specific settings
+src/ennigaldi/ennigaldi/settings.py
