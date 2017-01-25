@@ -31,6 +31,7 @@ class ObjectIdentification(models.Model):
     # so that it is more easily customized for each
     # organization.
     # refid = models.OneToOneField('AccessionNumber', models.CASCADE, 'accession_number')
+    refid = models.CharField(max_length=31, blank=True)
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=255, blank=True)
@@ -64,7 +65,8 @@ class ObjectIdentification(models.Model):
     work_type = models.CharField(max_length=255)
 
     def __str__(self):
-        return refid + " " + self.objectname_set.filter(object_name_preferred=True)
+        return refid + " " + work_type
+        # return refid + " " + self.objectname_set.filter(object_name_preferred=True)
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
