@@ -41,7 +41,7 @@ class ObjectIdentification(models.Model):
     # VRA Core 4   description, or not used?
     # DCMI         abstract
     # SICG M305    4.1 Descrição formal, or not used?
-    description = models.TextField(blank=True)
+    brief_description = models.TextField(blank=True)
     # Turn this into a fk for a bibliography model.
     # VRA Core 4   description_source
     description_source = models.CharField(max_length=255, blank=True)
@@ -63,6 +63,11 @@ class ObjectIdentification(models.Model):
     # SICG M305    M301 Classificação do bem
     # Use controlled vocab
     work_type = models.CharField(max_length=255)
+    # Complementary information is split into different
+    # classes according to their Spectrum 4.0 information
+    # groups, so as to make the whole easier to manage.
+    production = models.OneToOneField('ObjectProduction', models.CASCADE)
+    description = models.OneToOneField('ObjectIdentification', models.CASCADE)
 
     def __str__(self):
         return refid + " " + work_type
@@ -157,7 +162,6 @@ class ObjectName(models.Model):
 # This class should only be active if the Object
 # is of Artifact or ArtifactInstance type.
 class ObjectProduction(models.Model):
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE)
     # Spectrum 4.0 Production date is a separate field
     #              from Description age
     # VRA Core 4   date + date_type=created
@@ -239,12 +243,12 @@ class TechniqueType(models.Model):
 # This group pertains only to locating an object in a
 # collection, e.g. in a gallery or shelf.
 # For places in the outside world, use Place.
-class Location(models.Model):
+class Unit(models.Model):
     # Locations can be recursive for maximum flexibility,
     # e.g. building > wing > room > furniture > shelf
     # or in any other way required by the organization.
     # Root-level locations will have this set to NULL:
-    location_parent = models.ForeignKey('self', models.PROTECT, blank=True)
+    unit_parent = models.ForeignKey('self', models.PROTECT, blank=True)
     # The physical address where this accession location resides.
     # Defaults to own organization, blank if inside a parent location.
     address = models.ForeignKey('place.Place', models.PROTECT, blank=True)
@@ -252,41 +256,41 @@ class Location(models.Model):
     # Defaults to own organization, blank if inside a parent location.
     agent = models.ForeignKey('agent.Agent', models.PROTECT, blank=True)
     # A code that identifies the location, if any.
-    location_id = models.CharField(max_length=7, blank=True)
+    unit_id = models.CharField(max_length=7, blank=True)
     # Keep the name short, follow conventions
-    location_name = models.CharField(max_length=32)
+    unit_name = models.CharField(max_length=32)
     # Spectrum 4.0 Location note
     # VRA Core 4   location > notes
     # Notes on the location or its name (e.g. "so-called", "condemned", etc.)
-    location_note = models.TextField(blank=True)
+    unit_note = models.TextField(blank=True)
 
     def __str__(self):
-        if location_parent:
-            parent_string = ' in ' + location_parent
+        if unit_parent:
+            parent_string = ' in ' + unit_parent
         else:
             parent_string = ''
-        return location_id + ' ' + location_name + parent_string
+        return unit_id + ' ' + unit_name + parent_string
 
-class ObjectLocation(models.Model):
+class ObjectUnit(models.Model):
     work = models.ForeignKey('ObjectIdentification', models.CASCADE, related_name='objects_in_location')
     # Spectrum 4.0 Location
     # VRA Core 4   location, but only as pertaining to
     #              locating the object in the collection
     # DCMI         spatial, same caveat as above
     # Not available in SICG
-    location = models.ForeignKey('Location', models.PROTECT, related_name='location_for_objects')
+    unit = models.ForeignKey('Unit', models.PROTECT, related_name='location_for_objects')
     # Spectrum 4.0 Location fitness
     # No equivalent in other standards.
-    location_fitness = models.TextField(blank=True)
+    unit_fitness = models.TextField(blank=True)
     # Spectrum 4.0 Location note
     # VRA Core 4   location > notes
-    location_note = models.TextField(blank=True)
+    unit_note = models.TextField(blank=True)
     # The following field records the date the object
     # was moved to this location
     # Spectrum 4.0 Location date
-    location_date = models.DateTimeField(default=timezone.now)
+    unit_date = models.DateTimeField(default=timezone.now)
     # Spectrum 4.0 Normal location
-    normal_location = models.ForeignKey('Location', models.PROTECT)
+    normal_unit = models.ForeignKey('Unit', models.PROTECT)
 
     def __str__(self):
         return 'Location information for object ' + ObjectIdentification.objects.filter(work_id=work)
@@ -311,11 +315,6 @@ class ObjectLocation(models.Model):
 # Simple Description fields common to all three object classes
 # are grouped under this class for convenience.
 class ObjectDescription(models.Model):
-    # Object description is strictly bound to its respective
-    # Object identification, so much so that we only split
-    # the two groups to remain consistent with the Spectrum
-    # standard, and also to make each class easier to manage.
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, primary_key=True)
     # Spectrum 4.0 Physical description
     # VRA Core 4   Append to description in output,
     #              or standalone description,
