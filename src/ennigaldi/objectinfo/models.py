@@ -4,6 +4,9 @@ from django.utils import timezone
 from historicdate.models import HistoricDate, DateType
 from agent.models import Agent
 from place.models import Place, PlaceType
+# Change the application name below to whichever is
+# being used in the organisation.
+from reorg.models import AccessionNumber
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -25,13 +28,17 @@ class ObjectIdentification(models.Model):
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
+    # This field helps compute the correct accession number
+    # in case it requires objects that are part of a set
+    # to have a single number appended with a part number.
+    part_of = models.ForeignKey("self", blank=True)
     # This IS the object accession number used in the organization.
     # The class that automates the creation of accession
     # numbers should be in a dedicated application,
     # so that it is more easily customized for each
     # organization.
-    # refid = models.OneToOneField('AccessionNumber', models.CASCADE, 'accession_number')
-    refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
+    refid = models.OneToOneField('reorg.AccessionNumber', models.CASCADE, 'accession_number')
+    # refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=255, blank=True)
@@ -59,10 +66,6 @@ class ObjectIdentification(models.Model):
     # Best if this is computed from related objects,
     # rather than manually entered here.
     # number_of_objects = models.PositiveIntegerField(default=1)
-    # This field helps compute the correct accession number
-    # in case it requires objects that are part of a set
-    # to have a single number appended with a part number.
-    part_of = models.ForeignKey("self", blank=True)
     # VRA Core 4   worktype
     # SICG M305    M301 Classificação do bem
     # Use controlled vocab
