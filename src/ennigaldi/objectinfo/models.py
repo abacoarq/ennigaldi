@@ -59,6 +59,10 @@ class ObjectIdentification(models.Model):
     # Best if this is computed from related objects,
     # rather than manually entered here.
     # number_of_objects = models.PositiveIntegerField(default=1)
+    # This field helps compute the correct accession number
+    # in case it requires objects that are part of a set
+    # to have a single number appended with a part number.
+    part_of = models.ForeignKey("self", blank=True)
     # VRA Core 4   worktype
     # SICG M305    M301 Classificação do bem
     # Use controlled vocab
