@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'place',
     'agent',
     'objectinfo',
+    'reorg',
 ]
 
 MIDDLEWARE = [
