@@ -31,7 +31,7 @@ class ObjectIdentification(models.Model):
     # so that it is more easily customized for each
     # organization.
     # refid = models.OneToOneField('AccessionNumber', models.CASCADE, 'accession_number')
-    refid = models.CharField(max_length=31, blank=True)
+    refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=255, blank=True)
@@ -66,8 +66,7 @@ class ObjectIdentification(models.Model):
     # Complementary information is split into different
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
-    production = models.OneToOneField('ObjectProduction', models.CASCADE)
-    description = models.OneToOneField('ObjectIdentification', models.CASCADE)
+    production = models.OneToOneField('ObjectProduction', models.SET_NULL, null=True)
 
     def __str__(self):
         return refid + " " + work_type
@@ -315,6 +314,7 @@ class ObjectUnit(models.Model):
 # Simple Description fields common to all three object classes
 # are grouped under this class for convenience.
 class ObjectDescription(models.Model):
+    work = models.OneToOneField('ObjectIdentification', models.CASCADE)
     # Spectrum 4.0 Physical description
     # VRA Core 4   Append to description in output,
     #              or standalone description,

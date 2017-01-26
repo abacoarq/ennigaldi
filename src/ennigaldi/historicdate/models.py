@@ -25,18 +25,18 @@ class HistoricDate(models.Model):
     # 'First half of the 5th century B.C.'
     # -425, date_accuracy=3
     #
-    date_earliest = models.CharField(max_length=15)
-    # 'False' interprets to exact date, 'True' to circa.
-    date_earliest_accuracy = models.BooleanField(default=False)
-    # Enter 'present' if living person or continued event.
-    date_latest = models.CharField(max_length=15)
-    date_latest_accuracy = models.BooleanField(default=False)
-    date_source = models.CharField(max_length=255, blank=True)
     # Text representation of the date, for when more complex
     # explanations are required. If left blank, will be filled
     # with rendered concatenation of the previous fields
     # at a pre-save hook.
-    date_display = models.CharField(max_length=255, blank=True)
+    date_display = models.CharField(max_length=255, help_text='Textual representation of date')
+    date_earliest = models.CharField(max_length=15, help_text="ISO-8601 format:<br />For '13 billion years ago,' enter: -13000000000<br />For 'Ides of March, 44 B.C.,' enter: -44-03-15<br />For 'January, 1792,' enter: 1792-01", blank=True)
+    # 'False' interprets to exact date, 'True' to circa.
+    date_earliest_accuracy = models.BooleanField(default=False, verbose_name="circa")
+    # Enter 'present' if living person or continued event.
+    date_latest = models.CharField(max_length=15, help_text="ISO-8601 format<br />For a living person or continuing event, enter: present", blank=True)
+    date_latest_accuracy = models.BooleanField(default=False, verbose_name="circa")
+    date_source = models.CharField(max_length=255, blank=True, help_text="Bibliographic source for the date information")
 
     def __str__(self):
         return date_display
