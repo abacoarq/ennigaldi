@@ -31,13 +31,13 @@ class ObjectIdentification(models.Model):
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
-    part_of = models.ForeignKey("self", blank=True)
+    part_of = models.ForeignKey("self", null=True)
     # This IS the object accession number used in the organization.
     # The class that automates the creation of accession
     # numbers should be in a dedicated application,
     # so that it is more easily customized for each
     # organization.
-    refid = models.OneToOneField('reorg.AccessionNumber', models.CASCADE, 'accession_number')
+    refid = models.OneToOneField(AccessionNumber, models.CASCADE, 'accession_number_display')
     # refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
@@ -358,35 +358,35 @@ class ObjectDescription(models.Model):
 # Geologic samples, and other natural objects.
 class Specimen(ObjectDescription):
     age_qualification_choice = (
-        (0, ''),
-        (1, 'around'),
-        (2, 'less than'),
-        (3, 'more than')
+        ('exact', 'exact'),
+        ('around', 'around'),
+        ('lessThan', 'less than'),
+        ('moreThan', 'more than')
     )
     age_unit_choice = (
-        (0, 'days'),
-        (1, 'weeks'),
-        (2, 'years')
+        ('days', 'days'),
+        ('weeks', 'weeks'),
+        ('years', 'years')
     )
     sex_choice = (
-        (0, 'neuter'),
-        (1, 'male'),
-        (2, 'female'),
-        (3, 'hermaphrodite'),
-        (4, 'other')
+        ('neuter', 'neuter'),
+        ('male', 'male'),
+        ('female', 'female'),
+        ('hermaphrodite', 'hermaphrodite'),
+        ('other', 'other')
     )
     # Spectrum 4.0 Age, age qualification, age unit
     # Biological age cannot use the HistoricDate class
     # and needs its own definition.
     specimen_age = models.DecimalField(max_digits=5, decimal_places=1, blank=True)
-    specimen_age_qualification = models.PositiveSmallIntegerField(default=0, choices=age_qualification_choice, blank=True)
-    specimen_age_unit = models.PositiveSmallIntegerField(default=2, choices=age_unit_choice, blank=True)
+    specimen_age_qualification = models.CharField(max_length=15, default='exact', choices=age_qualification_choice, blank=True)
+    specimen_age_unit = models.CharField(max_length=15, default='years', choices=age_unit_choice, blank=True)
     # No VRA Core 4 equivalent to Specimen
     # Biological phases, such as "larva" or "adult",
     # as well as textual description of age.
     # Use controlled vocab
     phase = models.CharField(max_length=255, blank=True)
-    sex = models.PositiveSmallIntegerField(default=0,  choices=sex_choice, blank=True)
+    sex = models.CharField(max_length=15, default='male',  choices=sex_choice, blank=True)
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
@@ -455,26 +455,26 @@ class ObjectDimension(models.Model):
         # from the measurement type chosen, to make
         # things simpler.
         # Fields below provided by VRA Core 4.
-        (0, 'area (cm²)'),
-        (1, 'base (mm)'), # Obviously inconsistent with what VRA Core distinguishes as measurement type vs. measurement extent, keep track to see if they fix this in a future version.
-        # (2, 'bit-depth'),            # Spectrum Technical attribute measurement
-        (3, 'circumference (mm)'),
-        (4, 'count'),
-        (5, 'depth (mm)'),
-        (6, 'diameter (mm)'),
-        # (7, 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
-        # (8, 'duration (s)'),         # Spectrum Technical attribute measurement
-        # (9, 'fileSize (kB)'),        # Spectrum Technical attribute measurement
-        (10, 'height (mm)'),
-        (11, 'length (mm)'),
-        # (12, 'resolution (ppi)'),    # Spectrum Technical attribute measurement
-        # (13, 'runningTime (s)'),     # Spectrum Technical attribute measurement
-        # (14, 'scale'),               # Spectrum Technical attribute measurement
-        # (15, 'size'),                # Spectrum Technical attribute measurement
-        # (16, 'target'),              # Spectrum Technical attribute measurement
-        (17, 'weight (g)'),
-        (18, 'width (mm)'),
-        # (19, 'other')                # Spectrum Technical attribute measurement
+        ('area', 'area (cm²)'),
+        ('base', 'base (mm)'), # Obviously inconsistent with what VRA Core distinguishes as measurement type vs. measurement extent, keep track to see if they fix this in a future version.
+        # ('bit-depth', 'bit-depth'),            # Spectrum Technical attribute measurement
+        ('circumference', 'circumference (mm)'),
+        ('count', 'count'),
+        ('depth', 'depth (mm)'),
+        ('diameter', 'diameter (mm)'),
+        # ('distanceBetween (mm)', 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
+        # ('duration (s)', 'duration (s)'),         # Spectrum Technical attribute measurement
+        # ('fileSize (kB)', 'fileSize (kB)'),        # Spectrum Technical attribute measurement
+        ('height', 'height (mm)'),
+        ('length', 'length (mm)'),
+        # ('resolution (ppi)', 'resolution (ppi)'),    # Spectrum Technical attribute measurement
+        # ('runningTime (s)', 'runningTime (s)'),     # Spectrum Technical attribute measurement
+        # ('scale', 'scale'),               # Spectrum Technical attribute measurement
+        # ('size', 'size'),                # Spectrum Technical attribute measurement
+        # ('target', 'target'),              # Spectrum Technical attribute measurement
+        ('weight', 'weight (g)'),
+        ('width', 'width (mm)'),
+        # ('other', 'other')                # Spectrum Technical attribute measurement
     )
     work = models.ForeignKey('ObjectIdentification', models.CASCADE)
     # Spectrum 4.0 Dimension measured part
@@ -485,7 +485,7 @@ class ObjectDimension(models.Model):
     # Other standards mix up 'part' and 'type',
     # the latter of which is properly height, length,
     # weight, etc.
-    dimension_type = models.PositiveSmallIntegerField(default=11, choices=measurement_type)
+    dimension_type = models.CharField(max_length=31, default='length', choices=measurement_type)
     # Spectrum 4.0 Dimension value
     # VRA Core 4   measurements (root)
     # DCMI         fields according to dimension_type
@@ -592,26 +592,26 @@ class TechnicalAttribute(models.Model):
          # from the measurement type chosen, to make
          # things simpler.
          # Fields below provided by VRA Core 4.
-         # (0, 'area (cm²)'),           # Spectrum Dimension
-         # (1, 'base (mm)'),            # Spectrum Dimension
-         (2, 'bit-depth'),            # Spectrum Technical attribute measurement
-         # (3, 'circumference (mm)'),   # Spectrum Dimension
-         # (4, 'count'),                # Spectrum Dimension
-         # (5, 'depth (mm)'),           # Spectrum Dimension
-         # (6, 'diameter (mm)'),        # Spectrum Dimension
-         (7, 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
-         (8, 'duration (s)'),         # Spectrum Technical attribute measurement
-         (9, 'fileSize (kB)'),        # Spectrum Technical attribute measurement
-         # (10, 'height (mm)'),         # Spectrum Dimension
-         # (11, 'length (mm)'),         # Spectrum Dimension
-         (12, 'resolution (ppi)'),    # Spectrum Technical attribute measurement
-         (13, 'runningTime (s)'),     # Spectrum Technical attribute measurement
-         (14, 'scale'),               # Spectrum Technical attribute measurement
-         (15, 'size'),                # Spectrum Technical attribute measurement
-         (16, 'target'),              # Spectrum Technical attribute measurement
-         # (17, 'weight (g)'),          # Spectrum Dimension
-         # (18, 'width (mm)'),          # Spectrum Dimension
-         (19, 'other')                # Spectrum Technical attribute measurement
+         # ('area (cm²)', 'area (cm²)'),           # Spectrum Dimension
+         # ('base (mm)', 'base (mm)'),            # Spectrum Dimension
+         ('bit-depth', 'bit-depth'),            # Spectrum Technical attribute measurement
+         # ('circumference (mm)', 'circumference (mm)'),   # Spectrum Dimension
+         # ('count', 'count'),                # Spectrum Dimension
+         # ('depth (mm)', 'depth (mm)'),           # Spectrum Dimension
+         # ('diameter (mm)', 'diameter (mm)'),        # Spectrum Dimension
+         ('distanceBetween', 'distance between (mm)'), # Spectrum Technical attribute measurement
+         ('duration', 'duration (s)'),         # Spectrum Technical attribute measurement
+         ('fileSize', 'file size (kB)'),        # Spectrum Technical attribute measurement
+         # ('height (mm)', 'height (mm)'),         # Spectrum Dimension
+         # ('length (mm)', 'length (mm)'),         # Spectrum Dimension
+         ('resolution', 'resolution (ppi)'),    # Spectrum Technical attribute measurement
+         ('runningTime', 'running time (s)'),     # Spectrum Technical attribute measurement
+         ('scale', 'scale'),               # Spectrum Technical attribute measurement
+         ('size', 'size'),                # Spectrum Technical attribute measurement
+         ('target', 'target'),              # Spectrum Technical attribute measurement
+         # ('weight (g)', 'weight (g)'),          # Spectrum Dimension
+         # ('width (mm)', 'width (mm)'),          # Spectrum Dimension
+         ('other', 'other')                # Spectrum Technical attribute measurement
      )
      work = models.ForeignKey('ObjectIdentification', models.CASCADE)
      # Spectrum 4.0 Technical attribute
@@ -619,7 +619,7 @@ class TechnicalAttribute(models.Model):
      # Other standards mix up 'part' and 'type',
      # the latter of which is properly height, length,
      # weight, etc.
-     attribute_type = models.PositiveSmallIntegerField(default=11, choices=attribute_types)
+     attribute_type = models.CharField(max_length=31, default='fileSize', choices=attribute_types)
      # Spectrum 4.0 Technical attribute measurement
      # VRA Core 4   measurements (root)
      # DCMI         fields according to dimension_type
@@ -668,11 +668,11 @@ class ObjectMaterial(models.Model):
 class MaterialType(models.Model):
     # VRA Core 4   material > type
     material_types = (
-        (0, 'medium'),
-        (1, 'support'),
-        (2, 'other')
+        ('medium', 'medium'),
+        ('support', 'support'),
+        ('other', 'other')
     )
-    material_type = models.PositiveSmallIntegerField(default=0, choices=material_types)
+    material_type = models.CharField(max_length=15, default='medium', choices=material_types)
     material = models.ForeignKey('ObjectMaterial', models.PROTECT)
     work = models.ForeignKey('Artifact', models.CASCADE)
     # VRA Core 4   material > extent
@@ -688,36 +688,36 @@ class MaterialType(models.Model):
 class DescriptionContent(models.Model):
     content_types = (
         # First, the VRA Core 4 types
-        ('agent.Agent', (
-            (0, 'corporateName'),
-            (1, 'familyName'),
-            (2, 'otherName'),
-            (3, 'personalName')
+        ('Agent', (
+            ('corporateName', 'corporate name'),
+            ('familyName', 'family or group name'),
+            ('otherName', 'other name'),
+            ('personalName', 'personal name')
         ) ),
         ('Object', (
-            (4, 'scientificName') # For Spectrum, contained in content > object
+            ('scientificName', 'scientific name') # For Spectrum, contained in content > object
         ) ),
-        ('place.Place', (
-            (5, 'builtWorkPlace'),
-            (6, 'geographicPlace'),
-            (7, 'otherPlace')
+        ('Place', (
+            ('builtWorkPlace', 'location of a built work'),
+            ('geographicPlace', 'geographic location'),
+            ('otherPlace', 'other location')
         ) ),
         ('Topic', (
-            (8, 'conceptTopic'),
-            (9, 'descriptiveTopic'),
-            (10, 'iconographicTopic'),
-            (11, 'otherTopic')
+            ('conceptTopic', 'concept topic'),
+            ('descriptiveTopic', 'descriptive topic'),
+            ('iconographicTopic', 'iconographic topic'),
+            ('otherTopic', 'other topic')
         ) ),
         # Fill with remaining Spectrum 4.0 categories
         ('Other', (
-            (12, 'activity'),
-            (13, 'date'),
-            (14, 'event name'),
-            (14, 'note')
+            ('activity', 'activity'),
+            ('date', 'date'),
+            ('eventName', 'event name'),
+            ('note', 'note')
         ) ),
     )
     content_name = models.CharField(max_length=255)
-    content_type = models.PositiveSmallIntegerField(choices=content_types)
+    content_type = models.CharField(max_length=31, choices=content_types)
 
 # The content itself is distinguished from its metadata
 # because a piece of content is a keyword that can occur in
@@ -767,10 +767,10 @@ class ContentMeta(models.Model):
 # the object by a third party.
 class ObjectRights(models.Model):
     rights_types = (
-        (0, 'copyrighted'),
-        (1, 'publicDomain'),
-        (2, 'undetermined'),
-        (3, 'other')
+        ('copyrighted', 'copyrighted'),
+        ('publicDomain', 'public domain'),
+        ('undetermined', 'undetermined'),
+        ('other', 'other')
     )
     work = models.ForeignKey('ObjectIdentification', models.CASCADE)
     # Spectrum 4.0 right begin date
@@ -792,7 +792,7 @@ class ObjectRights(models.Model):
     rights_refid = models.AutoField(max_length=7, primary_key=True, editable=True)
     # Spectrum 4.0 Right type
     # VRA Core 4   rights > type
-    rights_type = models.PositiveSmallIntegerField(default=0, choices=rights_types)
+    rights_type = models.CharField(max_length=15, default='undetermined', choices=rights_types)
 # /Spectrum 4.0 Object rights information group
 ###########################################################
 
@@ -841,20 +841,20 @@ class AssociatedObject(models.Model):
 # as well as the last recorded owner.
 class Ownership(models.Model):
     # SICG M301 3. Propriedade
-    owner_categories = (
-        (0, 'public'),
-        (1, 'private'),
-        (2, 'mixed'),
-        (3, 'other')
+    ownership_categories = (
+        ('public', 'public'),
+        ('private', 'private'),
+        ('mixed', 'mixed'),
+        ('other', 'other')
     )
     # 'Lease' is of course not a method of transfer of
     # ownership, but it is provided here for compatibility
     # with the SICG standard.
-    owner_methods = (
-        (0, 'purchase'),
-        (1, 'lease'),
-        (2, 'donation'),
-        (3, 'other')
+    ownership_methods = (
+        ('purchase', 'purchase'),
+        ('lease', 'lease'),
+        ('donation', 'donation'),
+        ('other', 'other')
     )
     # Spectrum 4.0 Owner organisation/person (not people)
     # Defaults to own organization.
@@ -864,20 +864,20 @@ class Ownership(models.Model):
     # Spectrum 4.0 Ownership category
     # Use standardized vocabulary, preferred values are
     # 'public,' 'private,' and 'corporate.'
-    owner_category = models.PositiveSmallIntegerField(default=0, choices=owner_categories)
+    ownership_category = models.CharField(max_length=15, default='public', choices=ownership_categories)
     # Spectrum 4.0 Ownership dates
     # As per VRA Core 4.0, blank dates should be rendered
     # as 'present' in the output.
-    owner_begin_date = models.DateField(blank=True)
-    owner_end_date = models.DateField(blank=True)
+    ownership_begin_date = models.DateField(blank=True)
+    ownership_end_date = models.DateField(blank=True)
     # Spectrum 4.0 Ownership exchange method
-    owner_method = models.PositiveSmallIntegerField(default=0, choices=owner_methods)
+    ownership_method = models.CharField(max_length=15, default='purchase', choices=ownership_methods)
     # Spectrum 4.0 Ownership exchange note
-    owner_note = models.TextField(blank=True)
+    ownership_note = models.TextField(blank=True)
     # Spectrum 4.0 Ownership exchange price
     sale_price = models.DecimalField(max_digits=11, decimal_places=2, blank=True)
     # Spectrum 4.0 Ownership place
-    owner_place = models.ForeignKey('place.Place', models.PROTECT, blank=True)
+    ownership_place = models.ForeignKey('place.Place', models.PROTECT, blank=True)
 
 # Spectrum 4.0 Related object
 # VRA Core 4   relation
@@ -895,64 +895,64 @@ class RelatedObject(models.Model):
     # for each pair of associations?
     relation_types = (
         ('default', (
-            (37, "relatedTo"),
+            ('relatedTo', 'related to'),
         ) ),
         ('hierarchical', (
-            (25, "partOf"),
-            (26, "largerContextFor"),
-            (18, "formerlyPartOf"),
-            (19, "formerlyLargerContextFor"),
+            ('partOf', 'part of'),
+            ('largerContextFor', 'larger context for'),
+            ('formerlyPartOf', 'formerly part of'),
+            ('formerlyLargerContextFor', 'formerly larger context for'),
         )),
         ('components', (
-            (2, "componentOf"),
-            (3, "componentIs"),
+            ('componentOf', 'component of'),
+            ('componentIs', 'component is'),
         )),
         ('steps', (
-            (0, "cartoonFor"),
-            (1, "cartoonIs"),
-            (6, "counterProofFor"),
-            (7, "counterProofIs"),
-            (23, "modelFor"),
-            (24, "modelIs"),
-            (29, "planFor"),
-            (30, "planIs"),
-            (31, "prepatoryFor"),
-            (32, "basedOn"),
-            (33, "printingPlateFor"),
-            (34, "printingPlateIs"),
-            (35, "prototypeFor"),
-            (36, "prototypeIs"),
-            (38, "reliefFor"),
-            (39, "impressionIs"),
-            (42, "studyFor"),
-            (43, "studyIs"),
+            ('cartoonFor', 'cartoon for'),
+            ('cartoonIs', 'cartoon is'),
+            ('counterProofFor', 'counter proof for'),
+            ('counterProofIs', 'counter proof is'),
+            ('modelFor', 'model for'),
+            ('modelIs', 'model is'),
+            ('planFor', 'plan for'),
+            ('planIs', 'plan is'),
+            ('prepatoryFor', 'prepatory for'),
+            ('basedOn', 'based on'),
+            ('printingPlateFor', 'printing plate for'),
+            ('printingPlateIs', 'printing plate is'),
+            ('prototypeFor', 'prototype for'),
+            ('prototypeIs', 'prototype is'),
+            ('reliefFor', 'relief for'),
+            ('impressionIs', 'impression is'),
+            ('studyFor', 'study for'),
+            ('studyIs', 'study is'),
         )),
         ('together', (
-            (12, "designedFor"),
-            (13, "contextIs"),
-            (14, "exhibitedAt"), # Not an object-to-object relation
-            (15, "venueFor"),    # Not an object-to-object relation
-            (22, "mateOf"),
-            (27, "partnerInSetWith"),# Not an object-to-object relation
-            (28, "pendantOf"),
+            ('designedFor', 'designed for'),
+            ('contextIs', 'context is'),
+            ('exhibitedAt', 'exhibited at'), # Not an object-to-object relation
+            ('venueFor', 'venue for'),    # Not an object-to-object relation
+            ('mateOf', 'mate of'),
+            ('partnerInSetWith', 'partner in set with'),# Not an object-to-object relation
+            ('pendantOf', 'pendant of'),
         )),
         ('after', (
-            (4, "copyAfter"),
-            (5, "copyIs"),
-            (8, "depicts"),
-            (9, "depictedIn"),
-            (10, "derivedFrom"),
-            (11, "sourceFor"),
-            (16, "facsimileOf"),
-            (17, "facsimileIs"),
-            (40, "replicaOf"),
-            (41, "replicaIs"),
-            (44, "versionOf"),
-            (45, "versionIs")
+            ('copyAfter', 'copy after'),
+            ('copyIs', 'copy is'),
+            ('depicts', 'depicts'),
+            ('depictedIn', 'depicted in'),
+            ('derivedFrom', 'derived from'),
+            ('sourceFor', 'source for'),
+            ('facsimileOf', 'facsimile of'),
+            ('facsimileIs', 'facsimile is'),
+            ('replicaOf', 'replica of'),
+            ('replicaIs', 'replica is'),
+            ('versionOf', 'version of'),
+            ('versionIs', 'version is')
         )),
         ('image', (
-            (20, "imageOf"),
-            (21, "imageIs"),
+            ('imageOf', 'image of'),
+            ('imageIs', 'image is'),
         )),
     )
     # Spectrum 4.0 Related object number
@@ -963,7 +963,7 @@ class RelatedObject(models.Model):
     # Spectrum 4.0 Related object association
     # The type of association between the objects (copy, model,
     # representation, etc.)
-    relation_type = models.PositiveSmallIntegerField(choices=relation_types)
+    relation_type = models.CharField(max_length=31, choices=relation_types, default='partOf')
     # Spectrum 4.0 Related object note
     related_note = models.TextField(blank=True)
 
