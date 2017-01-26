@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'historicdate',
     'place',
     'agent',
-    'objectinfo',
     'reorg',
+    'objectinfo',
 ]
 
 MIDDLEWARE = [
