@@ -25,13 +25,13 @@ class ObjectIdentification(models.Model):
     # to be photographed in the field when doing the
     # preliminary recording work.
     work_snapshot = models.ImageField()
-    # Spectrum 4.0 Object number
-    # VRA Core 4   refid
-    # SICG M305    1.4 Código identificador Iphan
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
-    part_of = models.ForeignKey("self", null=True)
+    part_of = models.ForeignKey("self", models.CASCADE, null=True, related_name='larger_context_for')
+    # Spectrum 4.0 Object number
+    # VRA Core 4   refid
+    # SICG M305    1.4 Código identificador Iphan
     # This IS the object accession number used in the organization.
     # The class that automates the creation of accession
     # numbers should be in a dedicated application,
@@ -39,6 +39,14 @@ class ObjectIdentification(models.Model):
     # organization.
     refid = models.OneToOneField(AccessionNumber, models.CASCADE, 'accession_number_display')
     # refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
+    # Spectrum 4.0 Object name
+    # VRA Core 4   title > pref
+    # DCMI         title
+    preferred_title = models.OneToOneField('ObjectName', models.CASCADE)
+    # VRA Core 4   worktype
+    # SICG M305    M301 Classificação do bem
+    # Use controlled vocab
+    work_type = models.CharField(max_length=255)
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=255, blank=True)
@@ -57,62 +65,55 @@ class ObjectIdentification(models.Model):
     # SICG M305    Append to 4.1 Descrição formal in output
     comments = models.TextField(blank=True)
     # Spectrum 4.0 Distinguishing features
-    # VRA Core 4   Append to description in output
+    # VRA Core 4   Append to description in output?
     # SICG M305    Append to 4.1 Descrição formal in output
     distinguishing_features = models.TextField(blank=True)
     # Spectrum 4.0 Number of objects
     # DCMI         extent > count
     # SICG M305    3.4.2.1 Número de partes
-    # Best if this is computed from related objects,
-    # rather than manually entered here.
-    # number_of_objects = models.PositiveIntegerField(default=1)
-    # VRA Core 4   worktype
-    # SICG M305    M301 Classificação do bem
-    # Use controlled vocab
-    work_type = models.CharField(max_length=255)
     # Complementary information is split into different
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
-    production = models.OneToOneField('ObjectProduction', models.SET_NULL, null=True)
+    production = models.OneToOneField('ObjectProduction', models.PROTECT, null=True)
 
     def __str__(self):
-        return refid + " " + work_type
-        # return refid + " " + self.objectname_set.filter(object_name_preferred=True)
+        return refid + " " + preferred_title + ' (w_' + work_id + ')'
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
 class OtherObjectNumber(models.Model):
     work = models.ForeignKey('ObjectIdentification', models.CASCADE)
-    object_number = models.CharField(max_length=72)
+    object_number = models.CharField(max_length=71)
     object_number_type = models.CharField(max_length=255)
 
     def __str__(self):
-        return object_number_type + ': ' + object_number
+        return object_number_type + ': ' + object_number + ' for w_' + work
 
-# Spectrum 4.0 Object name
+# Spectrum 4.0 Object name, Title
 # VRA Core 4   title
-# DCMI         title
+# DCMI         title, title.alternative
 # SICG M305    1.3 Identificação do bem
+# Spectrum 4.0 distinguishes between name and title
+# Best model practice is to render the Spectrum title field
+# when there is a title_type = creator?
 class ObjectName(models.Model):
     # VRA Core 4   work > title > type
     title_type = (
-        (0, 'brandName'),
-        (1, 'cited'),
-        (2, 'creator'),
-        (3, 'descriptive'),
-        (4, 'former'),
-        (5, 'inscribed'),
-        (6, 'owner'),
-        (7, 'popular'),
-        (8, 'repository'),
-        (9, 'translated'),
-        (10, 'other'),
+        ('brandName', 'brand name'),
+        ('cited', 'cited as'),
+        ('creator', 'given by creator'),
+        ('descriptive', 'descriptive'),
+        ('former', 'former'),
+        ('inscribed', 'inscribed'),
+        ('owner', 'given by owner'),
+        ('popular', 'popular'),
+        ('repository', 'used in repository'),
+        ('translated', 'translated'),
+        ('other', 'other'),
     )
-    # Although artifacts can often have the same name,
-    # every other metadata will be object-specific.
-    identification = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    # work = models.ForeignKey('ObjectIdentification', models.CASCADE)
     # The name itself:
-    object_name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
     # No equivalent in other standards
     name_currency = models.DateField(default=timezone.now, blank=True)
@@ -132,21 +133,21 @@ class ObjectName(models.Model):
     name_lang = models.ForeignKey('IsoLanguage', models.CASCADE)
     # Spectrum 4.0 Object name type
     # VRA Core 4   title > type
-    name_type = models.PositiveSmallIntegerField(choices=title_type, default=3)
-    # VRA Core 4   title > pref
-    # DCMI         title.alternative
-    # Spectrum 4.0 distinguishes between name and title
-    # Best model practice is to render the Spectrum title field
-    # when there is a title_type = creator
-    name_preferred = models.BooleanField(default=False)
+    name_type = models.CharField(max_length=15, choices=title_type, default='descriptive')
     # This should only be filled if there is a foreign-language
     # name of type 'creator' or 'inscribed'.
     # Eventually this should be handled by rendering
     # alternate language names.
     title_translation = models.CharField(max_length=255, blank=True)
 
+    # class Meta:
+        # unique_together = ('work', 'title')
+
     def __str__(self):
-        return object_name
+        if len(title_translation) > 1:
+            return title_translation + ' (w_' + work + ')'
+        else:
+            return title + ' (w_' + work + ')'
 # /Spectrum 4.0 Object identification information
 ###########################################################
 
@@ -226,8 +227,8 @@ class AgentRole(models.Model):
 class ObjectPlaceType(PlaceType):
     work = models.ForeignKey('ObjectProduction', models.PROTECT)
 
+# Spectrum 4.0 Technique
 class TechniqueType(models.Model):
-    # Spectrum 4.0 Technique
     # Rather than an actual technique name,
     # this field in fact records the Trade to which
     # a specific Technique type belongs.
@@ -429,8 +430,7 @@ class Artifact(ObjectDescription):
 # several instances. Subclass of Artifact.
 class WorkInstance(Artifact):
     # Copy number and Edition number will most often be integers,
-    # but the fields can accommodate other explanations
-    # as needed.
+    # but the fields can accommodate other explanations.
     # Spectrum 4.0 Copy number
     # VRA Core 4   issue_count
     copy_number = models.CharField(max_length=63, blank=True)
@@ -736,8 +736,8 @@ class ContentMeta(models.Model):
     content_script = models.CharField(max_length=255, blank=True)
     # Spectrum 4.0 content language
     content_lang = models.ForeignKey('IsoLanguage', models.PROTECT, blank=True)
-    # Spectrum 4.0 content position. Can be null because it might cover
-    # the entire work.
+    # Spectrum 4.0 content position
+    # Can be blank because it might cover the entire work.
     content_position = models.CharField(max_length=63, blank=True)
     # Spectrum 4.0 content note
     # VRA Core 4   content > source
@@ -887,72 +887,89 @@ class Ownership(models.Model):
 # field, in that it records objects related to one
 # another, rather than an object referred to in
 # another object.
+# The Related object field is being split into two
+# separate classes to handle two distinct situations:
+# - hierarchical relationships (ForeignKey);
+# - multiple relationships (ManyToMany).
+class ObjectHierarchy(models.Model):
+    relation_types = (
+        # Commented-out fields are established by VRA Core 4 but
+        # must be derived from the inverse database relationship
+        # rather than set explicitly.
+        ('hierarchical', (
+            ('partOf', 'part of'),
+            # ('largerContextFor', 'larger context for'),
+            ('formerlyPartOf', 'formerly part of'),
+            # ('formerlyLargerContextFor', 'formerly larger context for'),
+        )),
+        ('components', (
+            ('componentOf', 'component of'),
+            # ('componentIs', 'component is'),
+        )),
+        ('steps', (
+            ('cartoonFor', 'cartoon for'),
+            # ('cartoonIs', 'cartoon is'),
+            ('counterProofFor', 'counter proof for'),
+            # ('counterProofIs', 'counter proof is'),
+            ('modelFor', 'model for'),
+            # ('modelIs', 'model is'),
+            ('planFor', 'plan for'),
+            # ('planIs', 'plan is'),
+            ('prepatoryFor', 'prepatory for'),
+            # ('basedOn', 'based on'),
+            ('printingPlateFor', 'printing plate for'),
+            # ('printingPlateIs', 'printing plate is'),
+            ('prototypeFor', 'prototype for'),
+            # ('prototypeIs', 'prototype is'),
+            ('reliefFor', 'relief for'),
+            # ('impressionIs', 'impression is'),
+            ('studyFor', 'study for'),
+            # ('studyIs', 'study is'),
+        )),
+        ('after', (
+            ('copyAfter', 'copy after'),
+            # ('copyIs', 'copy is'),
+            ('facsimileOf', 'facsimile of'),
+            # ('facsimileIs', 'facsimile is'),
+            ('replicaOf', 'replica of'),
+            # ('replicaIs', 'replica is'),
+            ('versionOf', 'version of'),
+            # ('versionIs', 'version is')
+        )),
+        ('image', (
+            ('imageOf', 'image of'),
+            # ('imageIs', 'image is'),
+        )),
+    )
+    principal_work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    relation_type = models.CharField(max_length=31, default='partOf', choices=relation_types)
+
+    def __str__(self):
+        return relation_type + ' ' + work
+
 class RelatedObject(models.Model):
     # VRA Core 4
-    # There are duplicate relations for two-way rendering,
-    # make sure they are identified as each other's reverse.
-    # Can we do this without having a separate through-class
-    # for each pair of associations?
+    # The reverse relationships are being tentatively
+    # suppressed to keep things systematics, since the
+    # database will provide reverse information.
     relation_types = (
         ('default', (
             ('relatedTo', 'related to'),
         ) ),
-        ('hierarchical', (
-            ('partOf', 'part of'),
-            ('largerContextFor', 'larger context for'),
-            ('formerlyPartOf', 'formerly part of'),
-            ('formerlyLargerContextFor', 'formerly larger context for'),
-        )),
-        ('components', (
-            ('componentOf', 'component of'),
-            ('componentIs', 'component is'),
-        )),
-        ('steps', (
-            ('cartoonFor', 'cartoon for'),
-            ('cartoonIs', 'cartoon is'),
-            ('counterProofFor', 'counter proof for'),
-            ('counterProofIs', 'counter proof is'),
-            ('modelFor', 'model for'),
-            ('modelIs', 'model is'),
-            ('planFor', 'plan for'),
-            ('planIs', 'plan is'),
-            ('prepatoryFor', 'prepatory for'),
-            ('basedOn', 'based on'),
-            ('printingPlateFor', 'printing plate for'),
-            ('printingPlateIs', 'printing plate is'),
-            ('prototypeFor', 'prototype for'),
-            ('prototypeIs', 'prototype is'),
-            ('reliefFor', 'relief for'),
-            ('impressionIs', 'impression is'),
-            ('studyFor', 'study for'),
-            ('studyIs', 'study is'),
-        )),
         ('together', (
             ('designedFor', 'designed for'),
-            ('contextIs', 'context is'),
+            # ('contextIs', 'context is'),
             ('exhibitedAt', 'exhibited at'), # Not an object-to-object relation
-            ('venueFor', 'venue for'),    # Not an object-to-object relation
+            # ('venueFor', 'venue for'),    # Not an object-to-object relation
             ('mateOf', 'mate of'),
             ('partnerInSetWith', 'partner in set with'),# Not an object-to-object relation
             ('pendantOf', 'pendant of'),
         )),
         ('after', (
-            ('copyAfter', 'copy after'),
-            ('copyIs', 'copy is'),
             ('depicts', 'depicts'),
-            ('depictedIn', 'depicted in'),
+            # ('depictedIn', 'depicted in'),
             ('derivedFrom', 'derived from'),
-            ('sourceFor', 'source for'),
-            ('facsimileOf', 'facsimile of'),
-            ('facsimileIs', 'facsimile is'),
-            ('replicaOf', 'replica of'),
-            ('replicaIs', 'replica is'),
-            ('versionOf', 'version of'),
-            ('versionIs', 'version is')
-        )),
-        ('image', (
-            ('imageOf', 'image of'),
-            ('imageIs', 'image is'),
+            # ('sourceFor', 'source for'),
         )),
     )
     # Spectrum 4.0 Related object number
@@ -963,7 +980,7 @@ class RelatedObject(models.Model):
     # Spectrum 4.0 Related object association
     # The type of association between the objects (copy, model,
     # representation, etc.)
-    relation_type = models.CharField(max_length=31, choices=relation_types, default='partOf')
+    relation_type = models.CharField(max_length=31, choices=relation_types, default='relatedTo')
     # Spectrum 4.0 Related object note
     related_note = models.TextField(blank=True)
 

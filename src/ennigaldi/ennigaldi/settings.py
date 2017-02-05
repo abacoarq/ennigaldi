@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'ennigaldi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'ennigaldi.sqlite',
+        'NAME': 'ennigaldi.db',
     }
 }
 
