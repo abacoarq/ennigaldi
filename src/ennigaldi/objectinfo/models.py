@@ -29,7 +29,7 @@ class ObjectIdentification(models.Model):
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
-    part_of = models.ForeignKey("self", models.CASCADE, null=True, related_name='larger_context_for')
+    part_of = models.ForeignKey("self", models.CASCADE, blank=True, related_name='larger_context_for')
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -75,7 +75,10 @@ class ObjectIdentification(models.Model):
     # Complementary information is split into different
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
-    production = models.OneToOneField('ObjectProduction', models.PROTECT, null=True)
+    production = models.OneToOneField('ObjectProduction', models.PROTECT, blank=True)
+    storage_unit = models.ManyToManyField('storageunit.Unit', '%(app_label)s_storage_for_%(class)s', models.PROTECT, blank=True, through='ObjectUnit')
+    # Spectrum 4.0 Normal location
+    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, blank=True)
 
     def __str__(self):
         return refid + " " + preferred_title + ' (w_' + work_id + ')'
@@ -258,7 +261,7 @@ class ObjectUnit(models.Model):
     #              locating the object in the collection
     # DCMI         spatial, same caveat as above
     # Not available in SICG
-    unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='contains_objects')
+    storage_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='contains_objects')
     # Spectrum 4.0 Location fitness
     # No equivalent in other standards.
     unit_fitness = models.TextField(blank=True)
@@ -269,8 +272,6 @@ class ObjectUnit(models.Model):
     # was moved to this location
     # Spectrum 4.0 Location date
     unit_date = models.DateTimeField(default=timezone.now)
-    # Spectrum 4.0 Normal location
-    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT)
 
     def __str__(self):
         return 'Location information for object ' + ObjectIdentification.objects.filter(work_id=work)
