@@ -4,8 +4,8 @@ import datetime
 class AccessionNumber(models.Model):
     accession_number_display = models.CharField(max_length=15, unique=True)
     year = models.DateField(auto_now_add=True)
-    retrospective = models.BooleanField(default=False, help_text="Check if the object is not being recorded in the same year it was accessed.")
-    object_number = models.PositiveSmallIntegerField(unique_for_year="year")
+    retrospective = models.BooleanField(default=True, help_text="Select this if the object is not being recorded in the same year it entered the organisation.")
+    object_number = models.PositiveIntegerField(unique_for_year="year")
     part_number = models.PositiveSmallIntegerField(blank=True)
 
     def __str__(self):
