@@ -7,7 +7,7 @@ class Unit(models.Model):
     # Root-level locations will have this set to NULL:
     unit_parent = models.ForeignKey('self', models.PROTECT, blank=True)
     # A code that identifies the location, if any.
-    unit_id = models.CharField(max_length=7, blank=True)
+    unit_id = models.CharField(max_length=15, blank=True)
     # Keep the name short, follow conventions
     unit_name = models.CharField(max_length=32)
     # Spectrum 4.0 Location note
