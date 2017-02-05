@@ -17,4 +17,4 @@ def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')
 
 def m305(request):
-    return HttpResponse('SICG M305')
+    return render(request, 'objectinfo/m305.html')
