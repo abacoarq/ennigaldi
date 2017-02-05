@@ -1,6 +1,4 @@
 from django.db import models
-from agent.models import Agent
-from place.models import Place, PlaceType
 
 class Unit(models.Model):
     # Locations can be recursive for maximum flexibility,
@@ -8,12 +6,6 @@ class Unit(models.Model):
     # or in any other way required by the organization.
     # Root-level locations will have this set to NULL:
     unit_parent = models.ForeignKey('self', models.PROTECT, blank=True)
-    # The physical address where this accession location resides.
-    # Defaults to own organization, blank if inside a parent location.
-    address = models.ForeignKey('place.Place', models.PROTECT, blank=True)
-    # The organization (or person, people) that owns the Geographic Location.
-    # Defaults to own organization, blank if inside a parent location.
-    agent = models.ForeignKey('agent.Agent', models.PROTECT, blank=True)
     # A code that identifies the location, if any.
     unit_id = models.CharField(max_length=7, blank=True)
     # Keep the name short, follow conventions
