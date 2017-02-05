@@ -4,6 +4,7 @@ from django.utils import timezone
 from historicdate.models import HistoricDate, DateType
 from agent.models import Agent
 from place.models import Place, PlaceType
+from storageunit.models import Unit
 # Change the application name below to whichever is
 # being used in the organisation.
 from reorg.models import AccessionNumber
@@ -257,7 +258,7 @@ class ObjectUnit(models.Model):
     #              locating the object in the collection
     # DCMI         spatial, same caveat as above
     # Not available in SICG
-    unit = models.ForeignKey('Unit', models.PROTECT, related_name='location_for_objects')
+    unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='location_for_objects')
     # Spectrum 4.0 Location fitness
     # No equivalent in other standards.
     unit_fitness = models.TextField(blank=True)
@@ -269,7 +270,7 @@ class ObjectUnit(models.Model):
     # Spectrum 4.0 Location date
     unit_date = models.DateTimeField(default=timezone.now)
     # Spectrum 4.0 Normal location
-    normal_unit = models.ForeignKey('Unit', models.PROTECT)
+    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT)
 
     def __str__(self):
         return 'Location information for object ' + ObjectIdentification.objects.filter(work_id=work)
