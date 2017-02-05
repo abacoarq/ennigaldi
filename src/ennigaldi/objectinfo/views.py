@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from .models import ObjectIdentification
 
 def index(request):
     return HttpResponse('Nothing here yet.')
@@ -17,4 +18,7 @@ def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')
 
 def m305(request):
-    return render(request, 'objectinfo/m305.html')
+    return render(request, 'objectinfo/m305.html', {})
+
+def xml(request):
+    return HttpResponse('Here there be VRA Core 4 XML.')
