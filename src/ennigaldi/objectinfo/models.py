@@ -258,7 +258,7 @@ class ObjectUnit(models.Model):
     #              locating the object in the collection
     # DCMI         spatial, same caveat as above
     # Not available in SICG
-    unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='location_for_objects')
+    unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='contains_objects')
     # Spectrum 4.0 Location fitness
     # No equivalent in other standards.
     unit_fitness = models.TextField(blank=True)
