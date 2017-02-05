@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'historicdate',
     'place',
     'agent',
+    'storageunit',
     'reorg',
     'objectinfo',
 ]
