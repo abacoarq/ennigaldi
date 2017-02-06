@@ -22,3 +22,6 @@ def m305(request):
 
 def xml(request):
     return HttpResponse('Here there be VRA Core 4 XML.')
+
+def yaml(request):
+    return HttpResponse('For a human-readable rendering in YAML of w_%s.' % work_id)
