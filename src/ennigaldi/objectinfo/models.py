@@ -5,9 +5,6 @@ from historicdate.models import HistoricDate, DateType
 from agent.models import Agent
 from place.models import Place, PlaceType
 from storageunit.models import Unit
-# Change the application name below to whichever is
-# being used in the organisation.
-from reorg.models import AccessionNumber
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -31,7 +28,7 @@ class ObjectIdentification(models.Model):
     # to have a single number appended with a part number.
     # It should be populated from an "add part" button in
     # the parent object page rather than filled manually.
-    part_of = models.ForeignKey("self", models.CASCADE, blank=True, related_name='larger_context_for', limit_choices_to={'part_of': False}, editable=False)
+    hierarchy = models.ManyToManyField("self", 'child_work', models.SET_NULL, symmetrical=False, blank=True, through='ObjectHierarchy', through_fields=('child_work', 'parent_work'), help_text='Parent work must be created first!')
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -42,8 +39,14 @@ class ObjectIdentification(models.Model):
     # organization.
     # To be filled automatically by the function that saves
     # the object.
-    refid = models.OneToOneField(AccessionNumber, models.CASCADE, 'accession_number_display', editable=False)
-    # refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
+    # It must be allowed to be blank because the object
+    # must be saved first for the refid generation to work
+    # with object part detection.
+    # This is being auto-generated at save time and is modeled
+    # in the Accession Number application for optimal
+    # flexibility.
+    # refid = models.OneToOneField(AccessionNumber, models.PROTECT, related_name='refid_of', editable=False, blank=True)
+    #
     # Spectrum 4.0 Object name
     # VRA Core 4   title > pref
     # DCMI         title
@@ -85,12 +88,12 @@ class ObjectIdentification(models.Model):
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, blank=True)
 
     def __str__(self):
-        return refid + " " + preferred_title + ' (w_' + work_id + ')'
+        return 'w_' + work_id + ' ' + preferred_title
 
-    def generate(self):
-        self.save()
-        # Do stuff like generating the refid and so on.
-        generated_refid = AccessionNumber()
+    def is_part(self):
+        q = ObjectHierarchy.child_works.get(child_work__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        if q:
+            return q.values_list(parent_work__pk, flat=True)[0]
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
@@ -100,7 +103,7 @@ class OtherObjectNumber(models.Model):
     object_number_type = models.CharField(max_length=255)
 
     def __str__(self):
-        return object_number_type + ': ' + object_number + ' for w_' + work
+        return object_number_type + ': ' + object_number
 
 # Spectrum 4.0 Object name, Title
 # VRA Core 4   title
@@ -158,9 +161,9 @@ class ObjectName(models.Model):
 
     def __str__(self):
         if len(title_translation) > 1:
-            return title_translation + ' (w_' + work + ')'
+            return title_translation
         else:
-            return title + ' (w_' + work + ')'
+            return title
 # /Spectrum 4.0 Object identification information
 ###########################################################
 
@@ -884,8 +887,6 @@ class ObjectHierarchy(models.Model):
             # ('largerContextFor', 'larger context for'),
             ('formerlyPartOf', 'formerly part of'),
             # ('formerlyLargerContextFor', 'formerly larger context for'),
-        )),
-        ('components', (
             ('componentOf', 'component of'),
             # ('componentIs', 'component is'),
         )),
@@ -919,16 +920,26 @@ class ObjectHierarchy(models.Model):
             ('versionOf', 'version of'),
             # ('versionIs', 'version is')
         )),
-        ('image', (
-            ('imageOf', 'image of'),
-            # ('imageIs', 'image is'),
-        )),
+        # Use only for Image object types
+        # (for a photograph, painting, or drawing
+        # that represents something else and is
+        # considered a museum object, the correct
+        # way is to use the ObjectDescription > depicts
+        # field).
+        # ('image', (
+            # ('imageOf', 'image of'),
+            # # ('imageIs', 'image is'),
+        # )),
     )
-    principal_work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    parent_work = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='parent_works')
+    child_work = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='child_works')
     relation_type = models.CharField(max_length=31, default='partOf', choices=relation_types)
 
     def __str__(self):
-        return relation_type + ' ' + work
+        return child_work + ' ' + relation_type + ' ' + parent_work
+
+    class Meta:
+        unique_together = ('child_work', 'relation_type')
 
 class RelatedObject(models.Model):
     # VRA Core 4
