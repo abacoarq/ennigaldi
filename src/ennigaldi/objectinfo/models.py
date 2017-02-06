@@ -29,7 +29,9 @@ class ObjectIdentification(models.Model):
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
-    part_of = models.ForeignKey("self", models.CASCADE, blank=True, related_name='larger_context_for')
+    # It should be populated from an "add part" button in
+    # the parent object page rather than filled manually.
+    part_of = models.ForeignKey("self", models.CASCADE, blank=True, related_name='larger_context_for', limit_choices_to={'part_of': False}, editable=False)
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -38,7 +40,9 @@ class ObjectIdentification(models.Model):
     # numbers should be in a dedicated application,
     # so that it is more easily customized for each
     # organization.
-    refid = models.OneToOneField(AccessionNumber, models.CASCADE, 'accession_number_display')
+    # To be filled automatically by the function that saves
+    # the object.
+    refid = models.OneToOneField(AccessionNumber, models.CASCADE, 'accession_number_display', editable=False)
     # refid = models.CharField(max_length=31, blank=True, verbose_name="Accession number")
     # Spectrum 4.0 Object name
     # VRA Core 4   title > pref
@@ -82,6 +86,11 @@ class ObjectIdentification(models.Model):
 
     def __str__(self):
         return refid + " " + preferred_title + ' (w_' + work_id + ')'
+
+    def generate(self):
+        self.save()
+        # Do stuff like generating the refid and so on.
+        generated_refid = AccessionNumber()
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
