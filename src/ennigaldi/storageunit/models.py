@@ -5,19 +5,23 @@ class Unit(models.Model):
     # e.g. building > wing > room > furniture > shelf
     # or in any other way required by the organization.
     # Root-level locations will have this set to NULL:
-    unit_parent = models.ForeignKey('self', models.PROTECT, blank=True)
+    parent = models.ForeignKey('self', models.CASCADE, null=True)
     # A code that identifies the location, if any.
-    unit_id = models.CharField(max_length=15, blank=True)
+    acronym = models.CharField(max_length=15)
     # Keep the name short, follow conventions
-    unit_name = models.CharField(max_length=32)
+    name = models.CharField(max_length=32, blank=True)
     # Spectrum 4.0 Location note
     # VRA Core 4   location > notes
     # Notes on the location or its name (e.g. "so-called", "condemned", etc.)
-    unit_note = models.TextField(blank=True)
+    note = models.TextField(blank=True)
 
     def __str__(self):
-        if unit_parent:
-            parent_string = ' in ' + unit_parent
+        if self.parent:
+            parent_string = self.parent.__str__() + ' › '
         else:
             parent_string = ''
-        return unit_id + ' ' + unit_name + parent_string
+        return parent_string + self.acronym + ' ' + self.name
+
+    class Meta:
+        ordering = ['parent', 'acronym']
+        unique_together = ('parent', 'acronym')
