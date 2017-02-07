@@ -28,7 +28,7 @@ class ObjectIdentification(models.Model):
     # to have a single number appended with a part number.
     # It should be populated from an "add part" button in
     # the parent object page rather than filled manually.
-    hierarchy = models.ManyToManyField("self", 'child_work', models.SET_NULL, symmetrical=False, blank=True, through='ObjectHierarchy', through_fields=('child_work', 'parent_work'), help_text='Parent work must be created first!')
+    hierarchy = models.ManyToManyField("self", related_name='child_work', symmetrical=False, blank=True, through='ObjectHierarchy', through_fields=('child_work', 'parent_work'), help_text='Parent work must be created first!')
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -83,7 +83,7 @@ class ObjectIdentification(models.Model):
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
     production = models.OneToOneField('ObjectProduction', models.PROTECT, blank=True)
-    storage_unit = models.ManyToManyField('storageunit.Unit', '%(app_label)s_storage_for_%(class)s', models.PROTECT, blank=True, through='ObjectUnit')
+    storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', blank=True, through='ObjectUnit')
     # Spectrum 4.0 Normal location
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, blank=True)
 
@@ -198,7 +198,7 @@ class ObjectProduction(models.Model):
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
-    production_agent = models.ManyToManyField('agent.Agent', 'object_produced', models.PROTECT, through='AgentRole')
+    production_agent = models.ManyToManyField('agent.Agent', related_name='object_produced', through='AgentRole')
     # Spectrum 4.0 Production note
     # VRA Core 4   Will have a notes field for each of
     # 'agent > creator', 'date > created', and so on.
@@ -207,7 +207,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
     # SICG M305    2.3 Origem
-    production_location = models.ManyToManyField('place.Place', 'produced_at_location', models.PROTECT, through='ObjectPlaceType')
+    production_location = models.ManyToManyField('place.Place', related_name='produced_at_location', through='ObjectPlaceType')
     # The following field declares the original function served
     # by the object, that is, the justification for its production
     # Spectrum 4.0 Technical justification
@@ -217,7 +217,7 @@ class ObjectProduction(models.Model):
     # VRA Core 4   tech_name
     # Not covered in DCMI
     # SICG M305    3.2 Técnicas
-    technique_type = models.ManyToManyField('TechniqueType', 'uses_technique', models.PROTECT)
+    technique_type = models.ManyToManyField('TechniqueType', 'uses_technique')
 
     def __str__(self):
         return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=work)
@@ -320,7 +320,7 @@ class ObjectDescription(models.Model):
     # Using a fkey to better organize controlled vocab,
     # but it's really a list of colors.
     # No equivalent in other standards
-    colour = models.ManyToManyField('Colour', '%(app_label)s_colour_in_%(class)s', models.PROTECT)
+    colour = models.ManyToManyField('Colour', related_name='%(app_label)s_colour_in_%(class)s')
     # Strictly speaking, Territorial context is only required
     # by SICG, so consider removing it because it only
     # functions in a very specific context of nationwide
@@ -377,7 +377,7 @@ class Specimen(ObjectDescription):
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
-    object_date = models.ManyToManyField('historicdate.HistoricDate', '%(app_label)s_date_for_%(class)s', models.CASCADE, through='SpecimenDateType')
+    object_date = models.ManyToManyField('historicdate.HistoricDate', related_name='%(app_label)s_date_for_%(class)s', through='SpecimenDateType')
 
 # Pretty much everything else you would find in a museum.
 class Artifact(ObjectDescription):
@@ -401,15 +401,15 @@ class Artifact(ObjectDescription):
     cultural_context = models.CharField(max_length=255, blank=True)
     # The field that picks up content (Spectrum) / subject (VRA Core) items
     # into the object description.
-    description_content = models.ManyToManyField('DescriptionContent', '%(app_label)s_content_in_%(class)s', models.PROTECT, through='ContentMeta', blank=True)
+    description_content = models.ManyToManyField('DescriptionContent', related_name='%(app_label)s_content_in_%(class)s', through='ContentMeta', blank=True)
     # Spectrum 4.0 Material
     # VRA Core 4   material
     # SICG M305    3.1 Materiais
-    material = models.ManyToManyField('ObjectMaterial', '%(app_label)s_material_in_%(class)s', models.PROTECT, through='MaterialType')
+    material = models.ManyToManyField('ObjectMaterial', related_name='%(app_label)s_material_in_%(class)s', through='MaterialType')
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
-    object_date = models.ManyToManyField('historicdate.HistoricDate', '%(app_label)s_date_for_%(class)s', models.CASCADE, through='ArtifactDateType')
+    object_date = models.ManyToManyField('historicdate.HistoricDate', related_name='%(app_label)s_date_for_%(class)s', through='ArtifactDateType')
 
 # Printed material (books, engravings, etc.),
 # photographs, and other objects that can have originals in
@@ -765,7 +765,7 @@ class ObjectRights(models.Model):
     right_end_date = models.DateField(blank=True)
     # Spectrum 4.0 Right holder
     # VRA Core 4   rights > rightsHolder
-    rights_holder = models.ManyToManyField('agent.Agent', 'has_rights', models.PROTECT, blank=True)
+    rights_holder = models.ManyToManyField('agent.Agent', related_name='has_rights', blank=True)
     # VRA Core 4   rights > text
     rights_display = models.CharField(max_length=255)
     # Spectrum 4.0 Right notes
