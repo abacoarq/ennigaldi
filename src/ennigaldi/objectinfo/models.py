@@ -620,10 +620,10 @@ class Colour(models.Model):
         return colour
 
 class SpecimenDateType(DateType):
-    date_of = models.ForeignKey('Specimen', models.CASCADE)
+    dated = models.ForeignKey('Specimen', models.CASCADE, related_name='dated_specimen')
 
 class ArtifactDateType(DateType):
-    date_of = models.ForeignKey('Artifact', models.CASCADE)
+    dated = models.ForeignKey('Artifact', models.CASCADE, related_name='dated_artifact')
 
 # Spectrum 4.0 Material
 # VRA Core 4   material

@@ -38,6 +38,10 @@ class Place(models.Model):
     zip_code = models.CharField(max_length=35, blank=True)
     country = models.CharField(max_length=35, blank=True)
 
+    def __str__(self):
+        comp = self.location_extent if self.location_extent else self.city
+        return self.location_name + ' (' + comp + ')'
+
 class PlaceType(models.Model):
     location_types = (
         ('creation', 'Creation'),
