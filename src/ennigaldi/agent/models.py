@@ -16,22 +16,22 @@ class Agent(models.Model):
         ('other', 'Other'),
     )
     # VRA Core 4   name
-    agent_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     # Spectrum 4.0 Organisation, people, person
     # VRA Core 4   name > type
     name_type = models.CharField(max_length=15, default='personal', choices=name_types)
     # VRA Core 4   cultura
     # Use controlled vocab, can be replaced by nationality
     # in the case of modern agents.
-    agent_culture = models.CharField(max_length=63, blank=True)
-    agent_date = models.ManyToManyField(HistoricDate, 'date_for_agent', models.CASCADE, through='AgentDateType')
+    culture = models.CharField(max_length=63, blank=True)
+    dates = models.ManyToManyField(HistoricDate, 'date_for_agent', models.CASCADE, through='AgentDateType')
     # Use this for complex name display or autopopulate from
     # above data using a pre-save hook.
-    agent_display = models.CharField(max_length=255)
+    display = models.CharField(max_length=255)
     # Further identification, if available
-    user = models.OneToOneField(User, blank=True)
+    user = models.OneToOneField(User, models.CASCADE, null=True)
     orcid = models.CharField(max_length=31, blank=True)
-    agent_affiliation = models.ManyToManyField('self', 'employs_agent', models.SET_NULL, through='AgentAffiliation', symmetrical=False)
+    affiliation = models.ManyToManyField('self', 'employs', models.CASCADE, through='AgentAffiliation', symmetrical=False)
     # Contact information, if applicable
     email = models.EmailField(blank=True)
     phone_primary = models.CharField(max_length=31, blank=True)
@@ -48,7 +48,7 @@ class Agent(models.Model):
     website = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return agent_display
+        return self.display
 
 class AgentDateType(DateType):
     date_types = (
@@ -56,11 +56,19 @@ class AgentDateType(DateType):
         ('activity', 'Active'),
         ('other', 'Other')
     )
-    date_of = models.ForeignKey(Agent, models.CASCADE)
+
+    dated = models.ForeignKey(Agent, models.CASCADE)
+    date_type = models.CharField(max_length=31, choices=date_types)
+
+    def __str__(self):
+        return self.dated.name + ' (' + self.date_type + ' ' + self.datation.display + ')'
 
 class AgentAffiliation(models.Model):
-     agent_person = models.ForeignKey(Agent, models.CASCADE, related_name='employed_in', limit_choices_to={Agent.name_type: 'personal'})
-     agent_affiliation = models.ForeignKey(Agent, models.PROTECT, related_name='employs', limit_choices_to=Q(Agent.name_type!='personal'))
-     agent_role = models.CharField(max_length=255)
+    person = models.ForeignKey(Agent, models.CASCADE, related_name='employee', limit_choices_to={Agent.name_type: 'personal'})
+    organisation = models.ForeignKey(Agent, models.PROTECT, related_name='employer', limit_choices_to=Q(Agent.name_type!='personal'))
+    role = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.person.__str__() + ' is ' + self.role + ' at ' + self.organisation.__str__()
 # /Spectrum 4.0 organization, people, person
 ###########################################################

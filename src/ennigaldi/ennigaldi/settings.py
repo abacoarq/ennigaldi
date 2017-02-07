@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'place.apps.PlaceConfig',
     'agent.apps.AgentConfig',
     'storageunit.apps.StorageunitConfig',
-    'reorg.apps.ReorgConfig',
     'objectinfo.apps.ObjectinfoConfig',
+    'reorg.apps.ReorgConfig',
 ]
 
 MIDDLEWARE = [
