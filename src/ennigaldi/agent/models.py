@@ -31,7 +31,7 @@ class Agent(models.Model):
     # Further identification, if available
     user = models.OneToOneField(User, models.CASCADE, null=True)
     orcid = models.CharField(max_length=31, blank=True)
-    affiliation = models.ManyToManyField('self', 'employs',, through='AgentAffiliation', symmetrical=False)
+    affiliation = models.ManyToManyField('self', related_name='employs', through='AgentAffiliation', symmetrical=False)
     # Contact information, if applicable
     email = models.EmailField(blank=True)
     phone_primary = models.CharField(max_length=31, blank=True)
