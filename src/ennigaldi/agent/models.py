@@ -24,14 +24,14 @@ class Agent(models.Model):
     # Use controlled vocab, can be replaced by nationality
     # in the case of modern agents.
     culture = models.CharField(max_length=63, blank=True)
-    dates = models.ManyToManyField(HistoricDate, 'date_for_agent', models.CASCADE, through='AgentDateType')
+    dates = models.ManyToManyField(HistoricDate, related_name='date_for_agent', through='AgentDateType')
     # Use this for complex name display or autopopulate from
     # above data using a pre-save hook.
     display = models.CharField(max_length=255)
     # Further identification, if available
     user = models.OneToOneField(User, models.CASCADE, null=True)
     orcid = models.CharField(max_length=31, blank=True)
-    affiliation = models.ManyToManyField('self', 'employs', models.CASCADE, through='AgentAffiliation', symmetrical=False)
+    affiliation = models.ManyToManyField('self', 'employs',, through='AgentAffiliation', symmetrical=False)
     # Contact information, if applicable
     email = models.EmailField(blank=True)
     phone_primary = models.CharField(max_length=31, blank=True)
