@@ -30,7 +30,7 @@ class ObjectIdentification(models.Model):
     # to have a single number appended with a part number.
     # It should be populated from an "add part" button in
     # the parent object page rather than filled manually.
-    hierarchy = models.ManyToManyField("self", related_name='has_part', symmetrical=False, through='ObjectHierarchy', through_fields=('part', 'larger'))
+    hierarchy = models.ManyToManyField("self", related_name='has_part', symmetrical=False, through='ObjectHierarchy', through_fields=('lesser', 'greater'))
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -933,15 +933,15 @@ class ObjectHierarchy(models.Model):
             # # ('imageIs', 'image is'),
         # )),
     )
-    larger = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='is_larger')
-    part = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='is_part')
+    lesser = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='lesser_works')
+    greater = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='greater_works')
     relation_type = models.CharField(max_length=31, default='partOf', choices=relation_types)
 
     def __str__(self):
-        return self.part.__str__() + ' ' + self.relation_type + ' ' + self.larger.__str__()
+        return self.lesser.__str__() + ' ' + self.relation_type + ' ' + self.greater.__str__()
 
     class Meta:
-        unique_together = ('part', 'relation_type')
+        unique_together = ('lesser', 'relation_type')
 
 class RelatedObject(models.Model):
     # VRA Core 4
