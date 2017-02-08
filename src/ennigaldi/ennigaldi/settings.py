@@ -132,3 +132,9 @@ STATIC_URL = '/static/'
 
 COUNTRIES_PLUS_COUNTRY_HEADER = 'HTTP_CF_COUNTRY'
 COUNTRIES_PLUS_DEFAULT_ISO = 'BR'
+
+# Media settings from the Docs
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/opt/django/uploads/'
+STATIC_ROOT = '/opt/django/static/'
