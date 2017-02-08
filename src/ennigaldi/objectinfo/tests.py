@@ -30,6 +30,7 @@ class TestObjectIdentification(TestCase):
         o1 = ObjectIdentification.objects.create(snapshot=image, source="source of information", brief_description="Description text.", description_source="citation for description", comments="Some comments", distinguishing_features="This object is peculiar because it is a test object.", work_type="Fiddle", preferred_title=t1)
         t2 = ObjectName.objects.create(title="Mona Lisa", title_type="creator", note="Uncertain identification of subject", lang=ptbr, source="Wölfflin")
         o2 = ObjectIdentification.objects.create(snapshot=image, source="Vasari", brief_description="Portrait of Lisa del Giocondo", work_type="Painting", preferred_title=t2)
+        p1 = ObjectHierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
         image.close()
 
     def test_create_work(self):
@@ -53,11 +54,14 @@ class TestObjectIdentification(TestCase):
         self.assertTrue("Display" in curstor.__str__())
 
     def test_hierarchy(self):
+        """
+        Check that the parent object can be located
+        from the child.
+        """
         o1 = ObjectIdentification.objects.get(preferred_title__translation__contains="Ceci")
         o2 = ObjectIdentification.objects.get(preferred_title__title__contains="Mona")
-        p1 = ObjectHierarchy.objects.create(larger=o1, part=o2, relation_type='partOf')
+        op1 = ObjectHierarchy.objects.filter(lesser=o1, relation_type='partOf').first()
+        self.assertEqual(op1.greater.pk, 2)
 
-        print(p1)
-            # Below not working
-        print(o2.has_part.all())
-        print(o1.hierarchy.all())
+    def test_production(self):
+        pass
