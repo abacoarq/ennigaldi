@@ -1,7 +1,10 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .models import ObjectIdentification, ObjectName, ObjectUnit, ObjectHierarchy, IsoLanguage
+from .models import ObjectIdentification, ObjectName, ObjectUnit, ObjectHierarchy, ObjectProduction, AgentRole, TechniqueType, ObjectPlaceType, IsoLanguage
 from storageunit.models import Unit
+from historicdate.models import HistoricDate, DateType
+from agent.models import Agent, AgentDateType, AgentAffiliation
+from reorg.models import Batch, AccessionNumber
 # from django.urls import resolve
 # from objectinfo.views import index
 
@@ -9,15 +12,6 @@ from storageunit.models import Unit
     # def rootResolvesToHome(self):
         # found = resolve('/')
     # self.assertEqual(found.func, index)
-
-# class ObjectIdentificationTests(django.test.TestCase):
-    # def setUp(self):
-    # self.fail('Finish the ObjectIdentification tests.')
-
-# class xrefTests(unittest.TestCase):
-    # # Test every entry that has a foreign key to check
-    # # if it is referencing properly.
-    # self.fail('Finish the fkey tests.')
 
 class TestObjectIdentification(TestCase):
     def setUp(self):
@@ -29,9 +23,12 @@ class TestObjectIdentification(TestCase):
         t1 = ObjectName.objects.create(title="Some object", title_type="descriptive", note="Didn't know what to name it", lang=ptbr, source="My own mind", translation="Ceci n'est pas un titre")
         o1 = ObjectIdentification.objects.create(snapshot=image, source="source of information", brief_description="Description text.", description_source="citation for description", comments="Some comments", distinguishing_features="This object is peculiar because it is a test object.", work_type="Fiddle", preferred_title=t1)
         t2 = ObjectName.objects.create(title="Mona Lisa", title_type="creator", note="Uncertain identification of subject", lang=ptbr, source="Wölfflin")
-        o2 = ObjectIdentification.objects.create(snapshot=image, source="Vasari", brief_description="Portrait of Lisa del Giocondo", work_type="Painting", preferred_title=t2)
+        o2 = ObjectIdentification.objects.create(snapshot=image, source="Vasari", brief_description="Portrait of Lisa Gherardini", work_type="Painting", preferred_title=t2)
         p1 = ObjectHierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
         image.close()
+        d1 = HistoricDate.objects.create(display="1503–1506, possibly 1517", earliest="1503", earliest_accuracy=False, latest="1506", latest_accuracy=True)
+        a1 = Agent.objects.create(display="Leonardo da Vinci (Italian, 1452–1519)", name="Leonardo da Vinci", name_type="personal", culture="Italian Renaissance")
+        k1 = ObjectProduction.objects.create(date=d1, agent=a1, note="Attested in Leonardo's workshop in France.")
 
     def test_create_work(self):
         """
@@ -64,4 +61,9 @@ class TestObjectIdentification(TestCase):
         self.assertEqual(op1.greater.pk, 2)
 
     def test_production(self):
-        pass
+        """
+        Check that the object can access its production
+        information.
+        """
+        o2.objects.update(production=k1)
+        self.assertTrue("Attested" in o2.production__note)
