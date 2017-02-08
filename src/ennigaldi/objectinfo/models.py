@@ -22,13 +22,15 @@ class ObjectIdentification(models.Model):
     # This image is for quick reference purposes only,
     # to be photographed in the field when doing the
     # preliminary recording work.
-    work_snapshot = models.ImageField()
+    snapshot_height = models.CharField(max_length=15)
+    snapshot_width = models.CharField(max_length=15)
+    snapshot = models.ImageField(upload_to='uploads/media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, null=True)
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
     # It should be populated from an "add part" button in
     # the parent object page rather than filled manually.
-    hierarchy = models.ManyToManyField("self", related_name='child_work', symmetrical=False, blank=True, through='ObjectHierarchy', through_fields=('child_work', 'parent_work'), help_text='Parent work must be created first!')
+    hierarchy = models.ManyToManyField("self", related_name='has_part', symmetrical=False, through='ObjectHierarchy', through_fields=('part', 'larger'))
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -82,13 +84,13 @@ class ObjectIdentification(models.Model):
     # Complementary information is split into different
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
-    production = models.OneToOneField('ObjectProduction', models.PROTECT, blank=True)
-    storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', blank=True, through='ObjectUnit')
+    production = models.OneToOneField('ObjectProduction', models.PROTECT, null=True)
+    storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', through='ObjectUnit')
     # Spectrum 4.0 Normal location
-    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, blank=True)
+    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True)
 
     def __str__(self):
-        return 'w_' + work_id + ' ' + preferred_title
+        return 'w_' + str(self.work_id) + ' ' + self.preferred_title.__str__()
 
     def is_part(self):
         q = ObjectHierarchy.child_works.get(child_work__pk=self.pk, relation_type=('partOf'|'componentOf'))
@@ -132,38 +134,38 @@ class ObjectName(models.Model):
     title = models.CharField(max_length=255)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
     # No equivalent in other standards
-    name_currency = models.DateField(default=timezone.now, blank=True)
+    currency = models.DateField(default=timezone.now, blank=True)
     # Spectrum 4.0 Object name level
     # Indicates at which level of a hierarchy this object is located,
     # e.g. is it a specimen, a genus, a group, etc.
     # Use controlled vocab
-    name_level = models.CharField(max_length=63, blank=True)
+    level = models.CharField(max_length=63, blank=True)
     # Spectrum 4.0 Object name notes
     # VRA Core 4   title > note
-    name_note = models.TextField(blank=True)
+    note = models.TextField(blank=True)
     # Spectrum 4.0 object name reference system
     # VRA Core 4   name > source
     # Eventually replace with fkey to bibliographic record
-    name_source = models.CharField(max_length=255, blank=True)
+    source = models.CharField(max_length=255, blank=True)
     # VRA Core 4   title > xml:lang
-    name_lang = models.ForeignKey('IsoLanguage', models.CASCADE)
+    lang = models.ForeignKey('IsoLanguage', models.CASCADE)
     # Spectrum 4.0 Object name type
     # VRA Core 4   title > type
-    name_type = models.CharField(max_length=15, choices=title_type, default='descriptive')
+    title_type = models.CharField(max_length=15, choices=title_type, default='descriptive')
     # This should only be filled if there is a foreign-language
     # name of type 'creator' or 'inscribed'.
     # Eventually this should be handled by rendering
     # alternate language names.
-    title_translation = models.CharField(max_length=255, blank=True)
+    translation = models.CharField(max_length=255, blank=True)
 
     # class Meta:
         # unique_together = ('work', 'title')
 
     def __str__(self):
-        if len(title_translation) > 1:
-            return title_translation
+        if len(self.translation) > 1:
+            return self.translation
         else:
-            return title
+            return self.title
 # /Spectrum 4.0 Object identification information
 ###########################################################
 
@@ -273,20 +275,20 @@ class ObjectUnit(models.Model):
     #              locating the object in the collection
     # DCMI         spatial, same caveat as above
     # Not available in SICG
-    storage_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='contains_objects')
+    unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='contains_objects')
     # Spectrum 4.0 Location fitness
     # No equivalent in other standards.
-    unit_fitness = models.TextField(blank=True)
+    fitness = models.TextField(blank=True)
     # Spectrum 4.0 Location note
     # VRA Core 4   location > notes
-    unit_note = models.TextField(blank=True)
+    note = models.TextField(blank=True)
     # The following field records the date the object
     # was moved to this location
     # Spectrum 4.0 Location date
-    unit_date = models.DateTimeField(default=timezone.now)
+    date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return 'Location information for object ' + ObjectIdentification.objects.filter(work_id=work)
+        return self.work.__str__() + ' located in ' + self.unit.__str__()
 # /Spectrum 4.0 Object location information
 ###########################################################
 
@@ -931,15 +933,15 @@ class ObjectHierarchy(models.Model):
             # # ('imageIs', 'image is'),
         # )),
     )
-    parent_work = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='parent_works')
-    child_work = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='child_works')
+    larger = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='is_larger')
+    part = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='is_part')
     relation_type = models.CharField(max_length=31, default='partOf', choices=relation_types)
 
     def __str__(self):
-        return child_work + ' ' + relation_type + ' ' + parent_work
+        return self.part.__str__() + ' ' + self.relation_type + ' ' + self.larger.__str__()
 
     class Meta:
-        unique_together = ('child_work', 'relation_type')
+        unique_together = ('part', 'relation_type')
 
 class RelatedObject(models.Model):
     # VRA Core 4
@@ -1031,7 +1033,7 @@ class TextRef(models.Model):
 # VRA Core 4   xml:lang
 # DCMI         language
 class IsoLanguage(models.Model):
-    language_iso = models.CharField(max_length=7, primary_key=True)
+    iso = models.CharField(max_length=7, primary_key=True)
     language = models.CharField(max_length=63, unique=True)
 # /Spectrum 4.0 Language
 ###########################################################

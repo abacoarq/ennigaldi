@@ -23,5 +23,4 @@ class Unit(models.Model):
         return parent_string + self.acronym + ' ' + self.name
 
     class Meta:
-        ordering = ['parent', 'acronym']
         unique_together = ('parent', 'acronym')

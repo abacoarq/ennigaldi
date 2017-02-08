@@ -1,7 +1,7 @@
 from django.test import TestCase
 from .models import *
 
-class StartBatch(TestCase):
+class TestStartBatch(TestCase):
     def setUp(self):
         AccessionBatch.start_batch(retrospective=True, batch_note="Retrospective")
         AccessionBatch.start_batch(retrospective=False, batch_note="Non retrospective")
@@ -18,13 +18,13 @@ class StartBatch(TestCase):
         self.assertEqual(retro.active, False)
         self.assertEqual(non_retro.active, True)
 
-def GenerateAccession(TestCase):
+def TestGenerateRefid(TestCase):
     def setUp(self):
         pass
 
-    def test_accession(self):
+    def test_generate_refid(self):
         """
-        Check if all fields have been automatically filled
-        with the correct defaults.
+        Check that an accession number has been
+        generated with the correct fields and values.
         """
         pass
