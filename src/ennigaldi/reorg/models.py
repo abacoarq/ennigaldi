@@ -54,11 +54,11 @@ class AccessionNumber(models.Model):
         previous number, and whether the object is a partOf
         another.
         """
-        if AccessionNumber.objects.get(pk=work.pk):
-            raise ValueError('Refid already defined for this object!')
-        g = ObjectIdentification.objects.get(relation_type='partOf', lesser=work).greater
-        h = AccessionNumber.objects.get(pk=g.pk)
-        q = AccessionNumber.objects.filter(active=True).last()
+        # if AccessionNumber.objects.get(pk=work):
+            # raise ValueError('Refid already defined for this object!')
+        g = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work).greater
+        h = AccessionNumber.objects.filter(work=g).first()
+        q = AccessionNumber.objects.filter(batch__active=True).last()
         self.work = work
         if h:
             self.batch = h.batch
