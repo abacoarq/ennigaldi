@@ -37,43 +37,55 @@ class AccessionBatch(models.Model):
 
 class AccessionNumber(models.Model):
     work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
-    accession_batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
-    object_number = models.PositiveIntegerField()
-    part_number = models.PositiveSmallIntegerField(blank=True)
-    part_count = models.PositiveSmallIntegerField(blank=True)
+    batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
+    object_number = models.PositiveSmallIntegerField()
+    part_number = models.PositiveSmallIntegerField(null=True)
+    part_count = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
         if part_number:
-            return accession_batch + '.' + object_number + '-' + part_number + '/' + part_count
+            return batch + '.' + object_number + '-' + part_number + '/' + part_count
         else:
-            return accession_batch + '.' + object_number
+            return batch + '.' + object_number
 
-    def generate(self):
-        p = ObjectIdentification.is_part()
-        q = AccessionNumber.objects.filter(accession_batch__active=True)
-        if AccessionNumber.objects.get(pk=self.work):
+    def generate(self, work):
+        """
+        Generates an AccessionNumber based on active batch,
+        previous number, and whether the object is a partOf
+        another.
+        """
+        if AccessionNumber.objects.get(pk=work.pk):
             raise ValueError('Refid already defined for this object!')
-        # To generate the object and part numbers:
-        # 1. If the object is a part, get the parent
-        # object number, look up existing parts and
-        # increment part_number by 1.
-        if p:
-            current_set = AccessionNumber.objects.filter(accession_batch=self.accession_batch, object_number=self.object_number)
-            self.object_number = AccessionNumber.objects.get(pk=p).object_number
-            self.accession_batch = AccessionBatch.objects.get(accessionnumber__work=p)
-            self.part_number = current_set.last().part_number + 1
+        g = ObjectIdentification.objects.get(relation_type='partOf', lesser=work).greater
+        h = AccessionNumber.objects.get(pk=g.pk)
+        q = AccessionNumber.objects.filter(active=True).last()
+        self.work = work
+        if h:
+            self.batch = h.batch
+            self.object_number = h.object_number
+            p = AccessionNumber.objects.filter(object_number=h.object_number, part_number__gt=0)
+            if p:
+                n = p.last().part_number
+            else:
+                n = 0
+            self.part_number = n + 1
             self.part_count = self.part_number
-            current_set.update(part_count=self.part_number)
-        # 2. If the object is not a part,
-        # look up the most recent object number from
-        # the current batch and increment by 1.
+            if p:
+                p.update(part_count=self.part_count)
+        elif g:
+            raise NameError('Parent object exists, but has no AccessionNumber assigned to it. Generate one on the parent object before attempting to generate on the child.')
         elif q:
-            object_number = q.last().object_number + 1
+            self.batch = q.batch
+            self.object_number = q.object_number + 1
         else:
-            object_number = 1
+            try:
+                self.batch = AccessionBatch.objects.get(active=True)
+            except:
+                raise NameError('Please start a batch before attempting to generate an AccessionNumber!')
+            self.object_number = 1
         self.save()
-        return 'Registered accession number ' + __str__(self)
+        print('Registered accession number ' + self.__str__() + ' for object ' + work.__str__())
 
     class Meta:
-        index_together=('object_number', 'accession_batch', 'part_number')
-        ordering = ['accession_batch', 'object_number', 'part_number']
+        index_together=('object_number', 'batch', 'part_number')
+        ordering = ['batch', 'object_number', 'part_number']
