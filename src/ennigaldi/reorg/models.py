@@ -62,7 +62,7 @@ class AccessionNumber(models.Model):
         greater = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work).greater
         onum = AccessionNumber.objects.filter(work=greater).first()
         q = AccessionNumber.objects.filter(batch__active=True).last()
-        self.work = work
+        generated.work = work
         if onum:
             generated.batch = onum.batch
             generated.object_number = h.object_number
@@ -71,12 +71,12 @@ class AccessionNumber(models.Model):
                 n = p.last().part_number
             else:
                 n = 0
-            self.part_number = n + 1
-            self.part_count = self.part_number
+            generated.part_number = n + 1
+            generated.part_count = generated.part_number
             if p:
-                p.update(part_count=self.part_count)
+                p.update(part_count=generated.part_count)
         elif g:
-            raise NameError('Parent object exists, but has no AccessionNumber assigned to it. Generate one on the parent object before attempting to generate on the child.')
+            raise NameError('LAobject exists, but has no AccessionNumber assigned to it. Generate one on the parent object before attempting to generate on the child.')
         elif q:
             generated.batch = q.batch
             generated.object_number = q.object_number + 1
@@ -87,7 +87,7 @@ class AccessionNumber(models.Model):
                 raise NameError('Please start a batch before attempting to generate an AccessionNumber!')
             generated.object_number = 1
         generated.save()
-        print('Registered accession number ' + self.__str__() + ' for object ' + work.__str__())
+        print('Registered accession number ' + generated.__str__() + ' for object ' + work.__str__())
 
     class Meta:
         index_together=('object_number', 'batch', 'part_number')
