@@ -48,22 +48,25 @@ class AccessionNumber(models.Model):
         else:
             return batch + '.' + object_number
 
-    def generate(self, work):
+    def generate(work_id):
         """
         Generates an AccessionNumber based on active batch,
         previous number, and whether the object is a partOf
         another.
         """
-        # if AccessionNumber.objects.get(pk=work):
-            # raise ValueError('Refid already defined for this object!')
-        g = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work).greater
-        h = AccessionNumber.objects.filter(work=g).first()
+        generated = AccessionNumber()
+        if AccessionNumber.objects.get(pk=work_id):
+            # Figure out the correct if test, because this always returns True even if it is an empty set.
+            raise ValueError('Refid already defined for this object!')
+        work = ObjectIdentification.objects.get(pk=work_id)
+        greater = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work).greater
+        onum = AccessionNumber.objects.filter(work=greater).first()
         q = AccessionNumber.objects.filter(batch__active=True).last()
         self.work = work
-        if h:
-            self.batch = h.batch
-            self.object_number = h.object_number
-            p = AccessionNumber.objects.filter(object_number=h.object_number, part_number__gt=0)
+        if onum:
+            generated.batch = onum.batch
+            generated.object_number = h.object_number
+            p = AccessionNumber.objects.filter(object_number=onum.object_number, part_number__gt=0)
             if p:
                 n = p.last().part_number
             else:
@@ -75,15 +78,15 @@ class AccessionNumber(models.Model):
         elif g:
             raise NameError('Parent object exists, but has no AccessionNumber assigned to it. Generate one on the parent object before attempting to generate on the child.')
         elif q:
-            self.batch = q.batch
-            self.object_number = q.object_number + 1
+            generated.batch = q.batch
+            generated.object_number = q.object_number + 1
         else:
             try:
-                self.batch = AccessionBatch.objects.get(active=True)
+                generated.batch = AccessionBatch.objects.get(active=True)
             except:
                 raise NameError('Please start a batch before attempting to generate an AccessionNumber!')
-            self.object_number = 1
-        self.save()
+            generated.object_number = 1
+        generated.save()
         print('Registered accession number ' + self.__str__() + ' for object ' + work.__str__())
 
     class Meta:
