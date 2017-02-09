@@ -4,7 +4,6 @@ from .models import ObjectIdentification, ObjectName, ObjectUnit, ObjectHierarch
 from storageunit.models import Unit
 from historicdate.models import HistoricDate, DateType
 from agent.models import Agent, AgentDateType, AgentAffiliation
-from reorg.models import Batch, AccessionNumber
 # from django.urls import resolve
 # from objectinfo.views import index
 
@@ -28,7 +27,7 @@ class TestObjectIdentification(TestCase):
         image.close()
         d1 = HistoricDate.objects.create(display="1503–1506, possibly 1517", earliest="1503", earliest_accuracy=False, latest="1506", latest_accuracy=True)
         a1 = Agent.objects.create(display="Leonardo da Vinci (Italian, 1452–1519)", name="Leonardo da Vinci", name_type="personal", culture="Italian Renaissance")
-        k1 = ObjectProduction.objects.create(date=d1, agent=a1, note="Attested in Leonardo's workshop in France.")
+        k1 = ObjectProduction.objects.create(date=d1, note="Attested in Leonardo's workshop in France.")
 
     def test_create_work(self):
         """
@@ -65,5 +64,8 @@ class TestObjectIdentification(TestCase):
         Check that the object can access its production
         information.
         """
-        o2.objects.update(production=k1)
-        self.assertTrue("Attested" in o2.production__note)
+        o2 = ObjectIdentification.objects.get(preferred_title__title__contains="Mona")
+        k1 = ObjectProduction.objects.get(note__contains="Attested")
+        o2.production=k1
+        o2.save()
+        self.assertTrue("Attested" in o2.production.note)

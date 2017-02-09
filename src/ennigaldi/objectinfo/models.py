@@ -196,20 +196,20 @@ class ObjectProduction(models.Model):
     # applies to unrelated objects or events,
     # making it a one-to-one relationship keeps things cleaner,
     # even though inconsistent from a metadata-key point of view.
-    production_date = models.OneToOneField(HistoricDate, models.PROTECT)
+    date = models.OneToOneField(HistoricDate, models.PROTECT)
     # Spectrum 4.0 Production organization, people, person
     # VRA Core 4   agent + agent_type=creator
     # DCMI         creator
-    production_agent = models.ManyToManyField('agent.Agent', related_name='object_produced', through='AgentRole')
+    agent = models.ManyToManyField('agent.Agent', related_name='object_produced', through='AgentRole')
     # Spectrum 4.0 Production note
     # VRA Core 4   Will have a notes field for each of
     # 'agent > creator', 'date > created', and so on.
-    production_note = models.TextField(blank=True)
+    note = models.TextField(blank=True)
     # Spectrum 4.0 Production place
     # VRA Core 4   location + location_type=creation
     # DCMI         spatial
     # SICG M305    2.3 Origem
-    production_location = models.ManyToManyField('place.Place', related_name='produced_at_location', through='ObjectPlaceType')
+    location = models.ManyToManyField('place.Place', related_name='produced_at_location', through='ObjectPlaceType')
     # The following field declares the original function served
     # by the object, that is, the justification for its production
     # Spectrum 4.0 Technical justification
@@ -222,7 +222,7 @@ class ObjectProduction(models.Model):
     technique_type = models.ManyToManyField('TechniqueType', 'uses_technique')
 
     def __str__(self):
-        return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=work)
+        return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=self.work).__str__()
 
 class AgentRole(models.Model):
     agent = models.ForeignKey('agent.Agent', models.PROTECT, related_name='has_agent')
