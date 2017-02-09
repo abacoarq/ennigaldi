@@ -1,6 +1,14 @@
 from django.db import models
 
 class Unit(models.Model):
+    unit_types = (
+            ('exhibit', 'Exhibit'),
+            ('laboratory', 'Laboratory'),
+            ('reserve', 'Reserve'),
+            ('archive', 'Archive'),
+            ('library', 'Library'),
+            ('transport', 'Transport'),
+            )
     # Locations can be recursive for maximum flexibility,
     # e.g. building > wing > room > furniture > shelf
     # or in any other way required by the organization.
@@ -9,7 +17,8 @@ class Unit(models.Model):
     # A code that identifies the location, if any.
     acronym = models.CharField(max_length=15)
     # Keep the name short, follow conventions
-    name = models.CharField(max_length=32, blank=True)
+    name = models.CharField(max_length=31, blank=True)
+    unit_type = models.CharField(max_length=31, choices=unit_types)
     # Spectrum 4.0 Location note
     # VRA Core 4   location > notes
     # Notes on the location or its name (e.g. "so-called", "condemned", etc.)
