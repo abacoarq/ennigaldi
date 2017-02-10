@@ -76,7 +76,7 @@ class DateType(models.Model):
     dated = models.ForeignKey('genericmodel', models.CASCADE)
 
     def __str__(self):
-        return self.dated.__str__() + ' was ' + self.date_type + ' in ' + self.datation.__str__()
+        return self.dated.__str__() + ' was ' + self.get_date_type_display + ' in ' + self.datation.__str__()
 
     class Meta:
         abstract = True
