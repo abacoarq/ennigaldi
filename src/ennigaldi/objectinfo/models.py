@@ -938,7 +938,7 @@ class ObjectHierarchy(models.Model):
     relation_type = models.CharField(max_length=31, default='partOf', choices=relation_types)
 
     def __str__(self):
-        return self.lesser.__str__() + ' ' + self.relation_type + ' ' + self.greater.__str__()
+        return self.lesser.__str__() + ' ' + self.get_relation_type_display + ' ' + self.greater.__str__()
 
     class Meta:
         unique_together = ('lesser', 'relation_type')
