@@ -1,10 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 from .models import Unit
 
-def unit_list(request):
-    list_of_units = Unit.objects.all()
-    return render(request, 'storageunit/list.html', {'list_of_units': list_of_units})
+class unit_list(ListView):
+    model = Unit
+    template_name = 'storageunit/unit_list.html' # default
+    context_object_name = unit_list # default
+    paginate_by = 25
+    queryset = Unit.objects.all() # default
 
 def unit_detail(request, unit_id):
     unit_data = get_object_or_404(Unit, pk=unit_id)
