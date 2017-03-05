@@ -29,7 +29,10 @@ class TestGenerateRefid(TestCase):
         o1 = ObjectIdentification.objects.create(snapshot=image, source="source of information", brief_description="Description text.", description_source="citation for description", comments="Some comments", distinguishing_features="This object is peculiar because it is a test object.", work_type="Fiddle", preferred_title=t1)
         t2 = ObjectName.objects.create(title="Mona Lisa", title_type="creator", note="Uncertain identification of subject", lang=ptbr, source="Wölfflin")
         o2 = ObjectIdentification.objects.create(snapshot=image, source="Vasari", brief_description="Portrait of Lisa Gherardini", work_type="Painting", preferred_title=t2)
+        t3 = ObjectName.objects.create(title="Thinker", title_type="creator", note="also allegory for empty thoughts", lang=ptbr, source="Rodin himself")
+        o3 = ObjectIdentification.objects.create(snapshot=image, source="source of information for object 3", brief_description="Description text for object 3.", description_source="citation for description 3", comments="Some comments on object 3", distinguishing_features="This object is designed to test accession numbering.", work_type="Test", preferred_title=t3)
         p1 = ObjectHierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
+        p2 = ObjectHierarchy.objects.create(lesser=o3, greater=o2, relation_type='partOf')
         image.close()
 
     def test_generate_refid(self):
@@ -39,9 +42,10 @@ class TestGenerateRefid(TestCase):
         """
         o1 = ObjectIdentification.objects.get(preferred_title__translation__contains="Ceci")
         o2 = ObjectIdentification.objects.get(preferred_title__title__contains="Mona")
-        n1 = AccessionNumber.generate(self, o1.pk)
-        n2 = AccessionNumber.generate(o2)
-        num1 = AccessionNumber.objects.get(pk=o1.pk)
+        o3 = ObjectIdentification.objects.get(preferred_title__title__contains="Think")
+        n2 = AccessionNumber.generate(o2.pk)
+        n1 = AccessionNumber.generate(o1.pk)
+        n3 = AccessionNumber.generate(o3.pk)
         num2 = AccessionNumber.objects.get(pk=o2.pk)
-        print(num1)
-        print(num2)
+        num1 = AccessionNumber.objects.get(pk=o1.pk)
+        self.assertEqual(num1.part_count,2)

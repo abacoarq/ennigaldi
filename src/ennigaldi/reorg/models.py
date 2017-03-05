@@ -1,6 +1,8 @@
 from django.db import models
 from objectinfo.models import ObjectIdentification, ObjectHierarchy
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.base import ObjectDoesNotExist
 from datetime import datetime as dt
 
 class AccessionBatch(models.Model):
@@ -36,37 +38,45 @@ class AccessionBatch(models.Model):
         index_together = ('batch_year', 'batch_number')
 
 class AccessionNumber(models.Model):
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='work_refid', primary_key=True)
     batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
     object_number = models.PositiveSmallIntegerField()
     part_number = models.PositiveSmallIntegerField(null=True)
     part_count = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
-        if part_number:
-            return batch + '.' + object_number + '-' + part_number + '/' + part_count
+        if self.part_number:
+            return self.batch.__str__() + '.' + str(self.object_number) + '-' + str(self.part_number) + '/' + str(self.part_count)
         else:
-            return batch + '.' + object_number
+            return self.batch.__str__() + '.' + str(self.object_number)
 
     def generate(work_id):
         """
         Generates an AccessionNumber based on active batch,
-        previous number, and whether the object is a partOf
+        previous number, and whether the object is partOf
         another.
         """
-        generated = AccessionNumber()
-        if AccessionNumber.objects.get(pk=work_id):
-            # Figure out the correct if test, because this always returns True even if it is an empty set.
+        try:
+            not AccessionNumber.objects.filter(work=work_id)
+        except:
             raise ValueError('Refid already defined for this object!')
+        generated = AccessionNumber()
         work = ObjectIdentification.objects.get(pk=work_id)
-        greater = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work).greater
-        onum = AccessionNumber.objects.filter(work=greater).first()
-        q = AccessionNumber.objects.filter(batch__active=True).last()
         generated.work = work
-        if onum:
-            generated.batch = onum.batch
-            generated.object_number = h.object_number
-            p = AccessionNumber.objects.filter(object_number=onum.object_number, part_number__gt=0)
+
+        hasgreater = ObjectHierarchy.objects.filter(relation_type='partOf', lesser=work).exists()
+        if hasgreater:
+            thegreater = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work)
+            try:
+                greaternum = AccessionNumber.objects.get(work=thegreater.greater.pk)
+            except ObjectDoesNotExist:
+                # The line above is not catching the exception, but why?
+                raise ObjectDoesNotExist('Parent Object exists, but has no AccessionNumber assigned to it. Generate one on the parent object before attempting to generate on the child.')
+        q = AccessionNumber.objects.filter(batch__active=True).last()
+        if hasgreater:
+            generated.batch = greaternum.batch
+            generated.object_number = greaternum.object_number
+            p = AccessionNumber.objects.filter(object_number=greaternum.object_number, part_number__gt=0)
             if p:
                 n = p.last().part_number
             else:
@@ -75,19 +85,18 @@ class AccessionNumber(models.Model):
             generated.part_count = generated.part_number
             if p:
                 p.update(part_count=generated.part_count)
-        elif g:
-            raise NameError('LAobject exists, but has no AccessionNumber assigned to it. Generate one on the parent object before attempting to generate on the child.')
         elif q:
             generated.batch = q.batch
             generated.object_number = q.object_number + 1
         else:
             try:
                 generated.batch = AccessionBatch.objects.get(active=True)
-            except:
-                raise NameError('Please start a batch before attempting to generate an AccessionNumber!')
+            except ObjectDoesNotExist:
+                # The line above is not catching the exception, but why?
+                raise ObjectDoesNotExist('Please start a batch before attempting to generate an AccessionNumber!')
             generated.object_number = 1
         generated.save()
-        print('Registered accession number ' + generated.__str__() + ' for object ' + work.__str__())
+        # print('Registered accession number ' + generated.__str__() + ' for object ' + work.__str__())
 
     class Meta:
         index_together=('object_number', 'batch', 'part_number')
