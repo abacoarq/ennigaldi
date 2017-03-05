@@ -36,7 +36,7 @@ class TestAgent(TestCase):
         caesar_lives = AgentDateType.objects.create(dated=caesar, datation=c_life, source="Suetonius, Lives of the Caesars", date_type="life")
         caesar_acts = AgentDateType.objects.create(dated=caesar, datation=c_act, source="Livy", date_type="activity")
 
-        print(AgentDateType.objects.all())
-        print(c_life.date_for_agent.all())
-        print(c_act.date_for_agent.all())
-        print(caesar.dates.all())
+        self.assertTrue("100" in caesar_lives.datation.earliest)
+        self.assertTrue("60" not in caesar_lives.datation.earliest)
+        self.assertTrue("60" in caesar_acts.datation.earliest)
+        self.assertEqual(caesar,caesar_lives.dated)
