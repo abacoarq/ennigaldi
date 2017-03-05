@@ -61,7 +61,7 @@ class AgentDateType(DateType):
     date_type = models.CharField(max_length=31, choices=date_types)
 
     def __str__(self):
-        return self.dated.name + ' (' + self.get_date_type_display + ' ' + self.datation.display + ')'
+        return self.dated.name + ' (' + self.get_date_type_display() + ' ' + self.datation.display + ')'
 
 class AgentAffiliation(models.Model):
     person = models.ForeignKey(Agent, models.CASCADE, related_name='employee', limit_choices_to={Agent.name_type: 'personal'})
