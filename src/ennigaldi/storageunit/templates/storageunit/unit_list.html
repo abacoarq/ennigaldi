@@ -12,13 +12,15 @@
         </thead>
         <tbody>
             {% for unit in unit_list %}
-            <a href="{% url storageunit.unit_detail 'unit.pk' %}">
             <tr>
                 <td>{{ unit.parent }}</td>
                 <td>›</td>
-                <td>{{ unit.acronym }} {{ unit.name }}</td>
+                <td>
+                    <a href="{% url 'unit_detail' unit.pk %}">
+                        {{ unit.acronym }} {{ unit.name }}
+                    </a>
+                </td>
             </tr>
-            </a>
             {% empty %}
             <tr>
                 <td colspan="3">No units recorded yet.</td>
@@ -27,4 +29,7 @@
         </tbody>
     </table>
 </div>
+<form action="{% url 'field_entry_form' %}">
+    <button type="submit" class="button btn-primary">Create new unit</button>
+</form>
 {% endblock %}

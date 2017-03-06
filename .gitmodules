@@ -4,3 +4,6 @@
 [submodule "ext/bootstrap"]
 	path = ext/bootstrap
 	url = git@github.com:twbs/bootstrap.git
+[submodule "ext/django-dynamic-formset"]
+	path = ext/django-dynamic-formset
+	url = git@github.com:elo80ka/django-dynamic-formset.git
