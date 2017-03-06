@@ -69,7 +69,8 @@ class entryTest(unittest.TestCase):
 class xrefTests(unittest.TestCase):
     # Test every entry that has a foreign key to check
     # if it is referencing properly.
-    self.fail('Finish the fkey tests.')
+    def test_fkeys(self):
+        self.fail('Finish the fkey tests.')
 
 if __name__ == '__main__':
     unittest.main()
