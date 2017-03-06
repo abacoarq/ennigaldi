@@ -1,0 +1,15 @@
+{% extends 'objectinfo/base.html' %}
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h1>Delete {{ object.name }}?</h1>
+  </div>
+  <div class="panel-body">
+    <form action="" method="post">
+      <p>Are you sure you want to delete the item? All child items will be deleted, too.</p>
+      <button onclick="window.history.back();" class="btn btn-default" type="button">Cancel</button>
+      <input class="btn btn-primary" type="submit" value="Confirm"/>
+    </form>
+  </div>
+</div>
+{% endblock %}
