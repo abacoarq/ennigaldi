@@ -93,9 +93,14 @@ class ObjectIdentification(models.Model):
         return 'w_' + str(self.work_id) + ' ' + self.preferred_title.__str__()
 
     def is_part(self):
-        q = ObjectHierarchy.lesser_works.get(lesser__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        q = ObjectHierarchy.lesser_works.filter(lesser__pk=self.pk, relation_type=('partOf'|'componentOf'))
         if q:
             return q.values_list(greater__pk, flat=True)[0]
+
+    def has_parts(self):
+        q = ObjectHierarchy.greater_works.filter(greater__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        if q:
+            return q.values_list(lesser__pk, flat=True)
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
