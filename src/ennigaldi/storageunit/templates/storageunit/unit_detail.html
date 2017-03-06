@@ -1,0 +1,29 @@
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h1>{{ object.name }}</h1>
+    <span>{{ object.parent }}</span>
+  </div>
+  <div class="panel-body">
+      <div class="input-group">
+          <span class="input-group-addon">Acronym</span>
+          <span class="form-control">{{ object.acronym }}</span>
+      </div>
+      <div class="input-group">
+          <span class="input-group-addon">Type</span>
+          <span class="form-control">{{ object.unit_type }}</span>
+      </div>
+      <label for="notes">Notes</label>
+      <div class="input-group">
+          <span class="form-control" id="notes">{{ object.note }}</span>
+      </div>
+  </div>
+  <div class="panel-footer btn-group btn-group-justified" role="group">
+      <button type="button" class="button btn-default">Back to list</button>
+      <button type="button" class="button btn-primary">Create child unit</button>
+      <button type="button" class="button btn-success">Create sibling unit</button>
+      <button type="button" class="button btn-info">Edit unit</button>
+      <button type="button" class="button btn-danger">Delete unit</button>
+  </div>
+</div>
+{% endblock %}
