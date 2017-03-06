@@ -14,20 +14,17 @@ from .forms import FieldForm
 
 class UnitList(ListView):
     model = Unit
-    template_name = 'storageunit/unit_list.html' # default
-    # context_object_name = unit_list # default
     paginate_by = 25
     queryset = Unit.objects.all() # default
 
-class top_level_units(ListView):
+class TopLevelUnits(ListView):
     model = Unit
-    template_name = 'storageunit/unit_list.html' # default
     paginate_by = 25
     queryset = Unit.objects.filter(parent=None)
 
-def unit_detail(request, unit_id):
-    unit_data = get_object_or_404(Unit, pk=unit_id)
-    return render(request, 'storageunit/detail.html', {'unit_data': unit_data})
+class UnitDetail(DetailView):
+    model = Unit
+    # query_pk_and_slug = True
 
 @method_decorator(login_required, name='dispatch')
 class AddUnit(CreateView):
@@ -42,4 +39,4 @@ class UpdateUnit(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class DeleteUnit(DeleteView):
     model = Unit
-    success_url = reverse_lazy('unit-list')
+    success_url = reverse_lazy('unit_list')

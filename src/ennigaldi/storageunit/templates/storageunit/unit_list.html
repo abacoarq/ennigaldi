@@ -1,3 +1,30 @@
-<html>
-List view template goes here.
-</html>
+{% extends 'objectinfo/base.html' %}
+{% block content %}
+<h1>List</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Parent</td>
+                <td></td>
+                <td>Unit</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for unit in unit_list %}
+            <a href="{% url storageunit.unit_detail 'unit.pk' %}">
+            <tr>
+                <td>{{ unit.parent }}</td>
+                <td>›</td>
+                <td>{{ unit.acronym }} {{ unit.name }}</td>
+            </tr>
+            </a>
+            {% empty %}
+            <tr>
+                <td colspan="3">No units recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
