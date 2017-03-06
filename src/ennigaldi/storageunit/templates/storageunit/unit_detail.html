@@ -1,0 +1,67 @@
+{% extends 'objectinfo/base.html' %}
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h1>{{ object.name }}</h1>
+    <span>{{ object.parent|default_if_none:'Top level unit' }}</span>
+  </div>
+  <div class="panel-body">
+      <h2>Basic Information</h2>
+  </div>
+  <table class="table table-striped">
+      <thead></thead>
+      <tbody>
+          <tr>
+              <th>Acronym</th>
+              <td>{{ object.acronym }}</td>
+          </tr>
+          <tr>
+              <th>Type</th>
+              <td>{{ object.unit_type }}</td>
+          </tr>
+          <tr>
+              <th>Note</th>
+              <td id="notes">{{ object.note }}</td>
+          </tr>
+      </tbody>
+  </table>
+  {% if unit.children_set.all %}
+  <div class="panel-body">
+      <h2>Child Units</h2>
+  </div>
+  <table class="table table-striped">
+      <thead>
+          <tr>
+              <th>Acronym</th>
+              <th>Name</th>
+              <th>Note</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for unit in unit.children_set.all %}
+          <tr>
+              <td><a href="{% url 'unit_detail' unit.pk %}">
+                  {{ unit.acronym }}
+              </a></td>
+              <td><a href="{% url 'unit_detail' unit.pk %}">
+                  {{ unit.name }}
+              </a></td>
+              <td>{{ unit.note }}</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+  {% endif %}
+  <div class="panel-footer btn-group btn-group-justified" role="group">
+    <form class="form-inline" action="{% url 'unit_list' %}" display="inline">
+      <button type="submit" class="button btn-default">Back to list</button>
+    </form>
+    <form class="form-inline" action="{% url 'update_unit' unit.pk %}" display="inline">
+      <button type="submit" class="button btn-info">Edit unit or add children</button>
+    </form>
+    <form class="form-inline" action="{% url 'delete_unit' unit.pk %}" display="inline">
+      <button type="submit" class="button btn-danger">Delete unit</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+[submodule "ext/django-smart-selects"]
+	path = ext/django-smart-selects
+	url = git@github.com:digi604/django-smart-selects.git
+[submodule "ext/bootstrap"]
+	path = ext/bootstrap
+	url = git@github.com:twbs/bootstrap.git
+[submodule "ext/django-dynamic-formset"]
+	path = ext/django-dynamic-formset
+	url = git@github.com:elo80ka/django-dynamic-formset.git

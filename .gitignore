@@ -32,3 +32,10 @@ Session.vim
 # Python and venv
 *.pyc
 venv
+*.log
+
+# Database
+*.sqlite
+*.db
+migrations
+sample

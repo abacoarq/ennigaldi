@@ -1,0 +1,35 @@
+{% extends 'objectinfo/base.html' %}
+{% block content %}
+<h1>List</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Parent</td>
+                <td></td>
+                <td>Unit</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for unit in unit_list %}
+            <tr>
+                <td>{{ unit.parent }}</td>
+                <td>›</td>
+                <td>
+                    <a href="{% url 'unit_detail' unit.pk %}">
+                        {{ unit.acronym }} {{ unit.name }}
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No units recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<form action="{% url 'field_entry_form' %}">
+    <button type="submit" class="button btn-primary">Create new unit</button>
+</form>
+{% endblock %}
