@@ -1,0 +1,11 @@
+appdirs==1.4.2
+Django==1.10.6
+olefile==0.44
+packaging==16.8
+Pillow==4.0.0
+pyparsing==2.1.10
+reversion==0.2
+selenium==3.0.2
+six==1.10.0
+toml==0.9.2
+whitenoise==3.3.0

@@ -31,7 +31,7 @@ class UnitDetail(DetailView):
 class AddUnit(CreateView):
     model = Unit
     form = ParentUnitForm
-    fields = ['type', 'acronym', 'name', 'note']
+    fields = ['unit_type', 'acronym', 'name', 'note']
 
     def get_context_data(self, **kwargs):
         data = super(AddUnit, self).get_context_data(**kwargs)
@@ -59,7 +59,7 @@ class AddUnit(CreateView):
 class UpdateUnit(UpdateView):
     model = Unit
     form = ParentUnitForm
-    fields = ['type', 'acronym', 'name', 'parent', 'note']
+    fields = ['unit_type', 'acronym', 'name', 'parent', 'note']
 
     def get_context_data(self, **kwargs):
         data = super(UpdateUnit, self).get_context_data(**kwargs)
