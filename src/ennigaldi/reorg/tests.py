@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import *
-from objectinfo.models import ObjectIdentification, ObjectHierarchy, ObjectName, IsoLanguage
+from objectinfo.models import ObjectIdentification, Hierarchy, ObjectName, IsoLanguage
 
 class TestStartBatch(TestCase):
     def setUp(self):
@@ -31,8 +31,8 @@ class TestGenerateRefid(TestCase):
         o2 = ObjectIdentification.objects.create(snapshot=image, source="Vasari", brief_description="Portrait of Lisa Gherardini", work_type="Painting", preferred_title=t2)
         t3 = ObjectName.objects.create(title="Thinker", title_type="creator", note="also allegory for empty thoughts", lang=ptbr, source="Rodin himself")
         o3 = ObjectIdentification.objects.create(snapshot=image, source="source of information for object 3", brief_description="Description text for object 3.", description_source="citation for description 3", comments="Some comments on object 3", distinguishing_features="This object is designed to test accession numbering.", work_type="Test", preferred_title=t3)
-        p1 = ObjectHierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
-        p2 = ObjectHierarchy.objects.create(lesser=o3, greater=o2, relation_type='partOf')
+        p1 = Hierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
+        p2 = Hierarchy.objects.create(lesser=o3, greater=o2, relation_type='partOf')
         image.close()
 
     def test_generate_refid(self):

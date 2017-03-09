@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .models import ObjectIdentification, ObjectName, ObjectUnit, ObjectHierarchy, ObjectProduction, AgentRole, TechniqueType, ObjectPlaceType, IsoLanguage
+from .models import ObjectIdentification, ObjectName, ObjectUnit, Hierarchy, Production, AgentRole, TechniqueType, ObjectPlaceType, IsoLanguage
 from storageunit.models import Unit
 from historicdate.models import HistoricDate, DateType
 from agent.models import Agent, AgentDateType, AgentAffiliation
@@ -23,11 +23,11 @@ class TestObjectIdentification(TestCase):
         o1 = ObjectIdentification.objects.create(snapshot=image, source="source of information", brief_description="Description text.", description_source="citation for description", comments="Some comments", distinguishing_features="This object is peculiar because it is a test object.", work_type="Fiddle", preferred_title=t1)
         t2 = ObjectName.objects.create(title="Mona Lisa", title_type="creator", note="Uncertain identification of subject", lang=ptbr, source="Wölfflin")
         o2 = ObjectIdentification.objects.create(snapshot=image, source="Vasari", brief_description="Portrait of Lisa Gherardini", work_type="Painting", preferred_title=t2)
-        p1 = ObjectHierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
+        p1 = Hierarchy.objects.create(lesser=o1, greater=o2, relation_type='partOf')
         image.close()
         d1 = HistoricDate.objects.create(display="1503–1506, possibly 1517", earliest="1503", earliest_accuracy=False, latest="1506", latest_accuracy=True)
         a1 = Agent.objects.create(display="Leonardo da Vinci (Italian, 1452–1519)", name="Leonardo da Vinci", name_type="personal", culture="Italian Renaissance")
-        k1 = ObjectProduction.objects.create(date=d1, note="Attested in Leonardo's workshop in France.")
+        k1 = Production.objects.create(date=d1, note="Attested in Leonardo's workshop in France.")
 
     def test_create_work(self):
         """
@@ -56,7 +56,7 @@ class TestObjectIdentification(TestCase):
         """
         o1 = ObjectIdentification.objects.get(preferred_title__translation__contains="Ceci")
         o2 = ObjectIdentification.objects.get(preferred_title__title__contains="Mona")
-        op1 = ObjectHierarchy.objects.filter(lesser=o1, relation_type='partOf').first()
+        op1 = Hierarchy.objects.filter(lesser=o1, relation_type='partOf').first()
         self.assertEqual(op1.greater.pk, 2)
 
     def test_production(self):
@@ -65,7 +65,7 @@ class TestObjectIdentification(TestCase):
         information.
         """
         o2 = ObjectIdentification.objects.get(preferred_title__title__contains="Mona")
-        k1 = ObjectProduction.objects.get(note__contains="Attested")
+        k1 = Production.objects.get(note__contains="Attested")
         o2.production=k1
         o2.save()
         self.assertTrue("Attested" in o2.production.note)

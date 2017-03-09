@@ -1,5 +1,5 @@
 from django.db import models
-from objectinfo.models import ObjectIdentification, ObjectHierarchy
+from objectinfo.models import ObjectIdentification, Hierarchy
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.base import ObjectDoesNotExist
@@ -64,9 +64,9 @@ class AccessionNumber(models.Model):
         work = ObjectIdentification.objects.get(pk=work_id)
         generated.work = work
 
-        hasgreater = ObjectHierarchy.objects.filter(relation_type='partOf', lesser=work).exists()
+        hasgreater = Hierarchy.objects.filter(relation_type='partOf', lesser=work).exists()
         if hasgreater:
-            thegreater = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work)
+            thegreater = Hierarchy.objects.get(relation_type='partOf', lesser=work)
             try:
                 greaternum = AccessionNumber.objects.get(work=thegreater.greater.pk)
             except ObjectDoesNotExist:
