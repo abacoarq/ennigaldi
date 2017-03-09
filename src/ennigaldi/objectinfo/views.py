@@ -1,24 +1,69 @@
-from django.shortcuts import render
+from django import forms
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db import transaction
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy, reverse
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
+from reorg.models import AccessionNumber
 from .models import ObjectIdentification
+from .forms import *
 
 def index(request):
     return HttpResponse('Nothing here yet.')
 
-def field_form(request):
-    return HttpResponse('This is where the field survey form will appear.')
+@method_decorator(login_required, name='dispatch')
+class AddObject(CreateView):
+    model = ObjectIdentification
+    form = ObjectEntry
+    fields = ['snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features']
 
-def next_entry(request):
-    return HttpResponse('This page shows after saving an entry, offering to add another.')
+    def get_context_data(self, **kwargs):
+        data = super(AddObject, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['preferred_title'] = preferredtitle_formset(self.request.POST)
+            data['inscription'] = inscription_formset(self.request.POST)
+        else:
+            data['preferred_title'] = preferredtitle_formset()
+            data['inscription'] = inscription_formset()
+        return data
 
-def object_list(request):
-    return HttpResponse('There will be a list of entered works here.')
+    def form_valid(self, form):
+        context = self.get_context_data()
+        preferred_title = context['preferred_title']
+        inscription = context['inscription']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if preferred_title.is_valid():
+                preferred_title.instance = self.object
+                preferred_title.save()
+            if inscription.is_valid():
+                inscription.instance = self.object
+                inscription.save()
+
+            reorg.AccessionNumber.generate(self.object.work_id)
+        return super(AddObject, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('object_list')
+
+class ObjectList(ListView):
+    model = ObjectIdentification
+    paginate_by = 25
+    queryset = ObjectIdentification.objects.all() # default
+
+class ObjectDetail(DetailView):
+    model = ObjectIdentification
+    # query_pk_and_slug = True
 
 def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')
-
-def m305(request):
-    return render(request, 'objectinfo/m305.html', {})
 
 def xml(request):
     return HttpResponse('Here there be VRA Core 4 XML.')

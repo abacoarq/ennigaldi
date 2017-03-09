@@ -1,11 +1,10 @@
-from django.forms import ModelForm
-from django.forms import inlineformset_factory
+from django.forms import ModelForm, inlineformset_factory
 from .models import Unit
 
 class ParentUnitForm(ModelForm):
     class Meta:
         model = Unit
-        fields = ['acronym', 'name', 'note']
+        fields = ['unit_type', 'acronym', 'name', 'note']
 
 class ChildUnitForm(ModelForm):
     class Meta:
