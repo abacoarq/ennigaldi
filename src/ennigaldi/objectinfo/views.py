@@ -26,20 +26,16 @@ class AddObject(CreateView):
     def get_context_data(self, **kwargs):
         data = super(AddObject, self).get_context_data(**kwargs)
         if self.request.POST:
-            data['preferred_title'] = preferredtitle_formset(self.request.POST)
             data['inscription'] = inscription_formset(self.request.POST)
         else:
-            data['preferred_title'] = preferredtitle_formset()
             data['inscription'] = inscription_formset()
         return data
 
     def form_valid(self, form):
         context = self.get_context_data()
-        preferred_title = context['preferred_title']
         inscription = context['inscription']
         with transaction.atomic():
             self.object = form.save()
-
             if preferred_title.is_valid():
                 preferred_title.instance = self.object
                 preferred_title.save()

@@ -6,22 +6,21 @@ class ObjectEntry(ModelForm):
         model = ObjectIdentification
         fields = ['snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'storage_unit', 'normal_unit']
 
+# The TitleEntry form populates the preferred_title OneToOneField
+# in the ObjectIdentification. It needs to be a separate form,
+# not an inlineformset, as per
+# http://stackoverflow.com/questions/27832076/modelform-with-onetoonefield-in-django
 class TitleEntry(ModelForm):
     class Meta:
         model = ObjectName
         fields = ['title', 'title_type', 'lang', 'translation', 'currency', 'level', 'note', 'source']
-
-# Apparently the following only works with ForeignKey,
-# not OneToOneField. Figure out what is the correct implementation.
-preferredtitle_formset = inlineformset_factory(ObjectIdentification, ObjectName, form=ObjectEntry, extra=1)
 
 class InscriptionEntry(ModelForm):
     class Meta:
         model = Inscription
         fields = ['inscription_display', 'inscription_position', 'inscription_type', 'inscription_language', 'inscription_notes', 'inscription_method']
 
-# This was supposed to work. Check why it is throwing an exception.
-inscription_formset = inlineformset_factory(ObjectIdentification, Inscription, form=ObjectEntry, extra=1)
+inscription_formset = inlineformset_factory(ObjectIdentification, Inscription, form=InscriptionEntry, extra=1)
 
 ###########################################################
 # The following is part of Description---commented here
@@ -32,28 +31,28 @@ inscription_formset = inlineformset_factory(ObjectIdentification, Inscription, f
         # model = Colour
         # fields = ['colour']
 
-# colour_formset = inlineformset_factory(ObjectIdentification, Colour, form=ObjectEntry, extra=2)
+# colour_formset = inlineformset_factory(ObjectIdentification, Colour, form=ColourEntry, extra=2)
 
 # class DimensionEntry(ModelForm):
     # class Meta:
         # model = Dimension
         # fields = ['dimension_part', 'dimension_type', 'dimension_value', 'dimension_value_qualifier']
 
-# dimension_formset = inlineformset_factory(ObjectIdentification, Dimension, form=ObjectEntry, extra=3)
+# dimension_formset = inlineformset_factory(ObjectIdentification, Dimension, form=DimensionEntry, extra=3)
 
 # class MaterialTypeEntry(ModelForm):
     # class Meta:
         # model = MaterialType
         # fields = ['material_type', 'material']
 
-# materialtype_formset = inlineformset_factory(ObjectIdentification, MaterialType, form=ObjectEntry, extra=2)
+# materialtype_formset = inlineformset_factory(ObjectIdentification, MaterialType, form=MaterialTypeEntry, extra=2)
 
 # class TechnicalAttributeEntry(ModelForm):
     # class Meta:
         # model = TechnicalAttribute
         # fields = ['attribute_type', 'attribute_value']
 
-# technicalattribute_formset = inlineformset_factory(ObjectIdentification, TechnicalAttribute, form=ObjectEntry, extra=1)
+# technicalattribute_formset = inlineformset_factory(ObjectIdentification, TechnicalAttribute, form=TechnicalAttributeEntry, extra=1)
 
 
 ###########################################################
