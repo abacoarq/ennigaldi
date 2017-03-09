@@ -36,9 +36,6 @@ class AddObject(CreateView):
         inscription = context['inscription']
         with transaction.atomic():
             self.object = form.save()
-            if preferred_title.is_valid():
-                preferred_title.instance = self.object
-                preferred_title.save()
             if inscription.is_valid():
                 inscription.instance = self.object
                 inscription.save()
