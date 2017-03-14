@@ -1,5 +1,5 @@
 from django.db import models
-from objectinfo.models import ObjectIdentification, ObjectHierarchy
+from objectinfo.models import ObjectIdentification, Hierarchy
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.base import ObjectDoesNotExist
@@ -38,7 +38,7 @@ class AccessionBatch(models.Model):
         index_together = ('batch_year', 'batch_number')
 
 class AccessionNumber(models.Model):
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='work_refid', primary_key=True)
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
     batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
     object_number = models.PositiveSmallIntegerField()
     part_number = models.PositiveSmallIntegerField(null=True)
@@ -64,9 +64,9 @@ class AccessionNumber(models.Model):
         work = ObjectIdentification.objects.get(pk=work_id)
         generated.work = work
 
-        hasgreater = ObjectHierarchy.objects.filter(relation_type='partOf', lesser=work).exists()
+        hasgreater = Hierarchy.objects.filter(relation_type='partOf', lesser=work).exists()
         if hasgreater:
-            thegreater = ObjectHierarchy.objects.get(relation_type='partOf', lesser=work)
+            thegreater = Hierarchy.objects.get(relation_type='partOf', lesser=work)
             try:
                 greaternum = AccessionNumber.objects.get(work=thegreater.greater.pk)
             except ObjectDoesNotExist:

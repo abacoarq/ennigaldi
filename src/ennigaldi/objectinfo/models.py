@@ -22,15 +22,15 @@ class ObjectIdentification(models.Model):
     # This image is for quick reference purposes only,
     # to be photographed in the field when doing the
     # preliminary recording work.
-    snapshot_height = models.CharField(max_length=15)
-    snapshot_width = models.CharField(max_length=15)
+    snapshot_height = models.CharField(max_length=15, blank=True)
+    snapshot_width = models.CharField(max_length=15, blank=True)
     snapshot = models.ImageField(upload_to='uploads/media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, null=True)
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
     # It should be populated from an "add part" button in
     # the parent object page rather than filled manually.
-    hierarchy = models.ManyToManyField("self", related_name='has_part', symmetrical=False, through='ObjectHierarchy', through_fields=('lesser', 'greater'))
+    hierarchy = models.ManyToManyField("self", related_name='has_part', symmetrical=False, through='Hierarchy', through_fields=('lesser', 'greater'))
     # Spectrum 4.0 Object number
     # VRA Core 4   refid
     # SICG M305    1.4 Código identificador Iphan
@@ -84,7 +84,7 @@ class ObjectIdentification(models.Model):
     # Complementary information is split into different
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
-    production = models.OneToOneField('ObjectProduction', models.PROTECT, null=True)
+    production = models.OneToOneField('Production', models.PROTECT, null=True)
     storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', through='ObjectUnit')
     # Spectrum 4.0 Normal location
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True)
@@ -93,18 +93,18 @@ class ObjectIdentification(models.Model):
         return 'w_' + str(self.work_id) + ' ' + self.preferred_title.__str__()
 
     def is_part(self):
-        q = ObjectHierarchy.lesser_works.filter(lesser__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        q = Hierarchy.lesser_works.filter(lesser__pk=self.pk, relation_type=('partOf'|'componentOf'))
         if q:
             return q.values_list(greater__pk, flat=True)[0]
 
     def has_parts(self):
-        q = ObjectHierarchy.greater_works.filter(greater__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        q = Hierarchy.greater_works.filter(greater__pk=self.pk, relation_type=('partOf'|'componentOf'))
         if q:
             return q.values_list(lesser__pk, flat=True)
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
-class OtherObjectNumber(models.Model):
+class OtherNumber(models.Model):
     work = models.ForeignKey('ObjectIdentification', models.CASCADE)
     object_number = models.CharField(max_length=71)
     object_number_type = models.CharField(max_length=255)
@@ -191,7 +191,7 @@ class ObjectName(models.Model):
 # to have these informations grouped in one place.
 # This class should only be active if the Object
 # is of Artifact or ArtifactInstance type.
-class ObjectProduction(models.Model):
+class Production(models.Model):
     # Spectrum 4.0 Production date is a separate field
     #              from Description age
     # VRA Core 4   date + date_type=created
@@ -231,7 +231,7 @@ class ObjectProduction(models.Model):
 
 class AgentRole(models.Model):
     agent = models.ForeignKey('agent.Agent', models.PROTECT, related_name='has_agent')
-    work = models.ForeignKey('ObjectProduction', models.PROTECT, related_name='agent_of_work')
+    work = models.ForeignKey('Production', models.PROTECT, related_name='agent_of_work')
     # VRA Core 4 agent > role
     # Use controlled vocab
     agent_role = models.CharField(max_length=31)
@@ -248,7 +248,7 @@ class AgentRole(models.Model):
         return agent_role_display
 
 class ObjectPlaceType(PlaceType):
-    work = models.ForeignKey('ObjectProduction', models.PROTECT)
+    work = models.ForeignKey('Production', models.PROTECT)
 
 # Spectrum 4.0 Technique
 class TechniqueType(models.Model):
@@ -314,7 +314,7 @@ class ObjectUnit(models.Model):
 # by each of the three object types.
 # Simple Description fields common to all three object classes
 # are grouped under this class for convenience.
-class ObjectDescription(models.Model):
+class Description(models.Model):
     work = models.OneToOneField('ObjectIdentification', models.CASCADE)
     # Spectrum 4.0 Physical description
     # VRA Core 4   Append to description in output,
@@ -350,7 +350,7 @@ class ObjectDescription(models.Model):
 # Biological specimens (live or preserved animals,
 # taxidermic work, fossils, etc.),
 # Geologic samples, and other natural objects.
-class Specimen(ObjectDescription):
+class Specimen(Description):
     age_qualification_choice = (
         ('exact', 'exact'),
         ('around', 'around'),
@@ -387,7 +387,7 @@ class Specimen(ObjectDescription):
     object_date = models.ManyToManyField('historicdate.HistoricDate', related_name='%(app_label)s_date_for_%(class)s', through='SpecimenDateType')
 
 # Pretty much everything else you would find in a museum.
-class Artifact(ObjectDescription):
+class Artifact(Description):
     # Spectrum 4.0 Object status
     # VRA Core 4   status
     # Indicates relationship of this object to others,
@@ -412,7 +412,7 @@ class Artifact(ObjectDescription):
     # Spectrum 4.0 Material
     # VRA Core 4   material
     # SICG M305    3.1 Materiais
-    material = models.ManyToManyField('ObjectMaterial', related_name='%(app_label)s_material_in_%(class)s', through='MaterialType')
+    material = models.ManyToManyField('Material', related_name='%(app_label)s_material_in_%(class)s', through='MaterialType')
     # VRA Core 4 date
     # Not provided with this level of flexibility in other models,
     # as discussed in the historicdate.HistoricDate class.
@@ -442,7 +442,7 @@ class WorkInstance(Artifact):
 # VRA Core 4   Measurements
 # DCMI         extent
 # SICG M305    3.3 Dimensões
-class ObjectDimension(models.Model):
+class Dimension(models.Model):
     measurement_type = (
         # Spectrum 4.0 Dimension measurement unit is implicit
         # from the measurement type chosen, to make
@@ -495,7 +495,7 @@ class ObjectDimension(models.Model):
 # Spectrum 4.0 Inscription
 # VRA Core 4   Inscription
 # SICG M305    4.2 Marcas e inscrições
-class ObjectInscription(models.Model):
+class Inscription(models.Model):
     inscription_types = (
             ('signature', 'Signature'),
             ('mark', 'Mark or symbol'),
@@ -635,7 +635,7 @@ class ArtifactDateType(DateType):
 # Spectrum 4.0 Material
 # VRA Core 4   material
 # SICG M305    3.1 Materiais
-class ObjectMaterial(models.Model):
+class Material(models.Model):
     # Spectrum 4.0 Material component
     # No equivalent in other standards
     # Only input information based on technical analysis.
@@ -652,11 +652,14 @@ class ObjectMaterial(models.Model):
     # Spectrum 4.0 Material source
     # No equivalent in other standards
     # Geographic origin of material, if known.
-    material_source = models.ForeignKey('place.Place', models.PROTECT, blank=True)
+    material_source = models.ForeignKey('place.Place', models.PROTECT, blank=True, null=True)
     # VRA Core 4 requires an ID field for each material,
     # linked to a controlled vocabulary.
     # Can be activated by uncommenting the following line.
     # material_refid = models.IntegerField(primary_key=True, editable=True)
+
+    def __str__(self):
+        return self.material_name
 
 class MaterialType(models.Model):
     # VRA Core 4   material > type
@@ -666,7 +669,7 @@ class MaterialType(models.Model):
         ('other', 'other')
     )
     material_type = models.CharField(max_length=15, default='medium', choices=material_types)
-    material = models.ForeignKey('ObjectMaterial', models.PROTECT)
+    material = models.ForeignKey('Material', models.PROTECT)
     work = models.ForeignKey('Artifact', models.CASCADE)
     # VRA Core 4   material > extent
     # Not defined in other standards.
@@ -758,7 +761,7 @@ class ContentMeta(models.Model):
 # This is distinct from the 'Object *rights in*
 # information' group, which declares rights granted on
 # the object by a third party.
-class ObjectRights(models.Model):
+class Rights(models.Model):
     rights_types = (
         ('copyrighted', 'copyrighted'),
         ('publicDomain', 'public domain'),
@@ -884,7 +887,7 @@ class Ownership(models.Model):
 # separate classes to handle two distinct situations:
 # - hierarchical relationships (ForeignKey);
 # - multiple relationships (ManyToMany).
-class ObjectHierarchy(models.Model):
+class Hierarchy(models.Model):
     relation_types = (
         # Commented-out fields are established by VRA Core 4 but
         # must be derived from the inverse database relationship
