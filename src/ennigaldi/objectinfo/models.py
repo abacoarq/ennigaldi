@@ -22,8 +22,8 @@ class ObjectIdentification(models.Model):
     # This image is for quick reference purposes only,
     # to be photographed in the field when doing the
     # preliminary recording work.
-    snapshot_height = models.CharField(max_length=15)
-    snapshot_width = models.CharField(max_length=15)
+    snapshot_height = models.CharField(max_length=15, blank=True)
+    snapshot_width = models.CharField(max_length=15, blank=True)
     snapshot = models.ImageField(upload_to='uploads/media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, null=True)
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
@@ -650,11 +650,14 @@ class Material(models.Model):
     # Spectrum 4.0 Material source
     # No equivalent in other standards
     # Geographic origin of material, if known.
-    material_source = models.ForeignKey('place.Place', models.PROTECT, blank=True)
+    material_source = models.ForeignKey('place.Place', models.PROTECT, blank=True, null=True)
     # VRA Core 4 requires an ID field for each material,
     # linked to a controlled vocabulary.
     # Can be activated by uncommenting the following line.
     # material_refid = models.IntegerField(primary_key=True, editable=True)
+
+    def __str__(self):
+        return self.material_name
 
 class MaterialType(models.Model):
     # VRA Core 4   material > type

@@ -38,7 +38,7 @@ class AccessionBatch(models.Model):
         index_together = ('batch_year', 'batch_number')
 
 class AccessionNumber(models.Model):
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='work_refid', primary_key=True)
+    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
     batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
     object_number = models.PositiveSmallIntegerField()
     part_number = models.PositiveSmallIntegerField(null=True)
