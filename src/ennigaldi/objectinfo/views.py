@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
@@ -54,6 +54,33 @@ class ObjectList(ListView):
 class ObjectDetail(DetailView):
     model = ObjectRegister
     # query_pk_and_slug = True
+
+def object_entry(request):
+    if request.method == 'POST':
+        title_form = TitleEntry(request.POST)
+        object_form = ObjectEntry(request.POST)
+        if title_form.is_valid() and object_form.is_valid():
+            title = title_form.cleaned_data['title']
+            title_type = title_form.cleaned_data['title_type']
+            title_lang = title_form.cleaned_data['lang']
+            title_translation = title_form.cleaned_data['translation']
+            title_currency = title_form.cleaned_data['currency']
+            title_level = title_form.cleaned_data['level']
+            title_note = title_form.cleaned_data['note']
+            title_source = title_form.cleaned_data['source']
+
+            snapshot = object_form.cleaned_data['snapshot']
+            work_type = object_form.cleaned_data['work_type']
+            source = object_form.cleaned_data['source']
+            brief_description = object_form.cleaned_data['brief_description']
+            description_source = object_form.cleaned_data['description_source']
+            comments = object_form.cleaned_data['comments']
+            distinguishing_features = object_form.cleaned_data['distinguishing_features']
+
+            return HttpResponseRedirect('/work/')
+    else:
+        title_form = TitleEntry()
+        object_form = ObjectEntry()
 
 def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')
