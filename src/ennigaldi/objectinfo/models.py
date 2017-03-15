@@ -90,7 +90,8 @@ class ObjectRegister(models.Model):
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True)
 
     def __str__(self):
-        return 'w_' + str(self.work_id) + ' ' + self.preferred_title.__str__()
+        wid = str(self.work_id)
+        return 'w_' + wid.zfill(7) + ' ' + self.preferred_title.__str__()
 
     def is_part(self):
         q = Hierarchy.lesser_works.filter(lesser__pk=self.pk, relation_type=('partOf'|'componentOf'))
@@ -1041,6 +1042,9 @@ class TextRef(models.Model):
 class IsoLanguage(models.Model):
     iso = models.CharField(max_length=7, primary_key=True)
     language = models.CharField(max_length=63, unique=True)
+
+    def __str__(self):
+        return self.language
 # /Spectrum 4.0 Language
 ###########################################################
 
