@@ -1,0 +1,35 @@
+{% extends 'objectinfo/base.html' %}
+{% block content %}
+<h1>Object List</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <td>Accession No.</td>
+                <td></td>
+                <td>Object</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in objectinfo_list %}
+            <tr>
+                <td>{{ object.refid }}</td>
+                <td>›</td>
+                <td>
+                    <a href="{% url 'object_detail' object.pk %}">
+                      {{ objectinfo }}
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No objects recorded yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<form action="{% url 'objectentry_form' %}">
+    <button type="submit" class="button btn-primary">Record new object</button>
+</form>
+{% endblock %}

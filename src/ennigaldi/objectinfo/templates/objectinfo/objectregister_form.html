@@ -1,0 +1,30 @@
+{% extends 'objectinfo/base.html' %}
+{% load static %}
+
+{% block content %}
+<form method="POST" class="post-form">
+    {% csrf_token %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1>Edit Object Register</h1>
+      </div>
+      <div class="form-group">
+        <table class="table table-condensed">
+          {{ form.as_table }}
+        </table>
+      </div>
+      <div class="panel-footer">
+          <button type="submit" class="save btn btn-default" value="Save">Save</button>
+      </div>
+    </div>
+</form>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="{% static 'objectinfo/js/jquery.formset.js' %}"></script>
+    <script type="text/javascript">
+        $('.formset_row').formset({
+            addText: 'add child unit',
+            deleteText: 'remove',
+            prefix: 'children_set'
+        });
+    </script>
+{% endblock %}
