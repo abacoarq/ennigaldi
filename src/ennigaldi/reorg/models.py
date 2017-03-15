@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.base import ObjectDoesNotExist
 from datetime import datetime as dt
 
-class AccessionBatch(models.Model):
+class Batch(models.Model):
     batch_datadate = models.DateField(auto_now_add=True)
     batch_year = models.PositiveSmallIntegerField()
     batch_number = models.PositiveSmallIntegerField()
@@ -14,10 +14,10 @@ class AccessionBatch(models.Model):
     retrospective = models.BooleanField(default=False)
 
     def start_batch(retrospective, batch_note):
-        AccessionBatch.objects.all().update(active=False)
-        b = AccessionBatch()
+        Batch.objects.all().update(active=False)
+        b = Batch()
         b.batch_year = dt.now().year
-        last_batch = AccessionBatch.objects.filter(batch_year=dt.now().year).first()
+        last_batch = Batch.objects.filter(batch_year=dt.now().year).first()
         if last_batch:
             last_batch_num = last_batch.batch_number
             b.batch_number = last_batch_num + 1
@@ -39,7 +39,7 @@ class AccessionBatch(models.Model):
 
 class AccessionNumber(models.Model):
     work = models.OneToOneField(ObjectRegister, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
-    batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
+    batch = models.ForeignKey(Batch, models.CASCADE, related_name='batch_works')
     object_number = models.PositiveSmallIntegerField()
     part_number = models.PositiveSmallIntegerField(null=True)
     part_count = models.PositiveSmallIntegerField(null=True)
@@ -90,7 +90,7 @@ class AccessionNumber(models.Model):
             generated.object_number = q.object_number + 1
         else:
             try:
-                generated.batch = AccessionBatch.objects.get(active=True)
+                generated.batch = Batch.objects.get(active=True)
             except ObjectDoesNotExist:
                 # The line above is not catching the exception, but why?
                 raise ObjectDoesNotExist('Please start a batch before attempting to generate an AccessionNumber!')

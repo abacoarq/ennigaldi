@@ -5,16 +5,16 @@ from objectinfo.models import ObjectRegister, Hierarchy, ObjectName, IsoLanguage
 
 class TestStartBatch(TestCase):
     def setUp(self):
-        AccessionBatch.start_batch(retrospective=True, batch_note="Retrospective")
-        AccessionBatch.start_batch(retrospective=False, batch_note="Non retrospective")
+        Batch.start_batch(retrospective=True, batch_note="Retrospective")
+        Batch.start_batch(retrospective=False, batch_note="Non retrospective")
 
     def test_batch_fields(self):
         """
         Check if all fields have been automatically filled
         with the correct defaults.
         """
-        retro = AccessionBatch.objects.filter(retrospective=True).first()
-        non_retro = AccessionBatch.objects.filter(retrospective=False).first()
+        retro = Batch.objects.filter(retrospective=True).first()
+        non_retro = Batch.objects.filter(retrospective=False).first()
         self.assertEqual(retro.__str__(), '2017.R.1')
         self.assertEqual(non_retro.__str__(), '2017.2')
         self.assertEqual(retro.active, False)
@@ -22,7 +22,7 @@ class TestStartBatch(TestCase):
 
 class TestGenerateRefid(TestCase):
     def setUp(self):
-        AccessionBatch.start_batch(retrospective=True, batch_note="Retrospective")
+        Batch.start_batch(retrospective=True, batch_note="Retrospective")
         image = SimpleUploadedFile(name='test_image.jpg', content=open('../sample/350x150.png', 'rb').read(), content_type='image/jpeg')
         ptbr = IsoLanguage.objects.create(iso="pt_BR", language="Portuguese (Brazil)")
         t1 = ObjectName.objects.create(title="Some object", title_type="descriptive", note="Didn't know what to name it", lang=ptbr, source="My own mind", translation="Ceci n'est pas un titre")
