@@ -26,14 +26,14 @@ class AddObject(CreateView):
     def get_context_data(self, **kwargs):
         data = super(AddObject, self).get_context_data(**kwargs)
         if self.request.POST:
-            data['inscription'] = inscription_formset(self.request.POST)
+            data['inscriptions'] = inscription_formset(self.request.POST)
         else:
-            data['inscription'] = inscription_formset()
+            data['inscriptions'] = inscription_formset()
         return data
 
     def form_valid(self, form):
         context = self.get_context_data()
-        inscription = context['inscription']
+        inscription = context['inscriptions']
         with transaction.atomic():
             self.object = form.save()
             if inscription.is_valid():
