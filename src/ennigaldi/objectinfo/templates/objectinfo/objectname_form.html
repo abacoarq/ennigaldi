@@ -1,0 +1,21 @@
+{% extends 'objectinfo/base.html' %}
+{% load static %}
+
+{% block content %}
+<form method="POST" class="post-form">
+    {% csrf_token %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1>Edit Object Register: Title</h1>
+      </div>
+      <div class="form-group">
+        <table class="table talbe-striped table-condensed">
+          {{ form.as_table }}
+        </table>
+      </div>
+      <div class="panel-footer">
+          <button type="submit" class="save btn btn-default" value="Save & continue">Save &amp; continue</button>
+      </div>
+    </div>
+</form>
+{% endblock %}

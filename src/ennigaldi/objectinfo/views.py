@@ -55,10 +55,9 @@ class ObjectDetail(DetailView):
     model = ObjectRegister
     # query_pk_and_slug = True
 
-def object_entry(request):
+def title_entry(request):
     if request.method == 'POST':
         title_form = TitleEntry(request.POST)
-        object_form = ObjectEntry(request.POST)
         if title_form.is_valid():
             title = title_form.cleaned_data['title']
             title_type = title_form.cleaned_data['title_type']
@@ -69,13 +68,21 @@ def object_entry(request):
             title_note = title_form.cleaned_data['note']
             title_source = title_form.cleaned_data['source']
             new_title = title_form.save()
-            return new_title
+
+            return HttpResponseRedirect(reverse('objectregister_form', kwargs={'objectname_id': new_title.pk}))
 
         else:
-            return render('objectinfo/objectregister_form.html', {'object_form': object_form, 'title_form': title_form})
+            return render('objectinfo/objectname_form.html', {'form': title_form})
 
+    else:
+        title_form = TitleEntry()
+        return render(request, 'objectinfo/objectname_form.html', {'form': title_form})
+
+def object_entry(request, objectname_id):
+    if request.method == 'POST':
+        object_form = ObjectEntry(request.POST, request.FILES)
         if object_form.is_valid():
-            object_form.preferred_title = ObjectName.objects.get(pk=new_title.pk)
+            preferred_title = object_form.cleaned_data['preferred_title']
             snapshot = object_form.cleaned_data['snapshot']
             work_type = object_form.cleaned_data['work_type']
             source = object_form.cleaned_data['source']
@@ -86,16 +93,14 @@ def object_entry(request):
             new_object = object_form.save()
             reorg.AccessionNumber.generate(new_object.pk)
 
-            return HttpResponseRedirect('/work/')
-            # return HttpResponseRedirect(reverse(description_edit, args=(new_object.pk,)))
+            return HttpResponseRedirect(reverse(description_form, args=(new_object.pk,)))
 
         else:
-            return render('objectinfo/objectregister_form.html', {'object_form': object_form, 'title_form': title_form})
+            return render('objectinfo/objectregister_form.html', {'form': object_form})
 
     else:
-        title_form = TitleEntry()
-        object_form = ObjectEntry()
-        return render(request, 'objectinfo/objectregister_form.html', {'object_form': object_form, 'title_form': title_form})
+        object_form = ObjectEntry(title=objectname_id)
+        return render(request, 'objectinfo/objectregister_form.html', {'object_form': object_form})
 
 class DescriptionForm(CreateView):
     pass
