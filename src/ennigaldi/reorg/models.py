@@ -1,5 +1,5 @@
 from django.db import models
-from objectinfo.models import ObjectIdentification, Hierarchy
+from objectinfo.models import ObjectRegister, Hierarchy
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.base import ObjectDoesNotExist
@@ -38,7 +38,7 @@ class AccessionBatch(models.Model):
         index_together = ('batch_year', 'batch_number')
 
 class AccessionNumber(models.Model):
-    work = models.OneToOneField(ObjectIdentification, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
+    work = models.OneToOneField(ObjectRegister, models.CASCADE, to_field='work_id', related_name='refid', primary_key=True)
     batch = models.ForeignKey(AccessionBatch, models.CASCADE, related_name='batch_works')
     object_number = models.PositiveSmallIntegerField()
     part_number = models.PositiveSmallIntegerField(null=True)
@@ -61,7 +61,7 @@ class AccessionNumber(models.Model):
         except:
             raise ValueError('Refid already defined for this object!')
         generated = AccessionNumber()
-        work = ObjectIdentification.objects.get(pk=work_id)
+        work = ObjectRegister.objects.get(pk=work_id)
         generated.work = work
 
         hasgreater = Hierarchy.objects.filter(relation_type='partOf', lesser=work).exists()

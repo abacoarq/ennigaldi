@@ -13,7 +13,7 @@ from storageunit.models import Unit
 # SICG M305    1.3, 1.4, 3.4, 7.4
 # This is the minimum required set of information to
 # identify an object.
-class ObjectIdentification(models.Model):
+class ObjectRegister(models.Model):
     # VRA Core 4   work, must prepend with 'w_' when rendering XML.
     # DCMI         identifier
     # This is NOT the object accession number but a unique identifier!
@@ -105,7 +105,7 @@ class ObjectIdentification(models.Model):
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
 class OtherNumber(models.Model):
-    work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    work = models.ForeignKey('ObjectRegister', models.CASCADE)
     object_number = models.CharField(max_length=71)
     object_number_type = models.CharField(max_length=255)
 
@@ -134,7 +134,7 @@ class ObjectName(models.Model):
         ('translated', 'translated'),
         ('other', 'other'),
     )
-    # work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    # work = models.ForeignKey('ObjectRegister', models.CASCADE)
     # The name itself:
     title = models.CharField(max_length=255)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
@@ -223,7 +223,7 @@ class Production(models.Model):
     technique_type = models.ManyToManyField("TechniqueType", related_name='%(app_label)s_technique_in_%(class)s')
 
     def __str__(self):
-        return 'Production information for object ' + ObjectIdentification.objects.filter(work_id=self.work).__str__()
+        return 'Production information for object ' + ObjectRegister.objects.filter(work_id=self.work).__str__()
 
 class AgentRole(models.Model):
     agent = models.ForeignKey('agent.Agent', models.PROTECT, related_name='has_agent')
@@ -275,7 +275,7 @@ class TechniqueType(models.Model):
 # collection, e.g. in a gallery or shelf.
 # For places in the outside world, use Place.
 class ObjectUnit(models.Model):
-    work = models.ForeignKey('ObjectIdentification', models.CASCADE, related_name='objects_in_location')
+    work = models.ForeignKey('ObjectRegister', models.CASCADE, related_name='objects_in_location')
     # Spectrum 4.0 Location
     # VRA Core 4   location, but only as pertaining to
     #              locating the object in the collection
@@ -316,7 +316,7 @@ class ObjectUnit(models.Model):
 # Simple Description fields common to all three object classes
 # are grouped under this class for convenience.
 class Description(models.Model):
-    work = models.OneToOneField('ObjectIdentification', models.CASCADE)
+    work = models.OneToOneField('ObjectRegister', models.CASCADE)
     # Spectrum 4.0 Physical description
     # VRA Core 4   Append to description in output,
     #              or standalone description,
@@ -472,7 +472,7 @@ class Dimension(models.Model):
         ('width', 'width (mm)'),
         # ('other', 'other')                # Spectrum Technical attribute measurement
     )
-    work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    work = models.ForeignKey('ObjectRegister', models.CASCADE)
     # Spectrum 4.0 Dimension measured part
     # VRA Core 4   measurements > extent
     # Use controlled vocab
@@ -508,7 +508,7 @@ class Inscription(models.Model):
             ('text', 'Other text'),
             ('other', 'Other inscription'),
     )
-    work = models.ForeignKey(ObjectIdentification, models.CASCADE)
+    work = models.ForeignKey(ObjectRegister, models.CASCADE)
     # Spectrum 4.0 Inscription content | Inscription description
     # VRA Core 4   Inscription > [display]
     # If left blank, will be auto-filled (or rendered?) based on
@@ -604,7 +604,7 @@ class TechnicalAttribute(models.Model):
          # ('width (mm)', 'width (mm)'),          # Spectrum Dimension
          ('other', 'other')                # Spectrum Technical attribute measurement
      )
-     work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+     work = models.ForeignKey('ObjectRegister', models.CASCADE)
      # Spectrum 4.0 Technical attribute
      # VRA Core 4   measurements > type
      # Other standards mix up 'part' and 'type',
@@ -766,7 +766,7 @@ class Rights(models.Model):
         ('undetermined', 'undetermined'),
         ('other', 'other')
     )
-    work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    work = models.ForeignKey('ObjectRegister', models.CASCADE)
     # Spectrum 4.0 right begin date
     right_begin_date = models.DateField(blank=True)
     # Spectrum 4.0 right end date
@@ -809,7 +809,7 @@ class Rights(models.Model):
 # Tentatively being used to record documents and sources
 # with detail that object_source cannot have.
 class AssociatedObject(models.Model):
-    work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    work = models.ForeignKey('ObjectRegister', models.CASCADE)
     associated_object_name = models.CharField(max_length=255)
     # Spectrum 4.0 Associated object type
     # SCIG M305    Formato do arquivo
@@ -939,8 +939,8 @@ class Hierarchy(models.Model):
             # # ('imageIs', 'image is'),
         # )),
     )
-    lesser = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='lesser_works')
-    greater = models.ForeignKey(ObjectIdentification, models.CASCADE, related_name='greater_works')
+    lesser = models.ForeignKey(ObjectRegister, models.CASCADE, related_name='lesser_works')
+    greater = models.ForeignKey(ObjectRegister, models.CASCADE, related_name='greater_works')
     relation_type = models.CharField(max_length=31, default='partOf', choices=relation_types)
 
     def __str__(self):
@@ -977,8 +977,8 @@ class RelatedObject(models.Model):
     # Spectrum 4.0 Related object number
     # VRA Core 4   relid
     # Read as 'work1' 'related_association' 'work2'
-    work1 = models.ForeignKey('ObjectIdentification', models.CASCADE, related_name='relating_work')
-    work2 = models.ForeignKey('ObjectIdentification', models.CASCADE, related_name='related_work')
+    work1 = models.ForeignKey('ObjectRegister', models.CASCADE, related_name='relating_work')
+    work2 = models.ForeignKey('ObjectRegister', models.CASCADE, related_name='related_work')
     # Spectrum 4.0 Related object association
     # The type of association between the objects (copy, model,
     # representation, etc.)
@@ -1017,7 +1017,7 @@ class TextRef(models.Model):
     # Because the TextRef includes a specific citation
     # to the object, it will not be reusable in other
     # objects' records, therefore not Many-to-Many.
-    work = models.ForeignKey('ObjectIdentification', models.CASCADE)
+    work = models.ForeignKey('ObjectRegister', models.CASCADE)
     # Eventually render the name from a bibliographic
     # database record.
     textref_name = models.CharField(max_length=255)

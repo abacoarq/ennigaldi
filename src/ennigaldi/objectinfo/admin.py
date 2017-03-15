@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import *
 
-admin.site.register(ObjectIdentification)
+admin.site.register(ObjectRegister)
 admin.site.register(OtherNumber)
 admin.site.register(ObjectName)
 admin.site.register(Production)

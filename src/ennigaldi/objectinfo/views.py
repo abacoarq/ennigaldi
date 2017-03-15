@@ -11,7 +11,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from reorg.models import AccessionNumber
-from .models import ObjectIdentification
+from .models import ObjectRegister
 from .forms import *
 
 def index(request):
@@ -19,7 +19,7 @@ def index(request):
 
 @method_decorator(login_required, name='dispatch')
 class AddObject(CreateView):
-    model = ObjectIdentification
+    model = ObjectRegister
     form = ObjectEntry
     fields = ['snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features']
 
@@ -47,12 +47,12 @@ class AddObject(CreateView):
         return reverse('object_list')
 
 class ObjectList(ListView):
-    model = ObjectIdentification
+    model = ObjectRegister
     paginate_by = 25
-    queryset = ObjectIdentification.objects.all() # default
+    queryset = ObjectRegister.objects.all() # default
 
 class ObjectDetail(DetailView):
-    model = ObjectIdentification
+    model = ObjectRegister
     # query_pk_and_slug = True
 
 def image_form(request):
@@ -63,3 +63,6 @@ def xml(request):
 
 def yaml(request):
     return HttpResponse('For a human-readable rendering in YAML of w_%s.' % work_id)
+
+def sicg(request):
+    return HttpResponse('SICG M305 template.')
