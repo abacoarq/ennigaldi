@@ -10,7 +10,7 @@ class ObjectEntry(ModelForm):
 
     class Meta:
         model = ObjectRegister
-        fields = ['preferred_title', 'snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'storage_unit', 'normal_unit']
+        fields = ['preferred_title', 'snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
 
 # The TitleEntry form populates the preferred_title OneToOneField
 # in the ObjectRegister. It needs to be a separate form,
