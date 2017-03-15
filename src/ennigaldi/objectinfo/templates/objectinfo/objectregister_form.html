@@ -9,8 +9,9 @@
         <h1>Edit Object Register</h1>
       </div>
       <div class="form-group">
-        <table class="table table-condensed">
-          {{ form.as_table }}
+        <table class="table talbe-striped table-condensed">
+          {{ title_form.as_table }}
+          {{ object_form.as_table }}
         </table>
         <h2>Inscriptions</h2>
         <table class="table table-striped table-condensed">
@@ -38,7 +39,7 @@
         </table>
       </div>
       <div class="panel-footer">
-          <button type="submit" class="save btn btn-default" value="Save">Save</button>
+          <button type="submit" class="save btn btn-default" value="Save & continue">Save &amp; continue</button>
       </div>
     </div>
 </form>
