@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, render_to_response
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -59,7 +59,7 @@ def object_entry(request):
     if request.method == 'POST':
         title_form = TitleEntry(request.POST)
         object_form = ObjectEntry(request.POST)
-        if title_form.is_valid() and object_form.is_valid():
+        if title_form.is_valid():
             title = title_form.cleaned_data['title']
             title_type = title_form.cleaned_data['title_type']
             title_lang = title_form.cleaned_data['lang']
@@ -68,7 +68,14 @@ def object_entry(request):
             title_level = title_form.cleaned_data['level']
             title_note = title_form.cleaned_data['note']
             title_source = title_form.cleaned_data['source']
+            new_title = title_form.save()
+            return new_title
 
+        else:
+            return render('objectinfo/objectregister_form.html', {'object_form': object_form, 'title_form': title_form})
+
+        if object_form.is_valid():
+            object_form.preferred_title = ObjectName.objects.get(pk=new_title.pk)
             snapshot = object_form.cleaned_data['snapshot']
             work_type = object_form.cleaned_data['work_type']
             source = object_form.cleaned_data['source']
@@ -76,11 +83,22 @@ def object_entry(request):
             description_source = object_form.cleaned_data['description_source']
             comments = object_form.cleaned_data['comments']
             distinguishing_features = object_form.cleaned_data['distinguishing_features']
+            new_object = object_form.save()
+            reorg.AccessionNumber.generate(new_object.pk)
 
             return HttpResponseRedirect('/work/')
+            # return HttpResponseRedirect(reverse(description_edit, args=(new_object.pk,)))
+
+        else:
+            return render('objectinfo/objectregister_form.html', {'object_form': object_form, 'title_form': title_form})
+
     else:
         title_form = TitleEntry()
         object_form = ObjectEntry()
+        return render(request, 'objectinfo/objectregister_form.html', {'object_form': object_form, 'title_form': title_form})
+
+class DescriptionForm(CreateView):
+    pass
 
 def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')
@@ -90,6 +108,3 @@ def xml(request):
 
 def yaml(request):
     return HttpResponse('For a human-readable rendering in YAML of w_%s.' % work_id)
-
-def sicg(request):
-    return HttpResponse('SICG M305 template.')

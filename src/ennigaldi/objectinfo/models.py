@@ -14,6 +14,11 @@ from storageunit.models import Unit
 # This is the minimum required set of information to
 # identify an object.
 class ObjectRegister(models.Model):
+    work_types = (
+            ('artifact', 'Artifact'),
+            ('issuedObject', 'Issued Object'),
+            ('specimen', 'Specimen'),
+        )
     # VRA Core 4   work, must prepend with 'w_' when rendering XML.
     # DCMI         identifier
     # This is NOT the object accession number but a unique identifier!
@@ -24,7 +29,7 @@ class ObjectRegister(models.Model):
     # preliminary recording work.
     snapshot_height = models.CharField(max_length=15, blank=True)
     snapshot_width = models.CharField(max_length=15, blank=True)
-    snapshot = models.ImageField(upload_to='uploads/media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, null=True)
+    snapshot = models.ImageField(upload_to='uploads/media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True)
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
@@ -56,7 +61,7 @@ class ObjectRegister(models.Model):
     # VRA Core 4   worktype
     # SICG M305    M301 Classificação do bem
     # Use controlled vocab
-    work_type = models.CharField(max_length=255)
+    work_type = models.CharField(max_length=31, choices=work_types, default='artifact')
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
     source = models.CharField(max_length=255, blank=True)

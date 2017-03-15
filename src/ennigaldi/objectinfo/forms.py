@@ -1,5 +1,5 @@
 from django.forms import ModelForm, inlineformset_factory
-from .models import ObjectRegister, ObjectName, ObjectUnit, Dimension, TechnicalAttribute, MaterialType, Inscription
+from .models import ObjectRegister, ObjectName, ObjectUnit, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact
 
 class ObjectEntry(ModelForm):
     class Meta:
@@ -21,6 +21,11 @@ class InscriptionEntry(ModelForm):
         fields = ['inscription_display', 'inscription_position', 'inscription_type', 'inscription_language', 'inscription_notes', 'inscription_method']
 
 inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionEntry, extra=1)
+
+class DescriptionEntry(ModelForm):
+    class Meta:
+        model = Artifact
+        fields = []
 
 ###########################################################
 # The following is part of Description---commented here
