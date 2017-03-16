@@ -66,6 +66,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'reorg.context_processors.current_batch',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -77,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ennigaldi.wsgi.application'
 
+# TEMPLATES[0]['OPTIONS']['context_processors'].append("reorg.context_processors.current_batch",)
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
