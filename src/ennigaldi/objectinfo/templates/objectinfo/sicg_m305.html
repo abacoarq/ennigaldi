@@ -1,7 +1,8 @@
+{% load static %}
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>M305</title>
+    <title>M305 {{ object.work_id }} {{ object.preferred_title }}</title>
 <style>
 
 table {
@@ -35,6 +36,10 @@ th {
   font-weight: bold;
   background-color: rgb(109,9,0);
   text-align: left;
+}
+
+dt {
+  font-weight: bold;
 }
 
 .h1 {
@@ -136,6 +141,9 @@ th {
 .c24 {
   width: 360pt;
 }
+.c27 {
+  width: 405pt;
+}
 .c28 {
   width: 420pt;
 }
@@ -172,7 +180,7 @@ th {
         </tr>
         <tr>
           <td colspan="36" class="c36">
-            &nbsp;
+            Brasília
           </td>
         </tr>
         <tr>
@@ -182,23 +190,23 @@ th {
         </tr>
         <tr>
           <td colspan="36" class="c36">
-            &nbsp;
+            Catetinho
           </td>
         </tr>
         <tr>
-          <th colspan="29" class="c29">
+          <th colspan="27" class="c27">
             1.3 Identificação do Bem (denominação oficial, denominação popular, outras denominações)
           </th>
-          <td colspan="7" class="shade red c7">
+          <td colspan="9" class="shade red c9">
             1.4 Código Identificador Iphan
           </td>
         </tr>
         <tr>
-          <td colspan="29" class="c29">
-            &nbsp;
+          <td colspan="27" class="c27">
+            <strong> {{ object.preferred_title }} </strong>
           </td>
-          <td colspan="7" class="shade c7">
-            &nbsp;
+          <td colspan="9" class="shade c9">
+            <strong> w_{{ object.work_id|stringformat:"07d" }} </strong>
           </td>
         </tr>
       </thead>
@@ -381,18 +389,36 @@ th {
           <th class="c36" colspan="36">3.4 Composto por Partes</th>
         </tr>
         <tr>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if not object.has_parts %}
+            X
+            {% endif %}
+          </td>
           <td class="shade c8" colspan="8">3.4.1 Não</td>
           <td class="shade c27" colspan="27">3.4.2.2 Descrição das partes</td>
         </tr>
         <tr>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.has_parts %}
+            X
+            {% endif %}
+          </td>
           <td class="shade c8" colspan="8">3.4.2 Sim</td>
-          <td class="c27" colspan="27" rowspan="2">&nbsp;</td>
+          <td class="c27" colspan="27" rowspan="2">
+            {% if object.has_parts %}
+            {% for part in object.has_parts %}
+            <li>{{ object.has_parts.lesser }}</li>
+            {% endfor %}
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td class="shade c6" colspan="6">3.4.2.1 Número de partes</td>
-          <td class="c3" colspan="3">&nbsp;</td>
+          <td class="c3" colspan="3">
+            {% if object.has_parts %}
+            {{ object.has_parts|length }}
+            {% endif %}
+          </td>
         </tr>
 
         <tr>
@@ -401,7 +427,8 @@ th {
         <tr>
           <td class="c1">&nbsp;</td>
           <td class="shade c4" colspan="4">3.5.1 Não</td>
-          <td class="shade c4" colspan="4">3.5.2 Sim</td>
+          <td class="c1">&nbsp;</td>
+          <td class="shade c3" colspan="3">3.5.2 Sim</td>
           <td class="shade c12" colspan="12">3.5.3 Código Iphan dos objetos relacionados</td>
           <td class="c15" colspan="15">&nbsp;</td>
         </tr>
@@ -445,22 +472,12 @@ th {
           <th class="h2 c36" colspan="36">6. Documentos Relacionados <span class="lcase">(repetir quantas linhas forem necessárias)</span></th>
         </tr>
         <tr>
-          <td class="shade c6" colspan="6">Título</td>
-          <td class="c30" colspan="30">&nbsp;</td>
+          <td class="shade c8" colspan="8">Título</td>
+          <td class="c28" colspan="28">&nbsp;</td>
         </tr>
         <tr>
-          <td class="c6" colspan="6">Formato do arquivo</td>
-          <td class="c18" colspan="18">&nbsp;</td>
-          <td class="shade c6" colspan="6">Data (dd/mm/aaaa)</td>
-          <td class="c6" colspan="6">&nbsp;</td>
-        </tr>
-        <tr>
-          <td class="shade c6" colspan="6">Título</td>
-          <td class="c30" colspan="30">&nbsp;</td>
-        </tr>
-        <tr>
-          <td class="c6" colspan="6">Formato do arquivo</td>
-          <td class="c18" colspan="18">&nbsp;</td>
+          <td class="shade c8" colspan="8">Formato do arquivo</td>
+          <td class="c16" colspan="16">&nbsp;</td>
           <td class="shade c6" colspan="6">Data (dd/mm/aaaa)</td>
           <td class="c6" colspan="6">&nbsp;</td>
         </tr>
@@ -489,17 +506,7 @@ th {
           <td class="c24" colspan="24">&nbsp;</td>
         </tr>
         <tr>
-          <td class="c12" colspan="12">Localização (nome ou link)</td>
-          <td class="c14" colspan="14">&nbsp;</td>
-          <td class="shade c6" colspan="6">Data (dd/mm/aaaa)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-        </tr>
-        <tr>
-          <td class="shade c12" colspan="12">Fonte/Referência Bibliográfica (norma ABNT)</td>
-          <td class="c24" colspan="24">&nbsp;</td>
-        </tr>
-        <tr>
-          <td class="c12" colspan="12">Localização (nome ou link)</td>
+          <td class="shade c12" colspan="12">Localização (nome ou link)</td>
           <td class="c14" colspan="14">&nbsp;</td>
           <td class="shade c6" colspan="6">Data (dd/mm/aaaa)</td>
           <td class="c4" colspan="4">&nbsp;</td>
@@ -509,7 +516,16 @@ th {
           <th class="c36" colspan="36">7.4 Demais códigos atribuídos ao objeto</th>
         </tr>
         <tr>
-          <td class="c36" colspan="36">&nbsp;</td>
+          <td class="c36" colspan="36">
+            <dl>
+              <dt>Número de inventário</dt>
+              <dd>{{ object.refid }}</dd>
+              {% for number in othernumber_set %}
+              <dt>{{ number.object_number_type }}</dt>
+              <dd>{{ number.object_number }}</dd>
+              {% endfor %}
+            </dl>
+          </td>
         </tr>
 
         <tr>
@@ -557,7 +573,9 @@ th {
         </tr>
         <tr>
           <td class="shade c9" colspan="9">9.1 Entidade</td>
-          <td class="c20" colspan="20">&nbsp;</td>
+          <td class="c20" colspan="20">
+            <strong>Ábaco Arquitetura &amp; Design Ambiental</strong>
+          </td>
           <td class="shade c7" colspan="7">9.2 Data (dd/mm/aaaa)</td>
         </tr>
         <tr>
