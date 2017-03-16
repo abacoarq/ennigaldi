@@ -99,12 +99,12 @@ class ObjectRegister(models.Model):
         return 'w_' + wid.zfill(7) + ' ' + self.preferred_title.__str__()
 
     def is_part(self):
-        q = Hierarchy.lesser_works.filter(lesser__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        q = Hierarchy.objects.filter(lesser__pk=self.pk, relation_type=('partOf' or  'componentOf'))
         if q:
             return q.values_list(greater__pk, flat=True)[0]
 
     def has_parts(self):
-        q = Hierarchy.greater_works.filter(greater__pk=self.pk, relation_type=('partOf'|'componentOf'))
+        q = Hierarchy.objects.filter(greater__pk=self.pk, relation_type=('partOf' or 'componentOf'))
         if q:
             return q.values_list(lesser__pk, flat=True)
 
