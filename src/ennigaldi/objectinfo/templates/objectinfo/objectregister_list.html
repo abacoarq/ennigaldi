@@ -1,56 +1,62 @@
 {% extends 'objectinfo/base.html' %}
 {% block content %}
-<h1>Object List</h1>
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <td>Accession No.</td>
-                <td></td>
-                <td>Object</td>
-            </tr>
-        </thead>
-        <tbody>
-            {% for object in objectregister_list %}
-            <tr>
-                <td>{{ object.refid }}</td>
-                <td>›</td>
-                <td>
-                    <a href="{% url 'objectregister_detail' object.pk %}">
-                      {{ object }}
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="3">No objects recorded yet.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<nav aria-label="Pagination">
-  <ul class="pagination">
-    {% if page_obj.has_previous %}
-    <li><a href="?page={{ page_obj.previous_page_number }}"> ‹ </a></li>
-    {% else %}
-    <li class="disabled"><span> ‹ </span></li>
-    {% endif %}
-    {% for i in paginator.page_range %}
-      {% if page_obj.number == i %}
-      <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h1>Object List</h1>
+  </div>
+  <div class="table-responsive">
+      <table class="table table-striped table-condensed">
+          <thead>
+              <tr>
+                  <td>Accession No.</td>
+                  <td></td>
+                  <td>Object</td>
+              </tr>
+          </thead>
+          <tbody>
+              {% for object in objectregister_list %}
+              <tr>
+                  <td>{{ object.refid }}</td>
+                  <td>›</td>
+                  <td>
+                      <a href="{% url 'objectregister_detail' object.pk %}">
+                        {{ object }}
+                      </a>
+                  </td>
+              </tr>
+              {% empty %}
+              <tr>
+                  <td colspan="3">No objects recorded yet.</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+  <nav aria-label="Pagination">
+    <ul class="pagination">
+      {% if page_obj.has_previous %}
+      <li><a href="?page={{ page_obj.previous_page_number }}"> ‹ </a></li>
       {% else %}
-      <li><a href="?page={{ i }}">{{ i }}</a></li>
+      <li class="disabled"><span> ‹ </span></li>
       {% endif %}
-    {% endfor %}
-    {% if page_obj.has_next %}
-    <li><a href="?page={{ page_obj.next_page_number }}"> › </a></li>
-    {% else %}
-    <li class="disabled"><span> › </span></li>
-    {% endif %}
-  </ul>
-</nav>
-<form action="{% url 'titleentry_form' %}">
-    <button type="submit" class="button btn-primary">Record new object</button>
-</form>
+      {% for i in paginator.page_range %}
+        {% if page_obj.number == i %}
+        <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+        {% else %}
+        <li><a href="?page={{ i }}">{{ i }}</a></li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+      <li><a href="?page={{ page_obj.next_page_number }}"> › </a></li>
+      {% else %}
+      <li class="disabled"><span> › </span></li>
+      {% endif %}
+    </ul>
+  </nav>
+  <div class="panel-footer">
+    <form action="{% url 'titleentry_form' %}">
+        <button type="submit" class="button btn-primary">Record new object</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
