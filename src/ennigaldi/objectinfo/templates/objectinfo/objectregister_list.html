@@ -11,13 +11,13 @@
             </tr>
         </thead>
         <tbody>
-            {% for object in objectinfo_list %}
+            {% for object in objectregister_list %}
             <tr>
                 <td>{{ object.refid }}</td>
                 <td>›</td>
                 <td>
-                    <a href="{% url 'object_detail' object.pk %}">
-                      {{ objectinfo }}
+                    <a href="{% url 'objectregister_detail' object.pk %}">
+                      {{ object }}
                     </a>
                 </td>
             </tr>
