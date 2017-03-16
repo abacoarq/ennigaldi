@@ -29,7 +29,7 @@ class ObjectRegister(models.Model):
     # preliminary recording work.
     snapshot_height = models.CharField(max_length=15, blank=True)
     snapshot_width = models.CharField(max_length=15, blank=True)
-    snapshot = models.ImageField(upload_to='uploads/media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True)
+    snapshot = models.ImageField(upload_to='media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True)
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.

@@ -219,28 +219,71 @@ dt {
         </tr>
         <tr>
           <th class="c4" colspan="4">2.1 Datação</th>
-          <td class="c6" colspan="6">&nbsp;</td>
+          <td class="c6" colspan="6">
+            {% if object.production.date %}
+            {{ object.production.date }}
+            {% endif %}
+          </td>
           <th class="c4" colspan="4">2.3 Origem</th>
-          <td class="c22" colspan="22">&nbsp;</td>
+          <td class="c22" colspan="22">
+            {% if object.production.location %}
+            <ul display="block">
+            {% for place in object.production.location %}
+            <li>
+              <strong>{{ place.place_type }}:</strong>
+              {{ place.place }}
+            </li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <th class="c36" colspan="36">2.2 Autor/Fabricante</th>
         </tr>
         <tr>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if not object.production.agent %}
+            <span align="center">X</span>
+            {% endif %}
+          </td>
           <td colspan="4" class="shade c4">Desconhecido</td>
           <td colspan="2" class="shade c2">Nome</td>
-          <td class="c15" colspan="15">&nbsp;</td>
+          <td class="c15" colspan="15">
+            {% if object.production.agent %}
+            {% for agent in object.production.agent %}
+              {% if agent.agent_role_display %}
+              {{ agent.agent_role_display }}
+              {% else %}
+              {{ agent.agent }} ({{ agent.agent_role }})</p>
+              {% endif %}
+            {% endfor %}
+            {% endif %}
+          </td>
           <td class="shade c14" colspan="14">Responsável pela atribuição</td>
         </tr>
         <tr>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.production.agent %}
+            X
+            {% endif %}
+          </td>
           <td colspan="4" class="shade c4">Conhecido</td>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.production.agent and not object.production.agent.attributed %}
+            X
+            {% endif %}
+          </td>
           <td colspan="8" class="shade c8">Assinalado / Documentado</td>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.production.agent.attributed %}
+            X
+            {% endif %}
+          </td>
           <td class="shade c7" colspan="7">Atribuído</td>
-          <td class="c14" colspan="14">&nbsp;</td>
+          <td class="c14" colspan="14">
+            {{ object.production.note }}
+          </td>
         </tr>
 
         <tr>
@@ -257,7 +300,15 @@ dt {
           <td class="c1">&nbsp;</td>
           <td class="shade c8" colspan="8">15. Marfim</td>
           <td class="c3" colspan="3">&nbsp;</td>
-          <td class="c12" rowspan="7" colspan="12">&nbsp;</td>
+          <td class="c12" rowspan="7" colspan="12">
+            {% if object.production.technique_type %}
+            <ul display="block">
+            {% for technique in object.production.technique_type %}
+              <li>{{ technique }}</li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td class="c1">&nbsp;</td>
@@ -326,8 +377,20 @@ dt {
           <td class="shade c8" colspan="8">23. Porcelana</td>
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Altura (cm)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-          <td class="c4" colspan="4">&nbsp;</td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == height and dim.dimension_value_qualifier ==  False %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == height and dim.dimension_value_qualifier ==  True %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
         </tr>
         <tr>
           <td class="c1">&nbsp;</td>
@@ -337,8 +400,20 @@ dt {
           <td class="shade c8" colspan="8">24. Vidro</td>
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Largura (cm)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-          <td class="c4" colspan="4">&nbsp;</td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == width and dim.dimension_value_qualifier ==  False %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == width and dim.dimension_value_qualifier ==  True %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
         </tr>
         <tr>
           <td class="c1">&nbsp;</td>
@@ -348,8 +423,20 @@ dt {
           <td class="shade c8" colspan="8">25. Verniz</td>
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Diâmetro (cm)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-          <td class="c4" colspan="4">&nbsp;</td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier ==  False %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier ==  True %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
         </tr>
         <tr>
           <td class="c1">&nbsp;</td>
@@ -359,8 +446,20 @@ dt {
           <td class="shade c8" colspan="8">26. Restos Mumificados</td>
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Circunferência (cm)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-          <td class="c4" colspan="4">&nbsp;</td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier ==  False %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier ==  True %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
         </tr>
         <tr>
           <td class="c1">&nbsp;</td>
@@ -370,8 +469,20 @@ dt {
           <td class="shade c8" colspan="8">27. Têxteis</td>
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Profundidade (cm)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-          <td class="c4" colspan="4">&nbsp;</td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == depth and dim.dimension_value_qualifier ==  False %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == depth and dim.dimension_value_qualifier ==  True %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
         </tr>
         <tr>
           <td class="c1">&nbsp;</td>
@@ -381,8 +492,20 @@ dt {
           <td class="shade c8" colspan="8">28. Outros</td>
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Peso (kg)</td>
-          <td class="c4" colspan="4">&nbsp;</td>
-          <td class="c4" colspan="4">&nbsp;</td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == weight and dim.dimension_value_qualifier ==  False %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
+          <td class="c4" colspan="4" align="right">
+            {% for dim in object.dimension %}
+            {% if dim.dimension_type == weight and dim.dimension_value_qualifier ==  True %}
+            {{ dim.dimension_value }}
+            {% endif %}
+            {% endfor %}
+          </td>
         </tr>
 
         <tr>
@@ -440,13 +563,105 @@ dt {
           <th class="c36" colspan="36">4.1 Descrição formal</th>
         </tr>
         <tr>
-          <td class="c36" colspan="36">&nbsp;</td>
+          <td class="c36" colspan="36">
+              <dl>
+                {% if object.brief_description %}
+                  <dt>Aspecto geral</dt>
+                    <dd>{{ object.brief_description }}</dd>
+                {% endif %}
+                {% if object.description_source %}
+                  <dt>Fonte</dt>
+                    <dd>{{ object.description_source }}</dd>
+                {% endif %}
+                {% if object.distinguishing_features %}
+                  <dt>Particularidades</dt>
+                    <dd>{{ object.distinguishing_features }}</dd>
+                {% endif %}
+                {% if object.comments %}
+                  <dt>Comentários</dt>
+                    <dd>{{ object.comments }}</dd>
+                {% endif %}
+                {% if object.artifact or object.workinstance or object.specimen %}
+                  <dt>Descrição formal</dt>
+                    <dd>{{ object.artifact.physical_description }}</dd>
+                    <dd>{{ object.artifact.description_display }}</dd>
+                    <dd>{{ object.workinstance.physical_description }}</dd>
+                    <dd>{{ object.workinstance.description_display }}</dd>
+                    <dd>{{ object.specimen.physical_description }}</dd>
+                    <dd>{{ object.specimen.description_display }}</dd>
+                  <dt>Cores</dt>
+                    {% for colour in object.artifact.colour %}
+                    <dd>{{ colour }}</dd>
+                    {% endfor %}
+                    {% for colour in object.workinstance.colour %}
+                    <dd>{{ colour }}</dd>
+                    {% endfor %}
+                    {% for colour in object.specimen.colour %}
+                    <dd>{{ colour }}</dd>
+                    {% endfor %}
+                {% endif %}
+                {% if object.workinstance.copy_number %}
+                  <dt>Cópia</dt>
+                    <dd>{{ object.workinstance.copy_number }}</dd>
+                {% endif %}
+                {% if object.workinstance.edition_number %}
+                  <dt>Edição</dt>
+                    <dd>{{ object.workinstance.edition_number }}</dd>
+                {% endif %}
+                {% if object.workinstance.work_form %}
+                  <dt>Formato</dt>
+                    <dd>{{ object.workinstance.work_form }}</dd>
+                {% endif %}
+                {% if object.workinstance.issue_source %}
+                  <dt>Editor ou impressor</dt>
+                    <dd>{{ object.workinstance.issue_source }}</dd>
+                {% endif %}
+                {% if object.workinstance.technical_attribute %}
+                {% for attr in object.workinstance.technical_attribute %}
+                  <dt>{{ attr.attribute_type }}</dt>
+                  <dd>{{ attr.attribute_value }}</dd>
+                {% endfor %}
+                {% endif %}
+              </dl>
+          </td>
         </tr>
+
         <tr>
           <th class="c36" colspan="36">4.2 Marcas e inscrições</th>
         </tr>
         <tr>
-          <td class="c36" colspan="36">&nbsp;</td>
+          <td class="c36" colspan="36">
+            {% if object.inscriptions %}
+            <dl>
+            {% for inscription in object.inscriptions %}
+              <dt>{{ inscription.inscription_type }}</dt>
+              <dd>
+              {% if inscription.inscription_display %}
+              {{ inscription.inscription_display }}
+              {% elif inscription.inscription_translation %}
+              {{ inscription.inscription_translation }}
+              {% elif inscription.inscription_text %}
+              {{ inscription.inscription_text }}
+              {% endif %}
+              </dd>
+              <dt>Local</dt>
+              <dd>{{ inscription.inscription_position }}</dd>
+              {% if inscription.inscription_author %}
+              <dt>Autoria</dt>
+              <dd>{{ inscription.inscription_author }}</dd>
+              {% endif %}
+              {% if inscription.inscription_method %}
+              <dt>Método</dt>
+              <dd>{{ inscription.inscription_method }}</dd>
+              {% endif %}
+              {% if inscription.inscription_notes %}
+              <dt>Notas</dt>
+              <dd>{{ inscription.inscription_notes }}</dd>
+              {% endif %}
+            {% endfor %}
+            </dl>
+            {% endif %}
+          </td>
         </tr>
 
         <tr>
@@ -454,18 +669,42 @@ dt {
         </tr>
         <tr>
           <td class="shade c8" colspan="8"><strong>Situação</strong></td>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.ownership and object.ownership.last.ownership_method == 'purchase' %}
+            X
+            {% endif %}
+          </td>
           <td class="c6" colspan="6"><strong>1. Comprado</strong></td>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.ownership and object.ownership.last.ownership_method == 'lease' %}
+            X
+            {% endif %}
+          </td>
           <td class="c6" colspan="6"><strong>2. Emprestado</strong></td>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.ownership and object.ownership.last.ownership_method == 'donation' %}
+            X
+            {% endif %}
+          </td>
           <td class="c6" colspan="6"><strong>3. Doado</strong></td>
-          <td class="c1">&nbsp;</td>
+          <td class="c1" align="center">
+            {% if object.ownership and object.ownership.last.ownership_method == 'other' %}
+            X
+            {% endif %}
+          </td>
           <td class="c6" colspan="6"><strong>4. Outra</strong></td>
         </tr>
         <tr>
           <td class="shade c8" colspan="8"><strong>Procedência</strong></td>
-          <td class="c28" colspan="28">&nbsp;</td>
+          <td class="c28" colspan="28">
+            {% if object.ownership.last.ownership_note %}
+            <p>{{ object.ownership.last.ownership_note }}</p>
+            {% endif %}
+            {% if object.ownership.last.ownership_place %}
+            <p><strong>Local:</strong>
+            {{ object.ownership.last.ownership_place }}</p>
+            {% endif %}
+          </td>
         </tr>
 
         <tr>
@@ -489,13 +728,37 @@ dt {
           <th class="c36" colspan="36">7.1 Características estilísticas</th>
         </tr>
         <tr>
-          <td class="c36" colspan="36">&nbsp;</td>
+          <td class="c36" colspan="36">
+            {% if object.artifact.style or object.workinstance.style %}
+            <dt>Estilo</dt>
+              <dd>{{ object.artifact.style }} {{ object.workinstance.style }}</dd>
+            {% endif %}
+            {% if object.artifact.cultural_context or object.workinstance.cultural_context %}
+            <dt>Contexto cultural</dt>
+              <dd>{{ object.artifact.cultural_context }} {{ object.workinstance.cultural_context }}</dd>
+            {% endif %}
+            {% if object.artifact.status or object.workinstance.status %}
+            <dt>Situação</dt>
+              <dd>{{ object.artifact.status }} {{ object.workinstance.status }}</dd>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <th class="c36" colspan="36">7.2 Características iconográficas</th>
         </tr>
         <tr>
-          <td class="c36" colspan="36">&nbsp;</td>
+          <td class="c36" colspan="36">
+            {% if object.artifact.description_content or object.workinstance.description_content %}
+            {% for content in object.artifact.description_content %}
+            <dt>{{ content.content_type }}</dt>
+              <dd>{{ content.content_name }}</dd>
+            {% endfor %}
+            {% for content in object.workinstance.description_content %}
+            <dt>{{ content.content_type }}</dt>
+              <dd>{{ content.content_name }}</dd>
+            {% endfor %}
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <th class="c36" colspan="36">7.3 Referências Bibliográficas e Arquivísticas (repetir quantas linhas forem necessárias)</th>
@@ -503,7 +766,7 @@ dt {
 
         <tr>
           <td class="shade c12" colspan="12">Fonte/Referência Bibliográfica (norma ABNT)</td>
-          <td class="c24" colspan="24">&nbsp;</td>
+          <td class="c24" colspan="24">{{ object.source }}</td>
         </tr>
         <tr>
           <td class="shade c12" colspan="12">Localização (nome ou link)</td>
@@ -516,7 +779,7 @@ dt {
           <th class="c36" colspan="36">7.4 Demais códigos atribuídos ao objeto</th>
         </tr>
         <tr>
-          <td class="c36" colspan="36">
+          <td class="c18" colspan="18">
             <dl>
               <dt>Número de inventário</dt>
               <dd>{{ object.refid }}</dd>
@@ -524,6 +787,21 @@ dt {
               <dt>{{ number.object_number_type }}</dt>
               <dd>{{ number.object_number }}</dd>
               {% endfor %}
+            </dl>
+          </td>
+          <td class="c18" colspan="18">
+            <dl>
+              {% if object.normal_unit %}
+              <dt>Unidade de acervamento normal</dt>
+              <dd>{{ object.normal_unit }}</dd>
+              {% endif %}
+              {% if object.storage_unit %}
+              {% for unit in object.storage_unit.unit %}
+              <dt>Unidade de acervamento em {{ object.storage_unit.date }}</dt>
+              <dd>{{ object.storage_unit.unit }}</dd>
+              <dd>{{ object.storage_unit.fitness }}</dd>
+              {% endfor %}
+              {% endif %}
             </dl>
           </td>
         </tr>

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<form method="POST" class="post-form">
+<form method="POST" class="post-form" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="panel panel-default">
       <div class="panel-heading">

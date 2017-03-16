@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.conf.urls import url
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -12,3 +14,6 @@ urlpatterns = [
     url(r'^yaml/(?P<pk>[0-9]+)/', views.yaml, name='yaml'),
     url(r'^', views.ObjectList.as_view(), name='object_list'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

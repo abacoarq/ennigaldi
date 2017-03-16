@@ -1,0 +1,51 @@
+---
+ObjectRegister:
+- work_id:
+  work_type:
+  source:
+  snapshot:
+  snapshot_height:
+  snapshot_width:
+  hierarchy:
+    - relation_type:
+      lesser:
+      greater:
+  preferred_title:
+    title:
+    title_type:
+    currency:
+    level:
+    note:
+    source:
+    lang:
+      iso:
+      language:
+    translation:
+  other_names: # ObjectName model must have a ForeignKey to ObjectRegister
+    - title:
+      title_type:
+      currency:
+      level:
+      note:
+      source:
+      lang:
+        iso:
+        language:
+      translation:
+  brief_description:
+    description_source:
+  comments:
+  distinguishing_features:
+  storage_unit:
+    - unit: # ObjectUnit --> storageunit.Unit model instances
+      date:
+      fitness:
+      note:
+  normal_unit:
+  othernumber_set:
+    - object_number: # OtherNumber model instances
+      number_type: # Rename model field object_number_type
+  production:
+  description: # Abstract model --> Artifact, WorkInstance, Specimen
+  # To be completed
+---
