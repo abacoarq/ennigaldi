@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls, name='admin'),
     url(r'^work/', include('objectinfo.urls')),
     url(r'^unit/', include('storageunit.urls')),
+    url(r'^batch/', include('reorg.urls')),
     url(r'^login/', auth_views.login, name='login'),
     url(r'^logout/', auth_views.logout, {'next_page': 'login'}, name='logout'),
 ]
