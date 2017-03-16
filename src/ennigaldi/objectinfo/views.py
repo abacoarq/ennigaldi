@@ -28,7 +28,7 @@ class ObjectDetail(DetailView):
 
 def title_entry(request):
     if request.method == 'POST':
-        title_form = TitleEntry(request.POST)
+        title_form = TitleForm(request.POST)
         if title_form.is_valid():
             new_title = title_form.save()
             return HttpResponseRedirect(reverse('objectregister_form', kwargs={'objectname_id': new_title.pk}))
@@ -37,7 +37,7 @@ def title_entry(request):
             return render('objectinfo/objectname_form.html', {'form': title_form})
 
     else:
-        title_form = TitleEntry()
+        title_form = TitleForm()
         return render(request, 'objectinfo/objectname_form.html', {'form': title_form})
 
 def object_entry(request, objectname_id):
@@ -46,7 +46,8 @@ def object_entry(request, objectname_id):
         if object_form.is_valid():
             new_object = object_form.save()
             AccessionNumber.generate(new_object.pk)
-            return HttpResponseRedirect(reverse('description_form', kwargs={'work_id': new_object.pk}))
+            return HttpResponseRedirect(reverse('object_list'))
+            # return HttpResponseRedirect(reverse('production_entry', kwargs={'work_id': new_object.pk}))
 
         else:
             return render('objectinfo/objectregister_form.html', {'form': object_form}, kwargs={'objectname_id': objectname_id})
@@ -55,8 +56,13 @@ def object_entry(request, objectname_id):
         object_form = ObjectEntry(title=objectname_id)
         return render(request, 'objectinfo/objectregister_form.html', {'form': object_form})
 
-class DescriptionForm(CreateView):
-    pass
+class ProductionEntry(CreateView):
+    model = Production
+    form = ProductionForm
+
+class DescriptionEntry(CreateView):
+    model = Description
+    form = DescriptionForm
 
 def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')

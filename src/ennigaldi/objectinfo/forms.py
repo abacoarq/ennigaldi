@@ -1,5 +1,5 @@
 from django.forms import ModelForm, inlineformset_factory
-from .models import ObjectRegister, ObjectName, ObjectUnit, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact
+from .models import ObjectRegister, ObjectName, ObjectUnit, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact
 
 class ObjectEntry(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -12,23 +12,28 @@ class ObjectEntry(ModelForm):
         model = ObjectRegister
         fields = ['preferred_title', 'snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
 
-# The TitleEntry form populates the preferred_title OneToOneField
+# The TitleForm form populates the preferred_title OneToOneField
 # in the ObjectRegister. It needs to be a separate form,
 # not an inlineformset, as per
 # http://stackoverflow.com/questions/27832076/modelform-with-onetoonefield-in-django
-class TitleEntry(ModelForm):
+class TitleForm(ModelForm):
     class Meta:
         model = ObjectName
         fields = ['title', 'title_type', 'lang', 'translation', 'currency', 'level', 'note', 'source']
 
-class InscriptionEntry(ModelForm):
+class InscriptionForm(ModelForm):
     class Meta:
         model = Inscription
         fields = ['inscription_display', 'inscription_position', 'inscription_type', 'inscription_language', 'inscription_notes', 'inscription_method']
 
-inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionEntry, extra=1)
+inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=1)
 
-class DescriptionEntry(ModelForm):
+class ProductionForm(ModelForm):
+    class Meta:
+        model = Production
+        fields = []
+
+class DescriptionForm(ModelForm):
     class Meta:
         model = Artifact
         fields = []

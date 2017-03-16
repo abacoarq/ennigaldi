@@ -13,7 +13,7 @@ class Batch(models.Model):
     batch_note = models.TextField(blank=True)
     retrospective = models.BooleanField(default=False)
 
-    def start_batch(retrospective, batch_note):
+    def start_batch(batch_note, retrospective=False):
         Batch.objects.all().update(active=False)
         b = Batch()
         b.batch_year = dt.now().year
