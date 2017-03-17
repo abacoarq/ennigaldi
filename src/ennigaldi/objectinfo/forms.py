@@ -33,9 +33,14 @@ class ProductionForm(ModelForm):
         model = Production
         fields = []
 
-class DescriptionForm(ModelForm):
+class ArtifactForm(ModelForm):
     class Meta:
         model = Artifact
+        fields = []
+
+class WorkInstanceForm(ModelForm):
+    class Meta:
+        model = WorkInstance
         fields = []
 
 ###########################################################
