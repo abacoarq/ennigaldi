@@ -56,13 +56,28 @@ def object_entry(request, objectname_id):
         object_form = ObjectEntry(title=objectname_id)
         return render(request, 'objectinfo/objectregister_form.html', {'form': object_form})
 
+@method_decorator(login_required, name='dispatch')
 class ProductionEntry(CreateView):
     model = Production
     form = ProductionForm
+    fields = ['object_number', 'object_number_type']
+    work_id = None
 
-class DescriptionEntry(CreateView):
-    model = Description
-    form = DescriptionForm
+    def get_work_id(self, queryset=None):
+        return queryset.get(work_id = self.work_id)
+
+    def get_context_data(self, *args, **kwargs):
+        data = super(ProductionEntry, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['work_id'] = work_id
+
+class ArtifactEntry(CreateView):
+    model = Artifact
+    form = ArtifactForm
+
+class WorkInstanceEntry(CreateView):
+    model = WorkInstance
+    form = WorkInstanceForm
 
 def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')

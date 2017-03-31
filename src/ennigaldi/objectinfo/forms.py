@@ -1,5 +1,5 @@
 from django.forms import ModelForm, inlineformset_factory
-from .models import ObjectRegister, ObjectName, ObjectUnit, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact
+from .models import ObjectRegister, ObjectName, ObjectUnit, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact, WorkInstance
 
 class ObjectEntry(ModelForm):
     def __init__(self, *args, **kwargs):
@@ -27,6 +27,13 @@ class InscriptionForm(ModelForm):
         fields = ['inscription_display', 'inscription_position', 'inscription_type', 'inscription_language', 'inscription_notes', 'inscription_method']
 
 inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=1)
+
+class NumberForm(ModelForm):
+    class Meta:
+        model = OtherNumber
+        fields = ['object_number', 'object_number_type']
+
+number_formset = inlineformset_factory(ObjectRegister, OtherNumber, form=NumberForm, extra=1)
 
 class ProductionForm(ModelForm):
     class Meta:

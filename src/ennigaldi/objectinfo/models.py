@@ -89,7 +89,7 @@ class ObjectRegister(models.Model):
     # Complementary information is split into different
     # classes according to their Spectrum 4.0 information
     # groups, so as to make the whole easier to manage.
-    production = models.OneToOneField('Production', models.PROTECT, null=True)
+    production = models.OneToOneField('Production', models.PROTECT, null=True, blank=True)
     storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', through='ObjectUnit')
     # Spectrum 4.0 Normal location
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True)
