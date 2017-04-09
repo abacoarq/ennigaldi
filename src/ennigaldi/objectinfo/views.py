@@ -77,7 +77,10 @@ class CreateRegister(CreateView):
         return super(CreateRegister, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('object_list')
+        if self.work_type == 'artifact':
+            return reverse('artifact_entry', kwargs={'work_id' : self.pk})
+        else:
+            return reverse('object_list')
 
 
 @method_decorator(login_required, name='dispatch')
