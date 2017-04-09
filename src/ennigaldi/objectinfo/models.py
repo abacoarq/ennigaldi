@@ -18,6 +18,7 @@ class ObjectRegister(models.Model):
             ('artifact', 'Artifact'),
             ('workInstance', 'Work instance'),
             ('specimen', 'Specimen'),
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
         )
     # VRA Core 4   work, must prepend with 'w_' when rendering XML.
     # DCMI         identifier
@@ -30,6 +31,7 @@ class ObjectRegister(models.Model):
     snapshot_height = models.CharField(max_length=15, blank=True)
     snapshot_width = models.CharField(max_length=15, blank=True)
     snapshot = models.ImageField(upload_to='media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True)
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
@@ -91,8 +93,10 @@ class ObjectRegister(models.Model):
     # groups, so as to make the whole easier to manage.
     production = models.OneToOneField('Production', models.PROTECT, null=True, blank=True)
     storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', through='ObjectUnit')
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
     # Spectrum 4.0 Normal location
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True)
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
 
     def __str__(self):
         wid = str(self.work_id)
@@ -288,6 +292,7 @@ class ObjectUnit(models.Model):
     # DCMI         spatial, same caveat as above
     # Not available in SICG
     unit = models.ForeignKey('storageunit.Unit', models.PROTECT, related_name='contains_objects')
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
     # Spectrum 4.0 Location fitness
     # No equivalent in other standards.
     fitness = models.TextField(blank=True)
@@ -481,7 +486,11 @@ class Dimension(models.Model):
         ('width', 'width (mm)'),
         # ('other', 'other')                # Spectrum Technical attribute measurement
     )
-    work = models.ForeignKey('ObjectRegister', models.CASCADE)
+    # A reference to the ObjectRegister should not be used, since
+    # the link is to the Description classes and the object is not to be
+    # backwards-accessed from the dimension anyway
+    # (looking up objects by their size is a highly unlikely task).
+    # work = models.ForeignKey('ObjectRegister', models.CASCADE)
     # Spectrum 4.0 Dimension measured part
     # VRA Core 4   measurements > extent
     # Use controlled vocab
@@ -510,6 +519,7 @@ class Dimension(models.Model):
 class Inscription(models.Model):
     inscription_types = (
             ('signature', 'Signature'),
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
             ('mark', 'Mark or symbol'),
             ('caption', 'Caption'),
             ('date', 'Date'),
@@ -607,7 +617,9 @@ class TechnicalAttribute(models.Model):
          ('resolution', 'resolution (ppi)'),    # Spectrum Technical attribute measurement
          ('runningTime', 'running time (s)'),     # Spectrum Technical attribute measurement
          ('scale', 'scale'),               # Spectrum Technical attribute measurement
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
          ('size', 'size'),                # Spectrum Technical attribute measurement
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
          ('target', 'target'),              # Spectrum Technical attribute measurement
          # ('weight (g)', 'weight (g)'),          # Spectrum Dimension
          # ('width (mm)', 'width (mm)'),          # Spectrum Dimension
@@ -673,6 +685,7 @@ class MaterialType(models.Model):
     material_types = (
         ('medium', 'medium'),
         ('support', 'support'),
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
         ('other', 'other')
     )
     material_type = models.CharField(max_length=15, default='medium', choices=material_types)
@@ -699,6 +712,7 @@ class DescriptionContent(models.Model):
         ) ),
         ('Object', (
             ('scientificName', 'scientific name') # For Spectrum, contained in content > object
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
         ) ),
         ('Place', (
             ('builtWorkPlace', 'location of a built work'),
@@ -908,6 +922,7 @@ class Hierarchy(models.Model):
             # ('componentIs', 'component is'),
         )),
         ('steps', (
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
             ('cartoonFor', 'cartoon for'),
             # ('cartoonIs', 'cartoon is'),
             ('counterProofFor', 'counter proof for'),
@@ -925,6 +940,7 @@ class Hierarchy(models.Model):
             ('reliefFor', 'relief for'),
             # ('impressionIs', 'impression is'),
             ('studyFor', 'study for'),
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
             # ('studyIs', 'study is'),
         )),
         ('after', (
@@ -1012,6 +1028,7 @@ class TextRef(models.Model):
         ('corpus', 'Corpus'),
         ('electronic', 'Electronic format'),
         ('serial', 'Serial'),
+            # 's: # this comment only for fixing wrong 's syntax highlighting in vim.
         ('other', 'Other')
     )
     textref_refid_types = (
