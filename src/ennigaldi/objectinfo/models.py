@@ -16,7 +16,7 @@ from storageunit.models import Unit
 class ObjectRegister(models.Model):
     work_types = (
             ('artifact', 'Artifact'),
-            ('issuedObject', 'Issued Object'),
+            ('workInstance', 'Work instance'),
             ('specimen', 'Specimen'),
         )
     # VRA Core 4   work, must prepend with 'w_' when rendering XML.
@@ -334,7 +334,8 @@ class Description(models.Model):
     # Using a fkey to better organize controlled vocab,
     # but it's really a list of colors.
     # No equivalent in other standards
-    colour = models.ManyToManyField('Colour', related_name='%(app_label)s_colour_in_%(class)s')
+    # colour = models.ManyToManyField('Colour', related_name='%(app_label)s_colour_in_%(class)s')
+    colour = models.CharField(max_length=127, blank=True, null=True)
     dimension = models.ManyToManyField('Dimension', related_name='+')
     technical_attribute = models.ManyToManyField('TechnicalAttribute', related_name='+')
     # Strictly speaking, Territorial context is only required
