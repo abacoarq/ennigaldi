@@ -344,7 +344,6 @@ class Description(models.Model):
     # to list colour information.
     colour = models.CharField(max_length=127, blank=True, null=True)
     dimension = models.ManyToManyField('Dimension', related_name='+')
-    technical_attribute = models.ManyToManyField('TechnicalAttribute', related_name='+')
     # Strictly speaking, Territorial context is only required
     # by SICG, so consider removing it because it only
     # functions in a very specific context of nationwide
@@ -405,6 +404,14 @@ class Specimen(Description):
 
 # Pretty much everything else you would find in a museum.
 class Artifact(Description):
+    # Unlike Dimension, which is common to all physical objects, Technical Attribute
+    # is only applicable to things that are made (both physical and virtual).
+    # As with the Dimension, objects should typically not need to be backwards-accessed
+    # from their technical attributes, though this might be reconsidered
+    # in information-rich collections or for purposes other than museum storage.
+    # Spectrim 4.0 Technical attribute
+    # VRA Core 4   Dimension
+    technical_attribute = models.ManyToManyField('TechnicalAttribute', related_name='+')
     # Spectrum 4.0 Object status
     # VRA Core 4   status
     # Indicates relationship of this object to others,
