@@ -1,5 +1,5 @@
 from django.forms import ModelForm, inlineformset_factory
-from .models import ObjectRegister, ObjectName, ObjectUnit, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact, WorkInstance
+from .models import ObjectRegister, ObjectName, ObjectUnit, OtherNumber, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact, WorkInstance
 
 class ObjectEntry(ModelForm):
     def __init__(self, *args, **kwargs):

@@ -26,19 +26,6 @@ class ObjectDetail(DetailView):
     model = ObjectRegister
     # query_pk_and_slug = True
 
-def title_entry(request):
-    if request.method == 'POST':
-        title_form = TitleForm(request.POST)
-        if title_form.is_valid():
-            new_title = title_form.save()
-            return HttpResponseRedirect(reverse('objectregister_form', kwargs={'objectname_id': new_title.pk}))
-
-        else:
-            return render('objectinfo/objectname_form.html', {'form': title_form})
-
-    else:
-        title_form = TitleForm()
-        return render(request, 'objectinfo/objectname_form.html', {'form': title_form})
 
 def object_entry(request, objectname_id):
     if request.method == 'POST':
@@ -55,6 +42,46 @@ def object_entry(request, objectname_id):
     else:
         object_form = ObjectEntry(title=objectname_id)
         return render(request, 'objectinfo/objectregister_form.html', {'form': object_form})
+
+@method_decorator(login_required, name='dispatch')
+class TitleEntry(CreateView):
+    model = ObjectName
+    form = TitleForm
+    fields = ['title', 'title_type', 'lang', 'translation', 'currency', 'level', 'note', 'source']
+
+    def get_success_url(self):
+        return reverse('createregister_form', args=(self.object.pk,))
+
+@method_decorator(login_required, name='dispatch')
+class CreateRegister(CreateView):
+    model = ObjectRegister
+    form = ObjectEntry
+    fields = ['snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
+
+    def get_context_data(self, **kwargs):
+        data = super(CreateRegister, self).get_context_data(**kwargs)
+        if self.request.POST:
+            data['inscriptions'] = inscription_formset(self.request.POST)
+        else:
+            data['inscriptions'] = inscription_formset()
+        return data
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        inscription = context['inscriptions']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if inscription.is_valid():
+                inscription.instance = self.object
+                inscription.save()
+
+            reorg.AccessionNumber.generate(self.object.work_id)
+        return super(AddObject, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('object_list')
+
 
 @method_decorator(login_required, name='dispatch')
 class ProductionEntry(CreateView):
