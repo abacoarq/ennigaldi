@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, redirect, render_to_response, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -27,39 +27,36 @@ class ObjectDetail(DetailView):
     # query_pk_and_slug = True
 
 
-def object_entry(request, objectname_id):
-    if request.method == 'POST':
-        object_form = ObjectEntry(request.POST, request.FILES, title=objectname_id)
-        if object_form.is_valid():
-            new_object = object_form.save()
-            AccessionNumber.generate(new_object.pk)
-            return HttpResponseRedirect(reverse('object_list'))
-            # return HttpResponseRedirect(reverse('production_entry', kwargs={'work_id': new_object.pk}))
-
-        else:
-            return render('objectinfo/objectregister_form.html', {'form': object_form}, kwargs={'objectname_id': objectname_id})
-
-    else:
-        object_form = ObjectEntry(title=objectname_id)
-        return render(request, 'objectinfo/objectregister_form.html', {'form': object_form})
-
 @method_decorator(login_required, name='dispatch')
 class TitleEntry(CreateView):
     model = ObjectName
     form = TitleForm
     fields = ['title', 'title_type', 'lang', 'translation', 'currency', 'level', 'note', 'source']
 
-    def get_success_url(self):
-        return reverse('createregister_form', args=(self.object.pk,))
+    def get_success_url(self, **kwargs):
+        return reverse('createregister_form', kwargs={ 'objectname_id' : self.object.pk})
+
 
 @method_decorator(login_required, name='dispatch')
 class CreateRegister(CreateView):
     model = ObjectRegister
     form = ObjectEntry
-    fields = ['snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
+    fields = ['preferred_title', 'snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
+    pref_title = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.pref_title_id = kwargs.get('objectname_id', None)
+        return super(CreateRegister, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initials = super(CreateRegister, self).get_initial()
+        initials['preferred_title'] = get_object_or_404(ObjectName, pk=int(self.kwargs['objectname_id']))
+        return initials
 
     def get_context_data(self, **kwargs):
         data = super(CreateRegister, self).get_context_data(**kwargs)
+        if 'objectname_id' in self.kwargs:
+            data['preferred_title'] = get_object_or_404(ObjectName, pk=self.kwargs['objectname_id'])
         if self.request.POST:
             data['inscriptions'] = inscription_formset(self.request.POST)
         else:
@@ -76,8 +73,8 @@ class CreateRegister(CreateView):
                 inscription.instance = self.object
                 inscription.save()
 
-            reorg.AccessionNumber.generate(self.object.work_id)
-        return super(AddObject, self).form_valid(form)
+            AccessionNumber.generate(self.object.work_id)
+        return super(CreateRegister, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('object_list')

@@ -1,12 +1,13 @@
 from django.forms import ModelForm, inlineformset_factory
+from django.shortcuts import get_object_or_404
 from .models import ObjectRegister, ObjectName, ObjectUnit, OtherNumber, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact, WorkInstance
 
 class ObjectEntry(ModelForm):
     def __init__(self, *args, **kwargs):
-        objectname_id = kwargs.pop('title', None)
+        objectname_id = kwargs.pop('objectname_id', None)
         super(ObjectEntry, self).__init__(*args, **kwargs)
 
-        self.fields['preferred_title'].initial = ObjectName.objects.get(pk=objectname_id)
+        self.fields['preferred_title'].initial = get_object_or_404(ObjectName, pk=int(objectname_id))
 
     class Meta:
         model = ObjectRegister

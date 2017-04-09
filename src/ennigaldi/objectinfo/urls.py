@@ -4,7 +4,6 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    url(r'^add/(?P<objectname_id>[0-9]+)/register/', views.object_entry, name='objectregister_form'),
     url(r'^add/{?P<work_id>[0-9]+/production/', views.ProductionEntry.as_view(), name='production_entry'),
     url(r'^add/(?P<work_id>[0-9]+)/artifact/', views.ArtifactEntry.as_view(), name='artifact_entry'),
     url(r'^add/(?P<work_id>[0-9]+)/instance/', views.WorkInstanceEntry.as_view(), name='instance_entry'),
