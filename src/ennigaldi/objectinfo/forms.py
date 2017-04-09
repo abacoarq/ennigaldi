@@ -45,12 +45,18 @@ class ProductionForm(ModelForm):
 class ArtifactForm(ModelForm):
     class Meta:
         model = Artifact
-        fields = []
+        fields = ['physical_description', 'colour', 'dimension', 'technical_attribute', 'description_display']
 
 class WorkInstanceForm(ModelForm):
     class Meta:
         model = WorkInstance
-        fields = []
+        fields = ['physical_description', 'colour', 'dimension', 'technical_attribute', 'description_display']
+
+class SpecimenForm(ModelForm):
+    class Meta:
+        model = Specimen
+        fields = ['physical_description', 'colour', 'dimension', 'technical_attribute', 'description_display']
+
 
 ###########################################################
 # The following is part of Description---commented here

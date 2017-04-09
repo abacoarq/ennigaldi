@@ -84,6 +84,8 @@ class CreateRegister(CreateView):
             return reverse('artifact_entry', kwargs={'work_id' : self.pk})
         elif self.work_type == 'workInstance':
             return reverse('instance_entry', kwargs={'work_id' : self.pk})
+        elif self.work_type == 'specimen':
+            return reverse('specimen_entry', kwargs={'work_id' : self.pk})
         # if self.work_type in ['artifact', 'workInstance']:
             # return reverse('production_entry', kwargs={'work_id' : self.pk})
         else:

@@ -335,6 +335,8 @@ class Description(models.Model):
     # but it's really a list of colors.
     # No equivalent in other standards
     # colour = models.ManyToManyField('Colour', related_name='%(app_label)s_colour_in_%(class)s')
+    # Because the above is overly complex, we start out with a CharField
+    # to list colour information.
     colour = models.CharField(max_length=127, blank=True, null=True)
     dimension = models.ManyToManyField('Dimension', related_name='+')
     technical_attribute = models.ManyToManyField('TechnicalAttribute', related_name='+')
