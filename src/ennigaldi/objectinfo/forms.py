@@ -2,6 +2,15 @@ from django.forms import ModelForm, inlineformset_factory
 from django.shortcuts import get_object_or_404
 from .models import ObjectRegister, ObjectName, ObjectUnit, OtherNumber, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact, WorkInstance
 
+# The TitleForm form populates the preferred_title OneToOneField
+# in the ObjectRegister. It needs to be a separate form,
+# not an inlineformset, as per
+# http://stackoverflow.com/questions/27832076/modelform-with-onetoonefield-in-django
+class TitleForm(ModelForm):
+    class Meta:
+        model = ObjectName
+        fields = ['title', 'title_type', 'lang', 'translation', 'currency', 'level', 'note', 'source']
+
 class ObjectEntry(ModelForm):
     def __init__(self, *args, **kwargs):
         objectname_id = kwargs.pop('objectname_id', None)
@@ -13,14 +22,6 @@ class ObjectEntry(ModelForm):
         model = ObjectRegister
         fields = ['preferred_title', 'snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
 
-# The TitleForm form populates the preferred_title OneToOneField
-# in the ObjectRegister. It needs to be a separate form,
-# not an inlineformset, as per
-# http://stackoverflow.com/questions/27832076/modelform-with-onetoonefield-in-django
-class TitleForm(ModelForm):
-    class Meta:
-        model = ObjectName
-        fields = ['title', 'title_type', 'lang', 'translation', 'currency', 'level', 'note', 'source']
 
 class InscriptionForm(ModelForm):
     class Meta:

@@ -27,6 +27,8 @@ class ObjectDetail(DetailView):
     # query_pk_and_slug = True
 
 
+# The TitleForm must be filled first so that its pk can be used in
+# the ObjectEntry form.
 @method_decorator(login_required, name='dispatch')
 class TitleEntry(CreateView):
     model = ObjectName
@@ -37,6 +39,7 @@ class TitleEntry(CreateView):
         return reverse('createregister_form', kwargs={ 'objectname_id' : self.object.pk})
 
 
+# The ObjectEntry form needs to be loaded after the TitleForm has been saved.
 @method_decorator(login_required, name='dispatch')
 class CreateRegister(CreateView):
     model = ObjectRegister
@@ -79,6 +82,10 @@ class CreateRegister(CreateView):
     def get_success_url(self):
         if self.work_type == 'artifact':
             return reverse('artifact_entry', kwargs={'work_id' : self.pk})
+        elif self.work_type == 'workInstance':
+            return reverse('instance_entry', kwargs={'work_id' : self.pk})
+        # if self.work_type in ['artifact', 'workInstance']:
+            # return reverse('production_entry', kwargs={'work_id' : self.pk})
         else:
             return reverse('object_list')
 
@@ -87,11 +94,11 @@ class CreateRegister(CreateView):
 class ProductionEntry(CreateView):
     model = Production
     form = ProductionForm
-    fields = ['object_number', 'object_number_type']
-    work_id = None
+    fields = []
 
-    def get_work_id(self, queryset=None):
-        return queryset.get(work_id = self.work_id)
+    def get_work(self):
+        work = get_object_or_404(ObjectRegister, pk=int(self.kwargs['work_id']))
+        return work
 
     def get_context_data(self, *args, **kwargs):
         data = super(ProductionEntry, self).get_context_data(**kwargs)
