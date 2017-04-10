@@ -1,6 +1,7 @@
 from django.forms import ModelForm, inlineformset_factory
 from django.shortcuts import get_object_or_404
-from .models import ObjectRegister, ObjectName, ObjectUnit, OtherNumber, Production, Dimension, TechnicalAttribute, MaterialType, Inscription, Description, Artifact, WorkInstance
+from historicdate.models import HistoricDate
+from .models import *
 
 # The TitleForm form populates the preferred_title OneToOneField
 # in the ObjectRegister. It needs to be a separate form,
@@ -42,39 +43,40 @@ class ProductionForm(ModelForm):
         model = Production
         fields = []
 
-class ArtifactForm(ModelForm):
-    class Meta:
-        model = Artifact
-        fields = ['physical_description', 'colour', 'dimension', 'technical_attribute', 'description_display']
-
-class WorkInstanceForm(ModelForm):
-    class Meta:
-        model = WorkInstance
-        fields = ['physical_description', 'colour', 'dimension', 'technical_attribute', 'description_display']
-
 class SpecimenForm(ModelForm):
     class Meta:
         model = Specimen
-        fields = ['physical_description', 'colour', 'dimension', 'technical_attribute', 'description_display']
+        fields = ['physical_description', 'colour', 'description_display', 'specimen_age', 'specimen_age_qualification', 'specimen_age_unit', 'phase', 'sex', 'object_date']
+
+class ArtifactForm(ModelForm):
+    class Meta:
+        model = Artifact
+        fields = ['physical_description', 'colour', 'technical_attribute', 'description_display']
+
+class InstanceForm(ModelForm):
+    class Meta:
+        model = WorkInstance
+        fields = ['physical_description', 'colour', 'technical_attribute', 'description_display']
+
+class DimensionEntry(ModelForm):
+    class Meta:
+        model = Dimension
+        fields = ['dimension_part', 'dimension_type', 'dimension_value', 'dimension_value_qualifier']
+
+dimension_formset = inlineformset_factory(ObjectRegister, Dimension, form=DimensionEntry, extra=3)
 
 
 ###########################################################
 # The following is part of Description---commented here
 # just so we remember to put it where it belongs later on.
 
+# Colour as a M2M field is not being used for now.
 # class ColourEntry(ModelForm):
     # class Meta:
         # model = Colour
         # fields = ['colour']
 
 # colour_formset = inlineformset_factory(ObjectRegister, Colour, form=ColourEntry, extra=2)
-
-# class DimensionEntry(ModelForm):
-    # class Meta:
-        # model = Dimension
-        # fields = ['dimension_part', 'dimension_type', 'dimension_value', 'dimension_value_qualifier']
-
-# dimension_formset = inlineformset_factory(ObjectRegister, Dimension, form=DimensionEntry, extra=3)
 
 # class MaterialTypeEntry(ModelForm):
     # class Meta:

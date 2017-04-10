@@ -6,7 +6,7 @@ from . import views
 urlpatterns = [
     url(r'^add/{?P<work_id>[0-9]+/production/', views.ProductionEntry.as_view(), name='production_entry'),
     url(r'^add/(?P<work_id>[0-9]+)/artifact/', views.ArtifactEntry.as_view(), name='artifact_entry'),
-    url(r'^add/(?P<work_id>[0-9]+)/instance/', views.WorkInstanceEntry.as_view(), name='instance_entry'),
+    url(r'^add/(?P<work_id>[0-9]+)/instance/', views.InstanceEntry.as_view(), name='instance_entry'),
     url(r'^add/(?P<work_id>[0-9]+)/specimen/', views.SpecimenEntry.as_view(), name='specimen_entry'),
     url(r'^add/(?P<objectname_id>[0-9]+)/$', views.CreateRegister.as_view(), name='createregister_form'),
     url(r'^add/$', views.TitleEntry.as_view(), name='titleentry_form'),

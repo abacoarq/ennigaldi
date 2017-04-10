@@ -338,7 +338,10 @@ class Description(models.Model):
     # Because the above is overly complex, we start out with a CharField
     # to list colour information.
     colour = models.CharField(max_length=127, blank=True, null=True)
-    dimension = models.ManyToManyField('Dimension', related_name='+')
+    # A M2M field was suggested here for conceptual consistency with
+    # how Spectrum and others see the inheritance of dimension information,
+    # but a ForeignKey makes more sense regarding the data structure.
+    # dimension = models.ManyToManyField('Dimension', related_name='+')
     # Strictly speaking, Territorial context is only required
     # by SICG, so consider removing it because it only
     # functions in a very specific context of nationwide
@@ -488,11 +491,8 @@ class Dimension(models.Model):
         ('width', 'width (mm)'),
         # ('other', 'other')                # Spectrum Technical attribute measurement
     )
-    # A reference to the ObjectRegister should not be used, since
-    # the link is to the Description classes and the object is not to be
-    # backwards-accessed from the dimension anyway
-    # (looking up objects by their size is a highly unlikely task).
-    # work = models.ForeignKey('ObjectRegister', models.CASCADE)
+
+    work = models.ForeignKey(ObjectRegister, models.CASCADE)
     # Spectrum 4.0 Dimension measured part
     # VRA Core 4   measurements > extent
     # Use controlled vocab

@@ -45,7 +45,6 @@ class CreateRegister(CreateView):
     model = ObjectRegister
     form = ObjectEntry
     fields = ['preferred_title', 'snapshot', 'work_type', 'source', 'brief_description', 'description_source', 'comments', 'distinguishing_features', 'normal_unit']
-    pref_title = None
 
     def dispatch(self, request, *args, **kwargs):
         self.pref_title_id = kwargs.get('objectname_id', None)
@@ -80,16 +79,69 @@ class CreateRegister(CreateView):
         return super(CreateRegister, self).form_valid(form)
 
     def get_success_url(self):
-        if self.work_type == 'artifact':
-            return reverse('artifact_entry', kwargs={'work_id' : self.pk})
-        elif self.work_type == 'workInstance':
-            return reverse('instance_entry', kwargs={'work_id' : self.pk})
-        elif self.work_type == 'specimen':
-            return reverse('specimen_entry', kwargs={'work_id' : self.pk})
-        # if self.work_type in ['artifact', 'workInstance']:
-            # return reverse('production_entry', kwargs={'work_id' : self.pk})
+        return reverse('object_list')
+        # In a field survey it does not make sense to fill out
+        # an exhaustive set of data before proceeding to the next
+        # object. Figure out some sort of selector to change this
+        # when registering the objects with complete information
+        # is desirable.
+        # if self.work_type == 'specimen':
+            # return reverse('specimen_entry', kwargs={'work_id' : self.pk})
+        # elif self.work_type == 'workInstance':
+            # return reverse('instance_entry', kwargs={'work_id' : self.pk})
+        # else:
+            # return reverse('artifact_entry', kwargs={'work_id' : self.pk})
+
+
+@method_decorator(login_required, name='dispatch')
+class DescriptionEntry(CreateView):
+    def form_valid(self, form):
+        context = self.get_context_data()
+        dimension = context['dimension']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if dimension.is_valid():
+                dimension.instance = self.object()
+                dimension.save()
+
+        return super(DescriptionEntry, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('object_list')
+
+    class Meta:
+        abstract = True
+
+
+@method_decorator(login_required, name='dispatch')
+class SpecimenEntry(DescriptionEntry):
+    model = Specimen
+    form = SpecimenForm
+    fields = ['physical_description', 'colour', 'description_display', 'specimen_age', 'specimen_age_qualification', 'specimen_age_unit', 'phase', 'sex', 'object_date']
+
+    def get_context_data(self, **kwargs):
+        data = super(SpecimenEntry, self).get_context_data(**kwargs)
+        if self.request(POST):
+            data['dimension'] = specimen_dimension(self.request.POST)
         else:
-            return reverse('object_list')
+            data['dimension'] = specimen_dimension()
+        return data
+
+
+@method_decorator(login_required, name='dispatch')
+class ArtifactEntry(DescriptionEntry):
+    model = Artifact
+    form = ArtifactForm
+
+    def get_success_url(self):
+        return reverse('production_entry', kwargs={'work_id' : self.pk})
+
+
+@method_decorator(login_required, name='dispatch')
+class InstanceEntry(ArtifactEntry):
+    model = WorkInstance
+    form = InstanceForm
 
 
 @method_decorator(login_required, name='dispatch')
@@ -107,13 +159,6 @@ class ProductionEntry(CreateView):
         if self.request.POST:
             data['work_id'] = work_id
 
-class ArtifactEntry(CreateView):
-    model = Artifact
-    form = ArtifactForm
-
-class WorkInstanceEntry(CreateView):
-    model = WorkInstance
-    form = WorkInstanceForm
 
 def image_form(request):
     return HttpResponse('A form to enter images, possibly in bulk, will appear here.')
