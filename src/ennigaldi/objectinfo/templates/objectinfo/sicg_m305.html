@@ -203,10 +203,10 @@ dt {
         </tr>
         <tr>
           <td colspan="27" class="c27">
-            <strong> {{ object.preferred_title }} </strong>
+            <strong> {{ object.preferred_title }} (w_{{ object.work_id|stringformat:"07d" }}) </strong>
           </td>
           <td colspan="9" class="shade c9">
-            <strong> w_{{ object.work_id|stringformat:"07d" }} </strong>
+            <strong>  </strong>
           </td>
         </tr>
       </thead>
@@ -378,15 +378,15 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Altura (cm)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == height and dim.dimension_value_qualifier ==  False %}
+            {% for dim in object.dimension_set.all %}
+            {% if dim.dimension_type == height and dim.dimension_value_qualifier == False %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == height and dim.dimension_value_qualifier ==  True %}
+            {% for dim in object.dimension_set.all %}
+            {% if dim.dimension_type == height and dim.dimension_value_qualifier == True %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
@@ -402,14 +402,14 @@ dt {
           <td class="c4 shade" colspan="4">Largura (cm)</td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == width and dim.dimension_value_qualifier ==  False %}
+            {% if dim.dimension_type == width and dim.dimension_value_qualifier == False %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == width and dim.dimension_value_qualifier ==  True %}
+            {% if dim.dimension_type == width and dim.dimension_value_qualifier == True %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
@@ -425,14 +425,14 @@ dt {
           <td class="c4 shade" colspan="4">Diâmetro (cm)</td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier ==  False %}
+            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier == False %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier ==  True %}
+            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier == True %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
@@ -448,14 +448,14 @@ dt {
           <td class="c4 shade" colspan="4">Circunferência (cm)</td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier ==  False %}
+            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier == False %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier ==  True %}
+            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier == True %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
@@ -471,14 +471,14 @@ dt {
           <td class="c4 shade" colspan="4">Profundidade (cm)</td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == depth and dim.dimension_value_qualifier ==  False %}
+            {% if dim.dimension_type == depth and dim.dimension_value_qualifier == False %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == depth and dim.dimension_value_qualifier ==  True %}
+            {% if dim.dimension_type == depth and dim.dimension_value_qualifier == True %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
@@ -494,14 +494,14 @@ dt {
           <td class="c4 shade" colspan="4">Peso (kg)</td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == weight and dim.dimension_value_qualifier ==  False %}
+            {% if dim.dimension_type == weight and dim.dimension_value_qualifier == False %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
             {% for dim in object.dimension %}
-            {% if dim.dimension_type == weight and dim.dimension_value_qualifier ==  True %}
+            {% if dim.dimension_type == weight and dim.dimension_value_qualifier == True %}
             {{ dim.dimension_value }}
             {% endif %}
             {% endfor %}
