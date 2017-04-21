@@ -61,19 +61,26 @@ class CreateRegister(CreateView):
             data['preferred_title'] = get_object_or_404(ObjectName, pk=self.kwargs['objectname_id'])
         if self.request.POST:
             data['inscriptions'] = inscription_formset(self.request.POST)
+            data['dimensions'] = dimension_formset(self.request.POST)
         else:
             data['inscriptions'] = inscription_formset()
+            data['dimensions'] = dimension_formset()
         return data
 
     def form_valid(self, form):
         context = self.get_context_data()
         inscription = context['inscriptions']
+        dimension = context['dimensions']
         with transaction.atomic():
             self.object = form.save()
 
             if inscription.is_valid():
                 inscription.instance = self.object
                 inscription.save()
+
+            if dimension.is_valid():
+                dimension.instance = self.object
+                dimension.save()
 
             AccessionNumber.generate(self.object.work_id)
         return super(CreateRegister, self).form_valid(form)
@@ -95,17 +102,17 @@ class CreateRegister(CreateView):
 
 @method_decorator(login_required, name='dispatch')
 class DescriptionEntry(CreateView):
-    def form_valid(self, form):
-        context = self.get_context_data()
-        dimension = context['dimension']
-        with transaction.atomic():
-            self.object = form.save()
+    # def form_valid(self, form):
+        # context = self.get_context_data()
+        # dimension = context['dimension']
+        # with transaction.atomic():
+            # self.object = form.save()
 
-            if dimension.is_valid():
-                dimension.instance = self.object()
-                dimension.save()
+            # if dimension.is_valid():
+                # dimension.instance = self.object()
+                # dimension.save()
 
-        return super(DescriptionEntry, self).form_valid(form)
+        # return super(DescriptionEntry, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('object_list')
@@ -120,19 +127,12 @@ class SpecimenEntry(DescriptionEntry):
     form = SpecimenForm
     fields = ['physical_description', 'colour', 'description_display', 'specimen_age', 'specimen_age_qualification', 'specimen_age_unit', 'phase', 'sex', 'object_date']
 
-    def get_context_data(self, **kwargs):
-        data = super(SpecimenEntry, self).get_context_data(**kwargs)
-        if self.request(POST):
-            data['dimension'] = specimen_dimension(self.request.POST)
-        else:
-            data['dimension'] = specimen_dimension()
-        return data
-
 
 @method_decorator(login_required, name='dispatch')
 class ArtifactEntry(DescriptionEntry):
     model = Artifact
     form = ArtifactForm
+    fields = ['physical_description', 'colour', 'technical_attribute', 'description_display']
 
     def get_success_url(self):
         return reverse('production_entry', kwargs={'work_id' : self.pk})
