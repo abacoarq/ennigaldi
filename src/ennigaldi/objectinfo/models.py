@@ -542,15 +542,15 @@ class Inscription(models.Model):
     inscription_type = models.CharField(max_length=15, choices=inscription_types)
     # Spectrum 4.0 Inscriber
     # VRA Core 4   inscription > author
-    inscription_author = models.ForeignKey('agent.Agent', models.PROTECT, blank=True)
+    inscription_author = models.ForeignKey('agent.Agent', models.PROTECT, blank=True, null=True)
     # Spectrum 4.0 Inscription date
     # VRA Core 4   Not explicitly defined, but conceptually
     # available at inscription > date.
-    inscription_date = models.OneToOneField('historicdate.HistoricDate', models.CASCADE, blank=True)
+    inscription_date = models.OneToOneField('historicdate.HistoricDate', models.CASCADE, blank=True, null=True)
     # Spectrum 4.0 Inscription interpretation
     # VRA Core 4   Not explicitly defined, but conceptually
     # available at inscription > notes
-    inscription_notes = models.TextField(blank=True)
+    inscription_notes = models.TextField(blank=True, null=True)
     # Spectrum 4.0 Inscription language
     # VRA Core 4   xml:lang
     inscription_language = models.ForeignKey('IsoLanguage', models.PROTECT, blank=True, null=True)
@@ -561,7 +561,7 @@ class Inscription(models.Model):
     # left blank, since every inscription has a method,
     # but it might be easier for preliminary entry to leave
     # it blank and fill out later with better research.
-    inscription_method = models.ForeignKey('TechniqueType', models.PROTECT, blank=True)
+    inscription_method = models.ForeignKey('TechniqueType', models.PROTECT, blank=True, null=True)
     # Spectrum 4.0 Inscription position
     # VRA Core 4   inscription > position
     # A descriptive text, but using controlled vocab
@@ -570,13 +570,13 @@ class Inscription(models.Model):
     # Spectrum 4.0 Inscription script
     # VRA Core 4   Not defined, presumably derived from xml:lang
     # Use controlled vocab, leave blank if not writing.
-    inscription_script = models.CharField(max_length=63, blank=True)
+    inscription_script = models.CharField(max_length=63, blank=True, null=True)
     # Spectrum 4.0 Does not define this field explicitly
     # VRA Core 4   Caveat: since it is an XML format, the
     # 'inscription > text' field should use the transliterated value,
     # if it exists.
     # Leave blank if the inscription does not contain writing.
-    inscription_text = models.TextField(blank=True)
+    inscription_text = models.TextField(blank=True, null=True)
     # Best practice for museums that display information in
     # several languages would be to define another model
     # 'InscriptionText' with a fkey to the Inscription model;
@@ -587,11 +587,11 @@ class Inscription(models.Model):
     # explained in 'inscription_text')
     # Leave blank if the inscription does not contain writing
     # or does not require transliteration.
-    inscription_transliteration = models.TextField(blank=True)
+    inscription_transliteration = models.TextField(blank=True, null=True)
     # Spectrum 4.0 Inscription translation
     # VRA Core 4   Defined as a second 'inscription > text'
     # field with the corresponding 'xml:lang' attribute.
-    inscription_translation = models.TextField(blank=True)
+    inscription_translation = models.TextField(blank=True, null=True)
 
 # Spectrum 4.0 Technical attribute
 # VRA Core 4   The nature of the information that Spectrum
