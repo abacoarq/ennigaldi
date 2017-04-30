@@ -13,6 +13,7 @@ from django.views.generic.list import ListView
 from reorg.models import AccessionNumber
 from .models import ObjectRegister
 from .forms import *
+from PIL import Image
 
 def index(request):
     return HttpResponse('Nothing here yet.')
@@ -99,7 +100,7 @@ class CreateRegister(CreateView):
         # an exhaustive set of data before proceeding to the next
         # object. Figure out some sort of selector to change this
         # when registering the objects with complete information
-        # is desirable.
+        # is desirable:
         # if self.work_type == 'specimen':
             # return reverse('specimen_entry', kwargs={'work_id' : self.pk})
         # elif self.work_type == 'workInstance':
