@@ -783,10 +783,12 @@ dt {
             <dl>
               <dt>Número de inventário</dt>
               <dd>{{ object.refid }}</dd>
-              {% for number in othernumber_set %}
-              <dt>{{ number.object_number_type }}</dt>
-              <dd>{{ number.object_number }}</dd>
-              {% endfor %}
+              {% if object.othernumber %}
+                {% for number in object.othernumber %}
+                <dt>{{ number.object_number_type }}</dt>
+                <dd>{{ number.object_number }}</dd>
+                {% endfor %}
+              {% endif %}
             </dl>
           </td>
           <td class="c18" colspan="18">
@@ -811,7 +813,9 @@ dt {
         </tr>
         <tr>
           <td class="fig c9" colspan="9">
-            <img src="{{ object.snapshot.url }}" alt="Fotografia de referência" />
+            <img src="{% if object.snapshot %}
+            {{ object.snapshot.url }}
+            {% endif %}" alt="Fotografia de referência" />
             <div class="caption">Fotografia de referência</div>
           </td>
           <td class="fig c9" colspan="9">
@@ -858,18 +862,8 @@ dt {
         </tr>
         <tr>
           <td class="shade c9" colspan="9">9.3 Responsável</td>
-          <td class="c20" colspan="20">&nbsp;</td>
-          <td class="c7" colspan="7">&nbsp;</td>
-        </tr>
-        <tr>
-          <td class="shade c9" colspan="9">9.3 Responsável</td>
-          <td class="c20" colspan="20">&nbsp;</td>
-          <td class="c7" colspan="7">&nbsp;</td>
-        </tr>
-        <tr>
-          <td class="shade c9" colspan="9">9.3 Responsável</td>
-          <td class="c20" colspan="20">&nbsp;</td>
-          <td class="c7" colspan="7">&nbsp;</td>
+          <td class="c20" colspan="20">{{ object.data_user.first_name }} {{ object.data_user.last_name }}</td>
+          <td class="c7" colspan="7">{{ object.data_date|date:"d/m/Y" }}</td>
         </tr>
 
       </tbody>

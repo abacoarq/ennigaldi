@@ -30,7 +30,7 @@ class InscriptionForm(ModelForm):
         model = Inscription
         fields = ['inscription_type', 'inscription_position', 'inscription_text', 'inscription_language', 'inscription_script', 'inscription_notes', 'inscription_method']
 
-inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=2)
+inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=3)
 
 class NumberForm(ModelForm):
     class Meta:

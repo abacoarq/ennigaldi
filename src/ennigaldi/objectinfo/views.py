@@ -75,8 +75,11 @@ class CreateRegister(CreateView):
         inscription = context['inscriptions']
         dimension = context['dimensions']
         other_number = context['other_numbers']
+
         with transaction.atomic():
-            self.object = form.save()
+            self.object = form.save(commit=False)
+            self.object.data_user = self.request.user
+            self.object.save()
 
             AccessionNumber.generate(self.object.work_id)
 

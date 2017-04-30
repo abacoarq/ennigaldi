@@ -5,6 +5,7 @@ from historicdate.models import HistoricDate, DateType
 from agent.models import Agent
 from place.models import Place, PlaceType
 from storageunit.models import Unit
+from django.contrib.auth.models import User
 
 ###########################################################
 # Spectrum 4.0 Object Identification Information
@@ -71,6 +72,8 @@ class ObjectRegister(models.Model):
     storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', through='ObjectUnit')
     # Spectrum 4.0 Normal location
     normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True, help_text='Normal storage location. When recording the object, the current storage unit will default to the normal unit set here.')
+    data_date = models.DateField(default=timezone.now)
+    data_user = models.ForeignKey(User, blank=True, null=True)
 
     def __str__(self):
         wid = str(self.work_id)
