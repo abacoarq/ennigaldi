@@ -64,25 +64,25 @@ class ObjectRegister(models.Model):
     work_type = models.CharField(max_length=31, choices=work_types, default='artifact')
     # VRA Core 4   work > source
     # Source of knoledge regarding the work.
-    source = models.CharField(max_length=255, blank=True)
+    source = models.CharField(max_length=255, blank=True, null=True)
     # The following field could be used to automate
     # exhibition labels or website summaries.
     # Spectrum 4.0 Brief description
     # VRA Core 4   description, or not used?
     # DCMI         abstract
     # SICG M305    4.1 Descrição formal, or not used?
-    brief_description = models.TextField(blank=True)
+    brief_description = models.TextField(blank=True, null=True)
     # Turn this into a fk for a bibliography model.
     # VRA Core 4   description_source
-    description_source = models.CharField(max_length=255, blank=True)
+    description_source = models.CharField(max_length=255, blank=True, null=True)
     # Spectrum 4.0 Comments
     # VRA Core 4   work > notes
     # SICG M305    Append to 4.1 Descrição formal in output
-    comments = models.TextField(blank=True)
+    comments = models.TextField(blank=True, null=True)
     # Spectrum 4.0 Distinguishing features
     # VRA Core 4   Append to description in output?
     # SICG M305    Append to 4.1 Descrição formal in output
-    distinguishing_features = models.TextField(blank=True)
+    distinguishing_features = models.TextField(blank=True, null=True)
     # Spectrum 4.0 Number of objects
     # DCMI         extent > count
     # SICG M305    3.4.2.1 Número de partes

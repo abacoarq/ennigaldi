@@ -63,7 +63,7 @@ class DimensionEntry(ModelForm):
         model = Dimension
         fields = ['dimension_part', 'dimension_type', 'dimension_value', 'dimension_value_qualifier']
 
-dimension_formset = inlineformset_factory(ObjectRegister, Dimension, form=DimensionEntry, extra=3)
+dimension_formset = inlineformset_factory(ObjectRegister, Dimension, form=DimensionEntry, extra=4)
 
 
 ###########################################################

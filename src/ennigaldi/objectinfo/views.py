@@ -62,17 +62,22 @@ class CreateRegister(CreateView):
         if self.request.POST:
             data['inscriptions'] = inscription_formset(self.request.POST)
             data['dimensions'] = dimension_formset(self.request.POST)
+            data['other_numbers'] = number_formset(self.request.POST)
         else:
             data['inscriptions'] = inscription_formset()
             data['dimensions'] = dimension_formset()
+            data['other_numbers'] = number_formset()
         return data
 
     def form_valid(self, form):
         context = self.get_context_data()
         inscription = context['inscriptions']
         dimension = context['dimensions']
+        other_number = context['other_numbers']
         with transaction.atomic():
             self.object = form.save()
+
+            AccessionNumber.generate(self.object.work_id)
 
             if inscription.is_valid():
                 inscription.instance = self.object
@@ -82,7 +87,10 @@ class CreateRegister(CreateView):
                 dimension.instance = self.object
                 dimension.save()
 
-            AccessionNumber.generate(self.object.work_id)
+            if other_number.is_valid():
+                other_number.instance = self.object
+                other_number.save()
+
         return super(CreateRegister, self).form_valid(form)
 
     def get_success_url(self):
