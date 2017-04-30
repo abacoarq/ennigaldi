@@ -313,10 +313,6 @@ class Description(models.Model):
     # Because the above is overly complex, we start out with a CharField
     # to list colour information.
     colour = models.CharField(max_length=127, blank=True, null=True)
-    # A M2M field was suggested here for conceptual consistency with
-    # how Spectrum and others see the inheritance of dimension information,
-    # but a ForeignKey makes more sense regarding the data structure.
-    # dimension = models.ManyToManyField('Dimension', related_name='+')
     # Strictly speaking, Territorial context is only required
     # by SICG, so consider removing it because it only
     # functions in a very specific context of nationwide
@@ -471,7 +467,7 @@ class Dimension(models.Model):
     # Spectrum 4.0 Dimension measured part
     # VRA Core 4   measurements > extent
     # Use controlled vocab
-    dimension_part = models.CharField(max_length=32)
+    dimension_part = models.CharField(max_length=32, help_text='Describe part measured using controlled vocabulary, or "Total" for the whole object')
     # VRA Core 4   measurements > type
     # Other standards mix up 'part' and 'type',
     # the latter of which is properly height, length,
@@ -480,7 +476,7 @@ class Dimension(models.Model):
     # Spectrum 4.0 Dimension value
     # VRA Core 4   measurements (root)
     # DCMI         fields according to dimension_type
-    dimension_value = models.PositiveIntegerField()
+    dimension_value = models.PositiveIntegerField(help_text="Integer")
     # Spectrum 4.0 Dimension value date
     # VRA Core 4   measurements > dataDate
     dimension_value_date = models.DateField(default=timezone.now)

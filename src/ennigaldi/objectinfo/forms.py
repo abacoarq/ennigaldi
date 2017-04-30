@@ -1,3 +1,4 @@
+from django import forms
 from django.forms import ModelForm, inlineformset_factory
 from django.shortcuts import get_object_or_404
 from historicdate.models import HistoricDate
@@ -59,6 +60,7 @@ class InstanceForm(ModelForm):
         fields = ['physical_description', 'colour', 'technical_attribute', 'description_display']
 
 class DimensionEntry(ModelForm):
+    dimension_value_qualifier = forms.BooleanField(label='Approximate')
     class Meta:
         model = Dimension
         fields = ['dimension_part', 'dimension_type', 'dimension_value', 'dimension_value_qualifier']
