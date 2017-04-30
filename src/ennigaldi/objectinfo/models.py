@@ -504,7 +504,7 @@ class Inscription(models.Model):
     # VRA Core 4   Inscription > [display]
     # If left blank, will be auto-filled (or rendered?) based on
     # other fields below.
-    inscription_display = models.TextField(blank=True)
+    inscription_display = models.TextField(blank=True, null=True)
     # Spectrum 4.0 fills out
     # different fields if it is a textual or graphic
     # inscription, yet also sets a 'type'

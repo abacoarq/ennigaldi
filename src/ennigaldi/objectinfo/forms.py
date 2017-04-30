@@ -28,7 +28,7 @@ class ObjectEntry(ModelForm):
 class InscriptionForm(ModelForm):
     class Meta:
         model = Inscription
-        fields = ['inscription_display', 'inscription_position', 'inscription_type', 'inscription_language', 'inscription_notes', 'inscription_method']
+        fields = ['inscription_type', 'inscription_position', 'inscription_text', 'inscription_language', 'inscription_script', 'inscription_notes', 'inscription_method']
 
 inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=2)
 
