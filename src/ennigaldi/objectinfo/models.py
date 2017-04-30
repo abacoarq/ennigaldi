@@ -24,8 +24,8 @@ class ObjectRegister(models.Model):
     # This is NOT the object accession number but a unique identifier!
     # (See the VRA Core 4 spec for clarification)
     work_id = models.AutoField(max_length=7, primary_key=True, editable=False)
-    snapshot_height = models.CharField(max_length=15, blank=True)
-    snapshot_width = models.CharField(max_length=15, blank=True)
+    snapshot_height = models.CharField(max_length=15, blank=True, null=True)
+    snapshot_width = models.CharField(max_length=15, blank=True, null=True)
     snapshot = models.ImageField(upload_to='media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True, help_text='This image is for quick reference purposes only, to be photographed in the field when doing the preliminary recording work.')
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
