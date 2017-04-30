@@ -24,12 +24,9 @@ class ObjectRegister(models.Model):
     # This is NOT the object accession number but a unique identifier!
     # (See the VRA Core 4 spec for clarification)
     work_id = models.AutoField(max_length=7, primary_key=True, editable=False)
-    # This image is for quick reference purposes only,
-    # to be photographed in the field when doing the
-    # preliminary recording work.
     snapshot_height = models.CharField(max_length=15, blank=True)
     snapshot_width = models.CharField(max_length=15, blank=True)
-    snapshot = models.ImageField(upload_to='media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True)
+    snapshot = models.ImageField(upload_to='media/w_snapshot/', height_field='snapshot_height', width_field='snapshot_width', max_length=255, blank=True, null=True, help_text='This image is for quick reference purposes only, to be photographed in the field when doing the preliminary recording work.')
     # This field helps compute the correct accession number
     # in case it requires objects that are part of a set
     # to have a single number appended with a part number.
@@ -63,8 +60,7 @@ class ObjectRegister(models.Model):
     # Use controlled vocab
     work_type = models.CharField(max_length=31, choices=work_types, default='artifact')
     # VRA Core 4   work > source
-    # Source of knoledge regarding the work.
-    source = models.CharField(max_length=255, blank=True, null=True)
+    source = models.CharField(max_length=255, blank=True, null=True, help_text='Source of knowledge regarding the work.')
     # The following field could be used to automate
     # exhibition labels or website summaries.
     # Spectrum 4.0 Brief description
@@ -78,7 +74,7 @@ class ObjectRegister(models.Model):
     # Spectrum 4.0 Comments
     # VRA Core 4   work > notes
     # SICG M305    Append to 4.1 Descrição formal in output
-    comments = models.TextField(blank=True, null=True)
+    comments = models.TextField(blank=True, null=True, help_text='General notes on the work')
     # Spectrum 4.0 Distinguishing features
     # VRA Core 4   Append to description in output?
     # SICG M305    Append to 4.1 Descrição formal in output
@@ -92,7 +88,7 @@ class ObjectRegister(models.Model):
     production = models.OneToOneField('Production', models.PROTECT, null=True, blank=True)
     storage_unit = models.ManyToManyField('storageunit.Unit', related_name='%(app_label)s_storage_for_%(class)s', through='ObjectUnit')
     # Spectrum 4.0 Normal location
-    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True)
+    normal_unit = models.ForeignKey('storageunit.Unit', models.PROTECT, null=True, help_text='Normal storage location. When recording the object, the current storage unit will default to the normal unit set here.')
 
     def __str__(self):
         wid = str(self.work_id)
@@ -113,7 +109,7 @@ class ObjectRegister(models.Model):
 class OtherNumber(models.Model):
     work = models.ForeignKey('ObjectRegister', models.CASCADE)
     object_number = models.CharField(max_length=71)
-    object_number_type = models.CharField(max_length=255)
+    object_number_type = models.CharField(max_length=255, help_text='Brief indication of the context in which this number is or was used')
 
     def __str__(self):
         return object_number_type + ': ' + object_number
@@ -145,19 +141,16 @@ class ObjectName(models.Model):
     title = models.CharField(max_length=255)
     # Spectrum 4.0 Object name currency (i.e., as of when is it current?)
     # No equivalent in other standards
-    currency = models.DateField(default=timezone.now, blank=True)
+    currency = models.DateField(default=timezone.now, blank=True, help_text='Date as of which the name is or was in use.')
     # Spectrum 4.0 Object name level
-    # Indicates at which level of a hierarchy this object is located,
-    # e.g. is it a specimen, a genus, a group, etc.
-    # Use controlled vocab
-    level = models.CharField(max_length=63, blank=True)
+    level = models.CharField(max_length=63, blank=True, help_text='Indicates at which level of a hierarchy this object is located, e.g. whether it is a specimen, a genus, a group, etc.')
     # Spectrum 4.0 Object name notes
     # VRA Core 4   title > note
     note = models.TextField(blank=True)
     # Spectrum 4.0 object name reference system
     # VRA Core 4   name > source
     # Eventually replace with fkey to bibliographic record
-    source = models.CharField(max_length=255, blank=True)
+    source = models.CharField(max_length=255, blank=True, help_text='Source of name usage.')
     # VRA Core 4   title > xml:lang
     lang = models.ForeignKey('IsoLanguage', models.CASCADE)
     # Spectrum 4.0 Object name type
