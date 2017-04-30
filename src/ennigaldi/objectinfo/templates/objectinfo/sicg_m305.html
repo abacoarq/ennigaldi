@@ -650,18 +650,23 @@ dt {
             {{ inscription.inscription_translation }}
             {% elif inscription.inscription_text %}
             {{ inscription.inscription_text }}
+            {% else %}
+            &nbsp;
             {% endif %}
             </td>
             <td class="c6" colspan="6">{{ inscription.inscription_position }}</td>
-            {% if inscription.inscription_author %}
-            <td class="c6" colspan="6">{{ inscription.inscription_author }}</td>
-            {% endif %}
-            {% if inscription.inscription_method %}
-            <td class="c4" colspan="4">{{ inscription.inscription_method }}</td>
-            {% endif %}
-            {% if inscription.inscription_notes %}
-            <td class="c6" colspan="6">{{ inscription.inscription_notes }}</td>
-            {% endif %}
+            <td class="c6" colspan="6">{% if inscription.inscription_author %}
+            {{ inscription.inscription_author }}
+            {% else %} &nbsp;
+            {% endif %}</td>
+            <td class="c4" colspan="4">{% if inscription.inscription_method %}
+            {{ inscription.inscription_method }}
+            {% else %} &nbsp;
+            {% endif %}</td>
+            <td class="c6" colspan="6">{% if inscription.inscription_notes %}
+            {{ inscription.inscription_notes }}
+            {% else %} &nbsp;
+            {% endif %}</td>
           </tr>
           {% endfor %}
           {% else %}
