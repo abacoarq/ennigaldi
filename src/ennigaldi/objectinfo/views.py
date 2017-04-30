@@ -60,9 +60,9 @@ class CreateRegister(CreateView):
         if 'objectname_id' in self.kwargs:
             data['preferred_title'] = get_object_or_404(ObjectName, pk=self.kwargs['objectname_id'])
         if self.request.POST:
-            data['inscriptions'] = inscription_formset(self.request.POST, prefix='inscriptions_form')
-            data['dimensions'] = dimension_formset(self.request.POST, prefix='dimensions_form')
-            data['other_numbers'] = number_formset(self.request.POST, prefix='other_numbers_form')
+            data['inscriptions'] = inscription_formset(self.request.POST)
+            data['dimensions'] = dimension_formset(self.request.POST)
+            data['other_numbers'] = number_formset(self.request.POST)
         else:
             data['inscriptions'] = inscription_formset()
             data['dimensions'] = dimension_formset()

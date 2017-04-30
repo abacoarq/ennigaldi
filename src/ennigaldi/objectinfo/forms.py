@@ -29,14 +29,14 @@ class InscriptionForm(ModelForm):
         model = Inscription
         fields = ['inscription_display', 'inscription_position', 'inscription_type', 'inscription_language', 'inscription_notes', 'inscription_method']
 
-inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=1)
+inscription_formset = inlineformset_factory(ObjectRegister, Inscription, form=InscriptionForm, extra=2)
 
 class NumberForm(ModelForm):
     class Meta:
         model = OtherNumber
         fields = ['object_number', 'object_number_type']
 
-number_formset = inlineformset_factory(ObjectRegister, OtherNumber, form=NumberForm, extra=1)
+number_formset = inlineformset_factory(ObjectRegister, OtherNumber, form=NumberForm, extra=2)
 
 class ProductionForm(ModelForm):
     class Meta:
