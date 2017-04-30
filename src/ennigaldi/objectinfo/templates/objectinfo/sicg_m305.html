@@ -68,6 +68,7 @@ dt {
 }
 
 .shade {
+  color: black;
   background-color: rgb(191,191,191);
 }
 
@@ -629,40 +630,43 @@ dt {
         <tr>
           <th class="c36" colspan="36">4.2 Marcas e inscrições</th>
         </tr>
-        <tr>
-          <td class="c36" colspan="36">
-            {% if object.inscriptions %}
-            <dl>
-            {% for inscription in object.inscriptions %}
-              <dt>{{ inscription.inscription_type }}</dt>
-              <dd>
-              {% if inscription.inscription_display %}
-              {{ inscription.inscription_display }}
-              {% elif inscription.inscription_translation %}
-              {{ inscription.inscription_translation }}
-              {% elif inscription.inscription_text %}
-              {{ inscription.inscription_text }}
-              {% endif %}
-              </dd>
-              <dt>Local</dt>
-              <dd>{{ inscription.inscription_position }}</dd>
-              {% if inscription.inscription_author %}
-              <dt>Autoria</dt>
-              <dd>{{ inscription.inscription_author }}</dd>
-              {% endif %}
-              {% if inscription.inscription_method %}
-              <dt>Método</dt>
-              <dd>{{ inscription.inscription_method }}</dd>
-              {% endif %}
-              {% if inscription.inscription_notes %}
-              <dt>Notas</dt>
-              <dd>{{ inscription.inscription_notes }}</dd>
-              {% endif %}
-            {% endfor %}
-            </dl>
+
+        {% if object.inscription_set.all %}
+          <tr>
+            <th class="c4 shade" colspan="4">Tipo</th>
+            <th class="c10 shade" colspan="10">Descrição</th>
+            <th class="c6 shade" colspan="6">Local</th>
+            <th class="c6 shade" colspan="6">Autoria</th>
+            <th class="c4 shade" colspan="4">Método</th>
+            <th class="c6 shade" colspan="6">Notas</th>
+          </tr>
+          {% for inscription in object.inscription_set.all %}
+          <tr>
+            <td class="c4" colspan="4">{{ inscription.inscription_type }}</td>
+            <td class="c10" colspan="10">
+            {% if inscription.inscription_display %}
+            {{ inscription.inscription_display }}
+            {% elif inscription.inscription_translation %}
+            {{ inscription.inscription_translation }}
+            {% elif inscription.inscription_text %}
+            {{ inscription.inscription_text }}
             {% endif %}
-          </td>
-        </tr>
+            </td>
+            <td class="c6" colspan="6">{{ inscription.inscription_position }}</td>
+            {% if inscription.inscription_author %}
+            <td class="c6" colspan="6">{{ inscription.inscription_author }}</td>
+            {% endif %}
+            {% if inscription.inscription_method %}
+            <td class="c4" colspan="4">{{ inscription.inscription_method }}</td>
+            {% endif %}
+            {% if inscription.inscription_notes %}
+            <td class="c6" colspan="6">{{ inscription.inscription_notes }}</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+          {% else %}
+          <td class="c36" colspan="36">&nbsp;</td>
+        {% endif %}
 
         <tr>
           <th class="h2 c36" colspan="36">5. Estatuto Jurídico</th>
@@ -783,8 +787,8 @@ dt {
             <dl>
               <dt>Número de inventário</dt>
               <dd>{{ object.refid }}</dd>
-              {% if object.othernumber %}
-                {% for number in object.othernumber %}
+              {% if object.othernumber_set %}
+                {% for number in object.othernumber_set.all %}
                 <dt>{{ number.object_number_type }}</dt>
                 <dd>{{ number.object_number }}</dd>
                 {% endfor %}
