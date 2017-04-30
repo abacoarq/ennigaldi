@@ -535,7 +535,8 @@ class Inscription(models.Model):
     # left blank, since every inscription has a method,
     # but it might be easier for preliminary entry to leave
     # it blank and fill out later with better research.
-    inscription_method = models.ForeignKey('TechniqueType', models.PROTECT, blank=True, null=True)
+    # inscription_method = models.ForeignKey('TechniqueType', models.PROTECT, blank=True, null=True)
+    inscription_method = models.CharField(max_length=255, blank=True, null=True)
     # Spectrum 4.0 Inscription position
     # VRA Core 4   inscription > position
     # A descriptive text, but using controlled vocab
