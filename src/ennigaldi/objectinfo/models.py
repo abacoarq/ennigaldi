@@ -33,24 +33,6 @@ class ObjectRegister(models.Model):
     # It should be populated from an "add part" button in
     # the parent object page rather than filled manually.
     hierarchy = models.ManyToManyField("self", related_name='has_part', symmetrical=False, through='Hierarchy', through_fields=('lesser', 'greater'))
-    # Spectrum 4.0 Object number
-    # VRA Core 4   refid
-    # SICG M305    1.4 Código identificador Iphan
-    # This IS the object accession number used in the organization.
-    # The class that automates the creation of accession
-    # numbers should be in a dedicated application,
-    # so that it is more easily customized for each
-    # organization.
-    # To be filled automatically by the function that saves
-    # the object.
-    # It must be allowed to be blank because the object
-    # must be saved first for the refid generation to work
-    # with object part detection.
-    # This is being auto-generated at save time and is modeled
-    # in the Accession Number application for optimal
-    # flexibility.
-    # refid = models.OneToOneField(AccessionNumber, models.PROTECT, related_name='refid_of', editable=False, blank=True)
-    #
     # Spectrum 4.0 Object name
     # VRA Core 4   title > pref
     # DCMI         title
@@ -143,14 +125,14 @@ class ObjectName(models.Model):
     # No equivalent in other standards
     currency = models.DateField(default=timezone.now, blank=True, help_text='Date as of which the name is or was in use.')
     # Spectrum 4.0 Object name level
-    level = models.CharField(max_length=63, blank=True, help_text='Indicates at which level of a hierarchy this object is located, e.g. whether it is a specimen, a genus, a group, etc.')
+    level = models.CharField(max_length=63, blank=True, null=True, help_text='Indicates at which level of a hierarchy this object is located, e.g. whether it is a specimen, a genus, a group, etc.')
     # Spectrum 4.0 Object name notes
     # VRA Core 4   title > note
-    note = models.TextField(blank=True)
+    note = models.TextField(blank=True, null=True)
     # Spectrum 4.0 object name reference system
     # VRA Core 4   name > source
     # Eventually replace with fkey to bibliographic record
-    source = models.CharField(max_length=255, blank=True, help_text='Source of name usage.')
+    source = models.CharField(max_length=255, blank=True, null=True, help_text='Source of name usage.')
     # VRA Core 4   title > xml:lang
     lang = models.ForeignKey('IsoLanguage', models.CASCADE)
     # Spectrum 4.0 Object name type
@@ -160,7 +142,7 @@ class ObjectName(models.Model):
     # name of type 'creator' or 'inscribed'.
     # Eventually this should be handled by rendering
     # alternate language names.
-    translation = models.CharField(max_length=255, blank=True)
+    translation = models.CharField(max_length=255, blank=True, null=True)
 
     # class Meta:
         # unique_together = ('work', 'title')

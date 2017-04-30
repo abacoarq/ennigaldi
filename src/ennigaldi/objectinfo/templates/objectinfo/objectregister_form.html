@@ -16,7 +16,7 @@
         <table class="table table-striped table-condensed">
             {{ dimensions.management_form }}
             {% for form in dimensions.forms %}
-            <tbody class="formset_row">
+            <tbody class="formset_row dimensions_form" id="dimensions_table">
                 {% for field in form.visible_fields %}
                 <tr>
                     {% if forloop.first %}
@@ -29,6 +29,7 @@
                     </th>
                     <td>
                         {{ field.errors.as_ul }}
+                        {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                         {{ field }}
                     </td>
                 </tr>
@@ -40,7 +41,7 @@
         <table class="table table-striped table-condensed">
           {{ inscriptions.management_form }}
           {% for form in inscriptions.forms %}
-            <tbody class="formset_row">
+            <tbody class="formset_row inscriptions_form" id="inscriptions_table">
               {% for field in form.visible_fields %}
               <tr>
                 {% if forloop.first %}
@@ -53,6 +54,7 @@
                 </th>
                 <td>
                   {{ field.errors.as_ul }}
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                   {{ field }}
                 </td>
               </tr>
@@ -64,7 +66,7 @@
         <table class="table table-striped table-condensed">
           {{ other_numbers.management_form }}
           {% for form in other_numbers.forms %}
-            <tbody class="formset_row">
+            <tbody class="formset_row other_numbers_form" id="other_numbers_table">
               {% for field in form.visible_fields %}
               <tr>
                 {% if forloop.first %}
@@ -77,6 +79,7 @@
                 </th>
                 <td>
                   {{ field.errors.as_ul }}
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                   {{ field }}
                 </td>
               </tr>
@@ -94,10 +97,25 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="{% static 'objectinfo/js/jquery.formset.js' %}"></script>
     <script type="text/javascript">
-        $('.formset_row').formset({
+      $(function() {
+        $('#dimensions_table tbody tr').formset({
+            addText: 'add dimension',
+            deleteText: 'remove',
+            prefix: 'dimension_set'
+            formCssClass: 'dimensions_form'
+        });
+        $('#inscriptions_table tbody tr').formset({
             addText: 'add inscription',
             deleteText: 'remove',
             prefix: 'inscription_set'
+            formCssClass: 'inscriptions_form'
         });
+        $('#other_numbers_table tbody tr').formset({
+            addText: 'add number',
+            deleteText: 'remove',
+            prefix: 'other_number_set'
+            formCssClass: 'other_numbers_form'
+        });
+      })
     </script>
 {% endblock %}
