@@ -89,6 +89,9 @@ class ObjectRegister(models.Model):
         if q:
             return q.values_list(lesser__pk, flat=True)
 
+    def object_dimensions(self):
+        pass
+
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
 class OtherNumber(models.Model):
