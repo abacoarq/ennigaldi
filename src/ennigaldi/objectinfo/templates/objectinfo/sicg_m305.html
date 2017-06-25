@@ -1,4 +1,5 @@
 {% load static %}
+{% load mathfilters %}
 <html>
   <head>
     <meta charset="UTF-8">
@@ -379,18 +380,14 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Altura (cm)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension_set.all %}
-            {% if dim.dimension_type == height and dim.dimension_value_qualifier == False %}
-            {{ dim.dimension_value }}
+            {% if not object.measurements.height.dimension_value_qualifier %}
+            {{ object.measurements.height.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension_set.all %}
-            {% if dim.dimension_type == height and dim.dimension_value_qualifier == True %}
-            {{ dim.dimension_value }}
+            {% if object.measurements.height.dimension_value_qualifier %}
+            {{ object.measurements.height.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
         </tr>
         <tr>
@@ -402,18 +399,14 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Largura (cm)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == width and dim.dimension_value_qualifier == False %}
-            {{ dim.dimension_value }}
+            {% if not object.measurements.width.dimension_value_qualifier %}
+            {{ object.measurements.width.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == width and dim.dimension_value_qualifier == True %}
-            {{ dim.dimension_value }}
+            {% if object.measurements.width.dimension_value_qualifier %}
+            {{ object.measurements.width.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
         </tr>
         <tr>
@@ -425,18 +418,14 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Diâmetro (cm)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier == False %}
-            {{ dim.dimension_value }}
+            {% if not object.measurements.diameter.dimension_value_qualifier %}
+            {{ object.measurements.diameter.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == diameter and dim.dimension_value_qualifier == True %}
-            {{ dim.dimension_value }}
+            {% if object.measurements.diameter.dimension_value_qualifier %}
+            {{ object.measurements.diameter.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
         </tr>
         <tr>
@@ -448,18 +437,14 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Circunferência (cm)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier == False %}
-            {{ dim.dimension_value }}
+            {% if not object.measurements.circumference.dimension_value_qualifier %}
+            {{ object.measurements.circumference.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == circumference and dim.dimension_value_qualifier == True %}
-            {{ dim.dimension_value }}
+            {% if object.measurements.circumference.dimension_value_qualifier %}
+            {{ object.measurements.circumference.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
         </tr>
         <tr>
@@ -471,18 +456,14 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Profundidade (cm)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == depth and dim.dimension_value_qualifier == False %}
-            {{ dim.dimension_value }}
+            {% if not object.measurements.depth.dimension_value_qualifier %}
+            {{ object.measurements.depth.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == depth and dim.dimension_value_qualifier == True %}
-            {{ dim.dimension_value }}
+            {% if object.measurements.depth.dimension_value_qualifier %}
+            {{ object.measurements.depth.dimension_value|div:10 }}
             {% endif %}
-            {% endfor %}
           </td>
         </tr>
         <tr>
@@ -494,18 +475,14 @@ dt {
           <td class="c3" colspan="3">&nbsp;</td>
           <td class="c4 shade" colspan="4">Peso (kg)</td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == weight and dim.dimension_value_qualifier == False %}
-            {{ dim.dimension_value }}
+            {% if not object.measurements.weight.dimension_value_qualifier %}
+            {{ object.measurements.weight.dimension_value|div:1000 }}
             {% endif %}
-            {% endfor %}
           </td>
           <td class="c4" colspan="4" align="right">
-            {% for dim in object.dimension %}
-            {% if dim.dimension_type == weight and dim.dimension_value_qualifier == True %}
-            {{ dim.dimension_value }}
+            {% if object.measurements.weight.dimension_value_qualifier %}
+            {{ object.measurements.weight.dimension_value|div:1000 }}
             {% endif %}
-            {% endfor %}
           </td>
         </tr>
 
