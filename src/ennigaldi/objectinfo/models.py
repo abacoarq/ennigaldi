@@ -16,9 +16,9 @@ from django.contrib.auth.models import User
 # identify an object.
 class ObjectRegister(models.Model):
     work_types = (
-            ('artifact', 'Artifact'),
-            ('workInstance', 'Work instance'),
-            ('specimen', 'Specimen'),
+        ('artifact', 'Artifact'),
+        ('workInstance', 'Work instance'),
+        ('specimen', 'Specimen'),
         )
     # VRA Core 4   work, must prepend with 'w_' when rendering XML.
     # DCMI         identifier
@@ -75,6 +75,9 @@ class ObjectRegister(models.Model):
     data_date = models.DateField(default=timezone.now)
     data_user = models.ForeignKey(User, blank=True, null=True)
 
+    class Meta:
+        ordering = ["work_id"]
+
     def __str__(self):
         wid = str(self.work_id)
         return 'w_' + wid.zfill(7) + ' ' + self.preferred_title.__str__()
@@ -89,8 +92,37 @@ class ObjectRegister(models.Model):
         if q:
             return q.values_list(lesser__pk, flat=True)
 
-    def object_dimensions(self):
-        pass
+    def measurements(self):
+        if Dimension.objects.filter(work=self):
+            # First we retrieve all dimensions for this object.
+            o_dims = Dimension.objects.filter(work=self.pk, dimension_deprecated=False)
+
+            # Now we build a list of the latest dimension of each type
+            dims_area = o_dims.filter(dimension_type='area').first()
+            # Ignoring the "base" dimension type...
+            dims_circumference = o_dims.filter(dimension_type='circumference').first()
+            # Ignoring "count" for now until we figure out if it's useful,
+            # given that we prefer using related objects for repeated items.
+            dims_depth = o_dims.filter(dimension_type='depth').first()
+            dims_diameter = o_dims.filter(dimension_type='diameter').first()
+            dims_height = o_dims.filter(dimension_type='height').first()
+            dims_length = o_dims.filter(dimension_type='length').first()
+            dims_weight = o_dims.filter(dimension_type='weight').first()
+            dims_width = o_dims.filter(dimension_type='width').first()
+
+            # Now we build a dictionary of the dimensions
+            dims['area'] = dims_area if dims_area else ''
+            dims['circumference'] = dims_circumference if dims_circumference else ''
+            dims['depth'] = dims_depth if dims_depth else ''
+            dims['diameter'] = dims_diameter if dims_diameter else ''
+            dims['height'] = dims_height if dims_height else ''
+            dims['length'] = dims_length if dims_length else ''
+            dims['weight'] = dims_weight if dims_weight else ''
+            dims['width'] = dims_width if dims_width else ''
+
+        else:
+            dims = {}
+        return dims
 
 # Spectrum 4.0 Other object number
 # SICG M305    7.4 Demais códigos
@@ -442,6 +474,10 @@ class WorkInstance(Artifact):
 # DCMI         extent
 # SICG M305    3.3 Dimensões
 class Dimension(models.Model):
+    # This class records only physical dimensions. The "size" of digital
+    # objects (bytes, resolution, bit-depth, etc.) are handled by
+    # Spectrum's Technical attribute group.
+    # However, VRA Core does not make this distinction.
     measurement_type = (
         # Spectrum 4.0 Dimension measurement unit is implicit
         # from the measurement type chosen, to make
@@ -473,7 +509,7 @@ class Dimension(models.Model):
     # Spectrum 4.0 Dimension measured part
     # VRA Core 4   measurements > extent
     # Use controlled vocab
-    dimension_part = models.CharField(max_length=32, help_text='Describe part measured using controlled vocabulary, or "Total" for the whole object')
+    dimension_part = models.CharField(max_length=32, help_text='Describe part measured using controlled vocabulary, or "Total" for the whole object', blank=True, null=True)
     # VRA Core 4   measurements > type
     # Other standards mix up 'part' and 'type',
     # the latter of which is properly height, length,
@@ -491,6 +527,14 @@ class Dimension(models.Model):
     # SICG M305    3.3.1 Precisa / 3.3.2 Aproximada
     # False = exact measurement, True = approximate measurement
     dimension_value_qualifier = models.BooleanField(default=False)
+    dimension_deprecated = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-dimension_value_date']
+
+    # def __str__(self):
+        # work = ObjectRegister.objects.get(pk=self.work)
+        # return dimension_part + dimension_type + ' of ' + work.__str__() + ' is ' + dimension_value
 
 # Spectrum 4.0 Inscription
 # VRA Core 4   Inscription
