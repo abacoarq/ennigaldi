@@ -98,5 +98,5 @@ class TestObjectRegister(TestCase):
         dim1.save()
         dim2 = Dimension.objects.create(work=o2, dimension_part='Canvas', dimension_type='height', dimension_value=770, dimension_value_qualifier=True)
         dim2.save()
-        print(dim2)
-        # self.assertEqual(o2.measurements.height.dimension_value, 770)
+        measurements = o2.measurements()
+        self.assertEqual(measurements['height'].dimension_value, 770)

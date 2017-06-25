@@ -111,6 +111,7 @@ class ObjectRegister(models.Model):
             dims_width = o_dims.filter(dimension_type='width').first()
 
             # Now we build a dictionary of the dimensions
+            dims = {}
             dims['area'] = dims_area if dims_area else ''
             dims['circumference'] = dims_circumference if dims_circumference else ''
             dims['depth'] = dims_depth if dims_depth else ''
@@ -186,7 +187,7 @@ class ObjectName(models.Model):
         # unique_together = ('work', 'title')
 
     def __str__(self):
-        if len(self.translation) > 1:
+        if self.translation:
             return self.translation
         else:
             return self.title
@@ -532,9 +533,8 @@ class Dimension(models.Model):
     class Meta:
         ordering = ['-dimension_value_date']
 
-    # def __str__(self):
-        # work = ObjectRegister.objects.get(pk=self.work)
-        # return dimension_part + dimension_type + ' of ' + work.__str__() + ' is ' + dimension_value
+    def __str__(self):
+        return '%s %s of %s is %s' % (self.dimension_part, self.dimension_type, self.work.__str__(), self.dimension_value)
 
 # Spectrum 4.0 Inscription
 # VRA Core 4   Inscription
