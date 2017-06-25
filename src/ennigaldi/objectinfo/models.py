@@ -484,26 +484,22 @@ class Dimension(models.Model):
         # from the measurement type chosen, to make
         # things simpler.
         # Fields below provided by VRA Core 4.
+        # Some of what VRA Core considers "measurements" has been moved to
+        # the Spectrum Technical attribute group.
         ('area', 'area (cm²)'),
-        ('base', 'base (mm)'), # Obviously inconsistent with what VRA Core distinguishes as measurement type vs. measurement extent, keep track to see if they fix this in a future version.
-        # ('bit-depth', 'bit-depth'),            # Spectrum Technical attribute measurement
+        # "Base" is obviously inconsistent with what VRA Core distinguishes
+        # as measurement type vs. measurement extent, keep track to see if
+        # they fix this in a future version.
+        ('base', 'base (mm)'),
         ('circumference', 'circumference (mm)'),
         ('count', 'count'),
         ('depth', 'depth (mm)'),
         ('diameter', 'diameter (mm)'),
-        # ('distanceBetween (mm)', 'distanceBetween (mm)'), # Spectrum Technical attribute measurement
-        # ('duration (s)', 'duration (s)'),         # Spectrum Technical attribute measurement
-        # ('fileSize (kB)', 'fileSize (kB)'),        # Spectrum Technical attribute measurement
         ('height', 'height (mm)'),
         ('length', 'length (mm)'),
-        # ('resolution (ppi)', 'resolution (ppi)'),    # Spectrum Technical attribute measurement
-        # ('runningTime (s)', 'runningTime (s)'),     # Spectrum Technical attribute measurement
-        # ('scale', 'scale'),               # Spectrum Technical attribute measurement
-        # ('size', 'size'),                # Spectrum Technical attribute measurement
-        # ('target', 'target'),              # Spectrum Technical attribute measurement
         ('weight', 'weight (g)'),
         ('width', 'width (mm)'),
-        # ('other', 'other')                # Spectrum Technical attribute measurement
+        # ('other', 'other')
     )
 
     work = models.ForeignKey(ObjectRegister, models.CASCADE)
@@ -527,14 +523,32 @@ class Dimension(models.Model):
     # Not provided in VRA Core or DCMI
     # SICG M305    3.3.1 Precisa / 3.3.2 Aproximada
     # False = exact measurement, True = approximate measurement
-    dimension_value_qualifier = models.BooleanField(default=False)
-    dimension_deprecated = models.BooleanField(default=False)
+    dimension_value_qualifier = models.BooleanField(default=False, verbose_name='Approximate')
+    # A logical companion to dataDate is to know whether the measurement
+    # has been superceded by a more recent one. In theory this could be
+    # achieved by comparing different dates on the same dimension_part,
+    # but it is both simpler and safer to set it explicitly.
+    # This field is not defined in any of the standards, however,
+    # and is used only by the ObjectRegister.measurements() method,
+    # which is in turn used to display dimensions on templates.
+    dimension_deprecated = models.BooleanField(default=False, verbose_name='Deprecated')
 
     class Meta:
         ordering = ['-dimension_value_date']
 
     def __str__(self):
-        return '%s %s of %s is %s' % (self.dimension_part, self.dimension_type, self.work.__str__(), self.dimension_value)
+        qualifier = '≈' if self.dimension_value_qualifier == True else ''
+        if self.dimension_type == 'base' or 'circumference' or 'diameter' or 'depth' or 'height' or 'length' or 'width':
+            unit = 'mm'
+        if self.dimension_type == 'area':
+            unit = 'cm²'
+        if self.dimension_type == 'weight':
+            unit = 'g'
+        if self.dimension_type == 'count':
+            unit = 'units'
+        deprecated = ' (deprecated)' if self.dimension_deprecated == True else ''
+        # dimtype = Dimension.get_dimension_type_display(self)
+        return '%s — %s %s: %s%s %s%s' % (self.work.__str__(), self.dimension_part, self.dimension_type, qualifier, self.dimension_value, unit, deprecated)
 
 # Spectrum 4.0 Inscription
 # VRA Core 4   Inscription
@@ -625,26 +639,16 @@ class TechnicalAttribute(models.Model):
          # from the measurement type chosen, to make
          # things simpler.
          # Fields below provided by VRA Core 4.
-         # ('area (cm²)', 'area (cm²)'),           # Spectrum Dimension
-         # ('base (mm)', 'base (mm)'),            # Spectrum Dimension
-         ('bit-depth', 'bit-depth'),            # Spectrum Technical attribute measurement
-         # ('circumference (mm)', 'circumference (mm)'),   # Spectrum Dimension
-         # ('count', 'count'),                # Spectrum Dimension
-         # ('depth (mm)', 'depth (mm)'),           # Spectrum Dimension
-         # ('diameter (mm)', 'diameter (mm)'),        # Spectrum Dimension
-         ('distanceBetween', 'distance between (mm)'), # Spectrum Technical attribute measurement
-         ('duration', 'duration (s)'),         # Spectrum Technical attribute measurement
-         ('fileSize', 'file size (kB)'),        # Spectrum Technical attribute measurement
-         # ('height (mm)', 'height (mm)'),         # Spectrum Dimension
-         # ('length (mm)', 'length (mm)'),         # Spectrum Dimension
-         ('resolution', 'resolution (ppi)'),    # Spectrum Technical attribute measurement
-         ('runningTime', 'running time (s)'),     # Spectrum Technical attribute measurement
-         ('scale', 'scale'),               # Spectrum Technical attribute measurement
-         ('size', 'size'),                # Spectrum Technical attribute measurement
-         ('target', 'target'),              # Spectrum Technical attribute measurement
-         # ('weight (g)', 'weight (g)'),          # Spectrum Dimension
-         # ('width (mm)', 'width (mm)'),          # Spectrum Dimension
-         ('other', 'other')                # Spectrum Technical attribute measurement
+         ('bit-depth', 'bit-depth'),
+         ('distanceBetween', 'distance between (mm)'),
+         ('duration', 'duration (s)'),
+         ('fileSize', 'file size (kB)'),
+         ('resolution', 'resolution (ppi)'),
+         ('runningTime', 'running time (s)'),
+         ('scale', 'scale'),
+         ('size', 'size'),
+         ('target', 'target'),
+         ('other', 'other')
      )
      work = models.ForeignKey('ObjectRegister', models.CASCADE)
      # Spectrum 4.0 Technical attribute

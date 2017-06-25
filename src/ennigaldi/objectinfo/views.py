@@ -61,19 +61,19 @@ class CreateRegister(CreateView):
         if 'objectname_id' in self.kwargs:
             data['preferred_title'] = get_object_or_404(ObjectName, pk=self.kwargs['objectname_id'])
         if self.request.POST:
-            data['inscriptions'] = inscription_formset(self.request.POST)
             data['dimensions'] = dimension_formset(self.request.POST)
+            data['inscriptions'] = inscription_formset(self.request.POST)
             data['other_numbers'] = number_formset(self.request.POST)
         else:
-            data['inscriptions'] = inscription_formset()
             data['dimensions'] = dimension_formset()
+            data['inscriptions'] = inscription_formset()
             data['other_numbers'] = number_formset()
         return data
 
     def form_valid(self, form):
         context = self.get_context_data()
-        inscription = context['inscriptions']
         dimension = context['dimensions']
+        inscription = context['inscriptions']
         other_number = context['other_numbers']
 
         with transaction.atomic():
@@ -83,13 +83,13 @@ class CreateRegister(CreateView):
 
             AccessionNumber.generate(self.object.work_id)
 
-            if inscription.is_valid():
-                inscription.instance = self.object
-                inscription.save()
-
             if dimension.is_valid():
                 dimension.instance = self.object
                 dimension.save()
+
+            if inscription.is_valid():
+                inscription.instance = self.object
+                inscription.save()
 
             if other_number.is_valid():
                 other_number.instance = self.object

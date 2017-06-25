@@ -59,14 +59,12 @@ class InstanceForm(ModelForm):
         model = WorkInstance
         fields = ['physical_description', 'colour', 'technical_attribute', 'description_display']
 
-class DimensionEntry(ModelForm):
-    dimension_value_qualifier = forms.BooleanField(label='Approximate')
-    dimension_deprecated = forms.BooleanField(label='Deprecated')
+class DimensionForm(ModelForm):
     class Meta:
         model = Dimension
         fields = ['dimension_part', 'dimension_type', 'dimension_value', 'dimension_value_qualifier', 'dimension_deprecated']
 
-dimension_formset = inlineformset_factory(ObjectRegister, Dimension, form=DimensionEntry, extra=4)
+dimension_formset = inlineformset_factory(ObjectRegister, Dimension, form=DimensionForm, extra=4)
 
 
 ###########################################################
